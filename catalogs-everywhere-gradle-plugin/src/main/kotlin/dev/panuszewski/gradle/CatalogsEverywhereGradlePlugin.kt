@@ -30,7 +30,11 @@ class CatalogsEverywhereGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun getCompilerPluginId(): String = "dev.panuszewski.catalogs-everywhere"
 
     override fun getPluginArtifact(): SubpluginArtifact =
-        SubpluginArtifact(groupId = "dev.panuszewski", artifactId = "catalogs-everywhere-kotlin-plugin")
+        SubpluginArtifact(
+            groupId = "dev.panuszewski",
+            artifactId = "catalogs-everywhere-kotlin-plugin",
+            version = "1.0-SNAPSHOT"
+        )
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = true
 
@@ -64,6 +68,8 @@ class CatalogsEverywhereGradlePlugin : KotlinCompilerPluginSupportPlugin {
             
             val Project.libs: LibrariesForLibs
                 get() {
+                    apply(mapOf("plugin" to "version-catalog"))
+                
                     var versionCatalogBuilder: VersionCatalogBuilderInternal? = null
                     configure<CatalogPluginExtension> {
                         versionCatalog {
