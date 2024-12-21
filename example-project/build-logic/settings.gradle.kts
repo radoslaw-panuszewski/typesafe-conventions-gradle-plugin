@@ -1,7 +1,0 @@
-pluginManagement {
-    includeBuild("../..")
-}
-
-dependencyResolutionManagement {
-    includeBuild("../..")
-}

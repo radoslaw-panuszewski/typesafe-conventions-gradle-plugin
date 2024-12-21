@@ -9,8 +9,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/catalogs-everywhere-gradle-plugin" />
-            <option value="$PROJECT_DIR$/catalogs-everywhere-kotlin-plugin" />
           </set>
         </option>
       </GradleProjectSettings>

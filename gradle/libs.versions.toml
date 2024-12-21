@@ -1,0 +1,8 @@
+[versions]
+axion-release = "1.18.16"
+
+[plugins]
+axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }
+
+[libraries]
+kotlin-gradle-plugin-api = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api" }

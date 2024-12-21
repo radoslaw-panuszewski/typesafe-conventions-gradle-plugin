@@ -1,49 +1,31 @@
 package dev.panuszewski.gradle
 
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.catalog.LibrariesSourceGenerator
 import org.gradle.api.plugins.catalog.CatalogPluginExtension
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.support.serviceOf
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
-import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
-import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import java.io.StringWriter
 
-class CatalogsEverywhereGradlePlugin : KotlinCompilerPluginSupportPlugin {
+class TypesafeConventionsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.apply(plugin = "org.gradle.version-catalog")
         project.configure()
     }
 
-    override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
-        return kotlinCompilation.target.project.provider { emptyList() }
-    }
-
-    override fun getCompilerPluginId(): String = "dev.panuszewski.catalogs-everywhere"
-
-    override fun getPluginArtifact(): SubpluginArtifact =
-        SubpluginArtifact(
-            groupId = "dev.panuszewski",
-            artifactId = "catalogs-everywhere-kotlin-plugin",
-            version = "1.0-SNAPSHOT"
-        )
-
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>) = true
-
     private fun Project.configure() {
+        apply(plugin = "org.gradle.version-catalog")
+
         var versionCatalogBuilder: VersionCatalogBuilderInternal? = null
         configure<CatalogPluginExtension> {
             versionCatalog {
-                it.from(files("../gradle/libs.versions.toml"))
-                versionCatalogBuilder = it as VersionCatalogBuilderInternal
+                from(files("../../gradle/libs.versions.toml"))
+                versionCatalogBuilder = this as VersionCatalogBuilderInternal
             }
         }
         val model = versionCatalogBuilder?.build()!!
@@ -66,7 +48,7 @@ class CatalogsEverywhereGradlePlugin : KotlinCompilerPluginSupportPlugin {
             import org.gradle.kotlin.dsl.configure
             import org.gradle.kotlin.dsl.newInstance
             
-            val Project.libs: LibrariesForLibs
+            internal val Project.libs: LibrariesForLibs
                 get() {
                     apply(mapOf("plugin" to "version-catalog"))
                 
@@ -85,13 +67,13 @@ class CatalogsEverywhereGradlePlugin : KotlinCompilerPluginSupportPlugin {
 
         configure<SourceSetContainer> {
             named("main") {
-                it.java.srcDir("build/generated/typesafe/main/java")
+                java.srcDir("build/generated/typesafe/main/java")
             }
         }
 
         configure<KotlinSourceSetContainer> {
             sourceSets.named("main") {
-                it.kotlin.srcDir("build/generated/typesafe/main/kotlin")
+                kotlin.srcDir("build/generated/typesafe/main/kotlin")
             }
         }
     }
