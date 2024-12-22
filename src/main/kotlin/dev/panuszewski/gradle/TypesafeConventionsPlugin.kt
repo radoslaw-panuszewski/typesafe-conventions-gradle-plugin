@@ -4,7 +4,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.catalog.LibrariesSourceGenerator
-import org.gradle.api.internal.catalog.parser.TomlCatalogFileParser
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.configure
@@ -19,18 +18,10 @@ class TypesafeConventionsPlugin : Plugin<Project> {
     }
 
     private fun Project.configure() {
-        val versionCatalogs = (gradle as GradleInternal).settings
+        val versionCatalogBuilder = (gradle as GradleInternal).settings
             .dependencyResolutionManagement
-            .versionCatalogs
-
-        val versionCatalogName = "typesafeConventionsInternalCatalog"
-
-        val versionCatalogBuilder = versionCatalogs.findByName(versionCatalogName)
-            ?: run {
-                val builder = versionCatalogs.create(versionCatalogName)
-                TomlCatalogFileParser.parse(rootProject.file("../gradle/libs.versions.toml").toPath(), builder, serviceOf())
-                builder
-            }
+            .dependenciesModelBuilders
+            .get(0)
 
         val model = (versionCatalogBuilder as VersionCatalogBuilderInternal).build()
 
@@ -55,18 +46,10 @@ class TypesafeConventionsPlugin : Plugin<Project> {
             
             internal val Project.libs: LibrariesForLibs
                 get() {
-                    val versionCatalogs = (gradle as GradleInternal).settings
+                    val versionCatalogBuilder = (gradle as GradleInternal).settings
                         .dependencyResolutionManagement
-                        .versionCatalogs
-                    
-                    val versionCatalogName = "typesafeConventionsInternalCatalog"
-                    
-                    val versionCatalogBuilder = versionCatalogs.findByName(versionCatalogName)
-                        ?: run {
-                            val builder = versionCatalogs.create(versionCatalogName)
-                            TomlCatalogFileParser.parse(rootProject.file("gradle/libs.versions.toml").toPath(), builder, serviceOf())
-                            builder
-                        }
+                        .dependenciesModelBuilders
+                        .get(0)
             
                     val model = (versionCatalogBuilder as VersionCatalogBuilderInternal).build()
                     return objects.newInstance(LibrariesForLibs::class, model)
