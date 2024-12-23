@@ -8,13 +8,14 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.support.serviceOf
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetContainer
 import java.io.StringWriter
 
 class TypesafeConventionsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.configure()
+        project.plugins.withId("org.jetbrains.kotlin.jvm") {
+            project.configure()
+        }
     }
 
     private fun Project.configure() {
@@ -32,7 +33,7 @@ class TypesafeConventionsPlugin : Plugin<Project> {
         LibrariesSourceGenerator.generateSource(writer, model, "org.gradle.accessors.dm", "LibrariesForLibs", serviceOf())
         file.writeText(writer.toString())
 
-        val libsFile = file("build/generated/typesafe/main/kotlin/Libs.kt")
+        val libsFile = file("build/generated/typesafe/main/java/Libs.kt")
         libsFile.parentFile.mkdirs()
         libsFile.createNewFile()
         libsFile.writeText("""
@@ -59,12 +60,6 @@ class TypesafeConventionsPlugin : Plugin<Project> {
         configure<SourceSetContainer> {
             named("main") {
                 java.srcDir("build/generated/typesafe/main/java")
-            }
-        }
-
-        configure<KotlinSourceSetContainer> {
-            sourceSets.named("main") {
-                kotlin.srcDir("build/generated/typesafe/main/kotlin")
             }
         }
     }
