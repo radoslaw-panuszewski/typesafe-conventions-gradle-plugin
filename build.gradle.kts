@@ -21,7 +21,7 @@ gradlePlugin {
     plugins {
         create("typesafeConventions") {
             id = "dev.panuszewski.typesafe-conventions"
-            implementationClass = "dev.panuszewski.gradle.TypesafeConventionsSettingsPlugin"
+            implementationClass = "dev.panuszewski.gradle.TypesafeConventionsPlugin"
             displayName = "Typesafe Conventions Plugin"
             description = "Gradle plugin providing typesafe accessors for convention plugins"
             tags = listOf("build-logic", "buildSrc")
