@@ -1,7 +1,6 @@
 plugins {
-    `java-gradle-plugin`
-    `maven-publish`
     `kotlin-dsl`
+    `maven-publish`
     alias(libs.plugins.axion.release)
 }
 
@@ -22,19 +21,11 @@ kotlin {
 
 gradlePlugin {
     plugins {
-        create("projectPlugin") {
+        create("typesafeConventions") {
             id = "dev.panuszewski.typesafe-conventions"
-            implementationClass = "dev.panuszewski.gradle.TypesafeConventionsPlugin"
-        }
-        create("settingsPlugin") {
-            id = "dev.panuszewski.typesafe-conventions-settings"
             implementationClass = "dev.panuszewski.gradle.TypesafeConventionsSettingsPlugin"
         }
     }
-}
-
-dependencies {
-    compileOnly(gradleKotlinDsl())
 }
 
 tasks {
