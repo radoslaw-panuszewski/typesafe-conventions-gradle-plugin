@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    `maven-publish`
+    alias(libs.plugins.plugin.publish)
     alias(libs.plugins.axion.release)
 }
 
@@ -11,25 +11,26 @@ scmVersion {
 group = "dev.panuszewski"
 version = scmVersion.version
 
-java {
-    withSourcesJar()
-}
-
 kotlin {
     jvmToolchain(17)
 }
 
 gradlePlugin {
+    website = "https://github.com/radoslaw-panuszewski/gradle-typesafe-conventions-plugin"
+
     plugins {
         create("typesafeConventions") {
             id = "dev.panuszewski.typesafe-conventions"
             implementationClass = "dev.panuszewski.gradle.TypesafeConventionsSettingsPlugin"
+            displayName = "Typesafe Conventions Plugin"
+            description = "Gradle plugin providing typesafe accessors for convention plugins"
+            tags = listOf("build-logic", "buildSrc")
         }
     }
 }
 
 tasks {
-    test {
+    withType<Test>().configureEach {
         useJUnitPlatform()
     }
 }

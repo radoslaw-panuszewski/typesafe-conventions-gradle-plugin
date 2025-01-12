@@ -1,7 +1,9 @@
 [versions]
 axion-release = "1.18.16"
+plugin-publish = "1.3.0"
 
 [plugins]
+plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }
 
 [libraries]
