@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package dev.panuszewski.gradle
 
 import org.gradle.api.Plugin
@@ -26,40 +28,21 @@ class TypesafeConventionsPlugin : Plugin<Project> {
 
         val model = (versionCatalogBuilder as VersionCatalogBuilderInternal).build()
 
-        val file = file("build/generated/typesafe/main/java/org/gradle/accessors/dm/LibrariesForLibs.java")
+        val file = file("build/generated-sources/typesafe-conventions/kotlin/org/gradle/accessors/dm/LibrariesForLibs.java")
         file.parentFile.mkdirs()
         file.createNewFile()
         val writer = StringWriter()
         LibrariesSourceGenerator.generateSource(writer, model, "org.gradle.accessors.dm", "LibrariesForLibs", serviceOf())
         file.writeText(writer.toString())
 
-        val libsFile = file("build/generated/typesafe/main/java/Libs.kt")
+        val libsFile = file("build/generated-sources/typesafe-conventions/kotlin/Libs.kt")
         libsFile.parentFile.mkdirs()
         libsFile.createNewFile()
-        libsFile.writeText("""
-            import org.gradle.accessors.dm.LibrariesForLibs
-            import org.gradle.api.Project
-            import org.gradle.api.internal.GradleInternal
-            import org.gradle.api.internal.catalog.parser.TomlCatalogFileParser
-            import org.gradle.internal.management.VersionCatalogBuilderInternal
-            import org.gradle.kotlin.dsl.newInstance
-            import org.gradle.kotlin.dsl.support.serviceOf
-            
-            internal val Project.libs: LibrariesForLibs
-                get() {
-                    val versionCatalogBuilder = (gradle as GradleInternal).settings
-                        .dependencyResolutionManagement
-                        .dependenciesModelBuilders
-                        .get(0)
-            
-                    val model = (versionCatalogBuilder as VersionCatalogBuilderInternal).build()
-                    return objects.newInstance(LibrariesForLibs::class, model)
-                }
-        """.trimIndent())
+        libsFile.writeText(TypesafeConventionsPlugin::class.java.getResourceAsStream("/Libs.kt").bufferedReader().readText())
 
         configure<SourceSetContainer> {
             named("main") {
-                java.srcDir("build/generated/typesafe/main/java")
+                java.srcDir("build/generated-sources/typesafe-conventions/kotlin")
             }
         }
     }
