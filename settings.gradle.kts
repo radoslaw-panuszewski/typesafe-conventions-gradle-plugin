@@ -4,4 +4,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "typesafe-conventions"
+rootProject.name = "typesafe-conventions-plugin"
