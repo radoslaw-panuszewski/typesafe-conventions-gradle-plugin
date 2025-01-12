@@ -7,17 +7,22 @@ import org.gradle.kotlin.dsl.apply
 class TypesafeConventionsSettingsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
+        createSymlinkForGradleDir(settings)
+        applyPluginToAllProjects(settings)
+    }
+
+    private fun createSymlinkForGradleDir(settings: Settings) {
         ProcessBuilder()
             .command("ln", "-s", "../gradle", "gradle")
             .directory(settings.rootDir)
             .start()
             .waitFor()
+    }
 
+    private fun applyPluginToAllProjects(settings: Settings) {
         settings.gradle.rootProject {
             allprojects {
-                afterEvaluate {
-                    apply(plugin = "dev.panuszewski.typesafe-conventions")
-                }
+                apply(plugin = "dev.panuszewski.typesafe-conventions")
             }
         }
     }

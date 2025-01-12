@@ -2,9 +2,12 @@
 
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.util.createNewFile
+import dev.panuszewski.gradle.util.readResourceAsString
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.GradleInternal
+import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.api.internal.catalog.LibrariesSourceGenerator
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.management.VersionCatalogBuilderInternal
@@ -21,29 +24,47 @@ class TypesafeConventionsPlugin : Plugin<Project> {
     }
 
     private fun Project.configure() {
+        generateCatalogEntrypoint()
+        generateCatalogAccessors()
+        registerSourceSet()
+    }
+
+    private fun Project.generateCatalogEntrypoint() {
+        val source = readResourceAsString("/Libs.kt")
+        val file = createNewFile("$GENERATED_SOURCES_DIR/Libs.kt")
+        file.writeText(source)
+    }
+
+    private fun Project.generateCatalogAccessors() {
+        val model = buildVersionCatalogModel()
+        val source = generateCatalogAccessorsSource(model)
+        val file = createNewFile("$GENERATED_SOURCES_DIR/org/gradle/accessors/dm/LibrariesForLibs.java")
+        file.writeText(source)
+    }
+
+    private fun Project.buildVersionCatalogModel(): DefaultVersionCatalog {
         val versionCatalogBuilder = (gradle as GradleInternal).settings
             .dependencyResolutionManagement
             .dependenciesModelBuilders
             .get(0)
+        return (versionCatalogBuilder as VersionCatalogBuilderInternal).build()
+    }
 
-        val model = (versionCatalogBuilder as VersionCatalogBuilderInternal).build()
-
-        val file = file("build/generated-sources/typesafe-conventions/kotlin/org/gradle/accessors/dm/LibrariesForLibs.java")
-        file.parentFile.mkdirs()
-        file.createNewFile()
+    private fun Project.generateCatalogAccessorsSource(model: DefaultVersionCatalog): String {
         val writer = StringWriter()
         LibrariesSourceGenerator.generateSource(writer, model, "org.gradle.accessors.dm", "LibrariesForLibs", serviceOf())
-        file.writeText(writer.toString())
+        return writer.toString()
+    }
 
-        val libsFile = file("build/generated-sources/typesafe-conventions/kotlin/Libs.kt")
-        libsFile.parentFile.mkdirs()
-        libsFile.createNewFile()
-        libsFile.writeText(TypesafeConventionsPlugin::class.java.getResourceAsStream("/Libs.kt").bufferedReader().readText())
-
+    private fun Project.registerSourceSet() {
         configure<SourceSetContainer> {
             named("main") {
-                java.srcDir("build/generated-sources/typesafe-conventions/kotlin")
+                java.srcDir(GENERATED_SOURCES_DIR)
             }
         }
+    }
+
+    companion object {
+        private const val GENERATED_SOURCES_DIR = "build/generated-sources/typesafe-conventions/kotlin"
     }
 }
