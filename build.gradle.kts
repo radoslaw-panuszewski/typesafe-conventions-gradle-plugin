@@ -33,4 +33,8 @@ tasks {
     withType<Test>().configureEach {
         useJUnitPlatform()
     }
+
+    publishPlugins {
+        notCompatibleWithConfigurationCache("Uses Task.project at execution time")
+    }
 }
