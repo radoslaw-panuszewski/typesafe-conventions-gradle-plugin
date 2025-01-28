@@ -9,6 +9,9 @@ According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_buil
 * the buildscript of included build (e.g `buildSrc/build.gradle.kts`) doesn't have access to the version catalog of the main build
 * there is no built-in way to convert plugin ID (like `org.jetbrains.kotlin.jvm`) to plugin dependency (like `org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10`)
 
+> [!NOTE]
+> If Gradle fixes some of the issues mentioned above, the respective features will be removed from `typesafe-conventions`. Ideally, all the features will be removed, and this plugin will not be needed anymore ;) In that case, this README will point to Gradle docs with the replacements.
+
 ## Quickstart
 
 ### Prerequisites
@@ -34,7 +37,7 @@ Your project structure should be similar to the following:
 ```bash
 .
 ├── gradle/
-│   └── libs.versions.toml   # assuming here you define 'kotlin-jvm' plugin and 'kotlin-stdlib' library
+│   └── libs.versions.toml   # define 'kotlin-jvm' plugin and 'kotlin-stdlib' library here
 ├── settings.gradle.kts
 ├── build.gradle.kts
 ├── ...
@@ -81,7 +84,7 @@ After applying `typesafe-conventions`, you don't need the above configuration - 
 
 ### Converting plugin ID to plugin dependency in `buildSrc` buildscript
 
-In plain Gradle, you need to manually build the coordinates of plugin's marker artifact:
+In plain Gradle, you need to manually make up the coordinates of plugin's marker artifact:
 ```kotlin
 dependencies {
     val plugin = libs.plugins.kotlin.jvm.get()
