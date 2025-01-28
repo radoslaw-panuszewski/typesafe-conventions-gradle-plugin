@@ -4,4 +4,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "typesafe-conventions-plugin"
+rootProject.name = "typesafe-conventions-gradle-plugin"
