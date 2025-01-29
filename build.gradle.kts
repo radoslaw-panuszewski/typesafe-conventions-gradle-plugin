@@ -16,8 +16,8 @@ kotlin {
 }
 
 gradlePlugin {
-    website = "https://github.com/radoslaw-panuszewski/gradle-typesafe-conventions-plugin"
-    vcsUrl = "https://github.com/radoslaw-panuszewski/gradle-typesafe-conventions-plugin"
+    website = "https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin"
+    vcsUrl = "https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin"
 
     plugins {
         create("typesafeConventions") {
