@@ -13,6 +13,7 @@ version = scmVersion.version
 
 kotlin {
     jvmToolchain(17)
+    explicitApi()
 }
 
 gradlePlugin {
