@@ -2,7 +2,7 @@ package dev.panuszewski.gradle.util
 
 import dev.panuszewski.gradle.VersionCatalogAccessorsPlugin
 
-fun readResourceAsString(name: String): String =
+internal fun readResourceAsString(name: String): String =
     VersionCatalogAccessorsPlugin::class.java.getResourceAsStream(name)
         ?.bufferedReader()
         ?.readText()

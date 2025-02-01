@@ -7,7 +7,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.support.serviceOf
 
-@Suppress("unused") // used in build.gradle.kts
+@Suppress("unused") // used as plugin implementation class
 internal class TypesafeConventionsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
