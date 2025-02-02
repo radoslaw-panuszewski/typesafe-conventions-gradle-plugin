@@ -1,6 +1,6 @@
 # Typesafe Conventions Gradle Plugin
 
-![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/dev.panuszewski.typesafe-conventions?style=flat)
+[![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/dev.panuszewski.typesafe-conventions?style=flat)](https://plugins.gradle.org/plugin/dev.panuszewski.typesafe-conventions)
 
 A plugin that will make your convention plugins looking almost like regular `build.gradle.kts` buildscripts!
 
