@@ -31,9 +31,22 @@ gradlePlugin {
     }
 }
 
+dependencies {
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.bundles.junit)
+}
+
 tasks {
-    withType<Test>().configureEach {
+    test {
         useJUnitPlatform()
+        dependsOn(publishToMavenLocal)
+
+        environment["PROJECT_VERSION"] = project.version
+
+        environment["GRADLE_VERSION_TO_TEST"] = findProperty("gradleVersionToTest")
+            ?: findProperty("gVTT")
+            ?: System.getenv("GRADLE_VERSION_TO_TEST")
+            ?: gradle.gradleVersion
     }
 
     publishPlugins {
