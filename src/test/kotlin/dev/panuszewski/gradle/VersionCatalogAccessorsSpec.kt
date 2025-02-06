@@ -12,9 +12,9 @@ import org.junit.jupiter.params.provider.MethodSource
 class VersionCatalogAccessorsSpec : BaseGradleSpec() {
 
     @ParameterizedTest
-    @MethodSource("buildLogicOrBuildSrcParameters")
+    @MethodSource("includedBuildConfigurators")
     fun `should allow to use version catalog accessors in convention plugin`(
-        buildLogicOrBuildSrc: IncludedBuildConfigurator
+        includedBuildForConventionPlugins: IncludedBuildConfigurator
     ) {
         // given
         val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
@@ -38,7 +38,7 @@ class VersionCatalogAccessorsSpec : BaseGradleSpec() {
             """
         }
 
-        buildLogicOrBuildSrc {
+        includedBuildForConventionPlugins {
             buildGradleKts {
                 """
                 plugins {

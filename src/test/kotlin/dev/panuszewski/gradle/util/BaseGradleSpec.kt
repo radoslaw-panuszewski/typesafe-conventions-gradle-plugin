@@ -154,7 +154,7 @@ abstract class BaseGradleSpec {
 
     companion object {
         @JvmStatic
-        fun buildLogicOrBuildSrcParameters(): Stream<Arguments> {
+        fun includedBuildConfigurators(): Stream<Arguments> {
             val notNestedBuildConfigurator: IncludedBuildConfigurator = {
                 includedBuild("../not-nested-build-logic-for-${mainBuild.rootDir.name}", it)
             }
