@@ -16,6 +16,7 @@ According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_buil
 
 ### Prerequisites
 
+* Gradle version is at least 8.4
 * There is `gradle/*.versions.toml` file with version catalog definition
 * There is an included build nested in the main build (we will refer to it as `buildSrc`)
 * At least one project within `buildSrc` has [precompiled script plugins](https://docs.gradle.org/8.12.1/userguide/implementing_gradle_plugins_precompiled.html) enabled (you can do this by applying the `kotlin-dsl` plugin)

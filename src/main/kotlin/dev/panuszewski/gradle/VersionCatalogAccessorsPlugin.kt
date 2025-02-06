@@ -11,7 +11,6 @@ import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.catalog.LibrariesSourceGenerator
 import org.gradle.api.problems.Problems
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.internal.extensions.stdlib.capitalized
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.support.serviceOf
@@ -77,4 +76,6 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
 }
 
 private val VersionCatalogBuilder.capitalizedName: String
-    get() = name.capitalized()
+    get() = name.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase() else it.toString()
+    }
