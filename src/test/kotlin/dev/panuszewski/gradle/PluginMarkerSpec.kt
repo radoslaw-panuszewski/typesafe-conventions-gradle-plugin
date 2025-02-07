@@ -11,9 +11,9 @@ import org.junit.jupiter.params.provider.MethodSource
 class PluginMarkerSpec : BaseGradleSpec() {
 
     @ParameterizedTest
-    @MethodSource("buildLogicOrBuildSrcParameters")
+    @MethodSource("includedBuildConfigurators")
     fun `should provide pluginMarker helper method`(
-        buildLogicOrBuildSrc: IncludedBuildConfigurator
+        includedBuildForConventionPlugins: IncludedBuildConfigurator
     ) {
         // given
         val somePlugin = "pl.allegro.tech.build.axion-release"
@@ -39,7 +39,7 @@ class PluginMarkerSpec : BaseGradleSpec() {
             """
         }
 
-        buildLogicOrBuildSrc {
+        includedBuildForConventionPlugins {
             buildGradleKts {
                 """
                 import dev.panuszewski.gradle.pluginMarker

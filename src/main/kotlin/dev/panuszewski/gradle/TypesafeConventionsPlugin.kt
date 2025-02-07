@@ -1,14 +1,14 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import org.gradle.api.Plugin
+import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
-import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.support.serviceOf
-import java.io.File
 
 @Suppress("unused") // used as plugin implementation class
 internal class TypesafeConventionsPlugin : Plugin<Any> {
@@ -16,6 +16,7 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
     override fun apply(target: Any) {
         val settings = target as? Settings ?: mustBeAppliedToSettings(target)
         val parentBuild = settings.gradle.parent ?: mustBeAppliedToIncludedBuild()
+        require(settings.gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion(settings) }
 
         useVersionCatalogsFromParentBuild(target, parentBuild)
         enableCatalogAccessorsForAllProjects(target)
@@ -50,22 +51,35 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         }
     }
 
-    private fun mustBeAppliedToIncludedBuild(): Nothing {
+    private fun mustBeAppliedToSettings(target: Any): Nothing {
+        val buildFileKind = when(target) {
+            is Project -> "build.gradle.kts"
+            is Gradle -> "init script"
+            else -> target::class.simpleName
+        }
         error(
-            "The typesafe-conventions plugin can only be applied to buildSrc " +
-                "or build-logic included build, but attempted to apply it to top-level build"
+            "The typesafe-conventions plugin must be applied to settings.gradle.kts, " +
+                "but attempted to apply it to $buildFileKind"
         )
     }
 
-    private fun mustBeAppliedToSettings(target: Any): Nothing {
+    private fun mustBeAppliedToIncludedBuild(): Nothing {
         error(
-            "The typesafe-conventions plugin must be applied to Settings, " +
-                "but attempted to apply it to ${target::class.simpleName}"
+            "The typesafe-conventions plugin must be applied to an included build, " +
+                "but attempted to apply it to a top-level build"
+        )
+    }
+
+    private fun mustUseMinimalGradleVersion(settings: Settings): Nothing {
+        error(
+            "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
+                "but currently Gradle ${settings.gradle.gradleVersion} is used."
         )
     }
 
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
+        internal const val MINIMAL_GRADLE_VERSION = "8.4"
     }
 }
 
