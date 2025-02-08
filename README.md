@@ -2,7 +2,14 @@
 
 [![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/dev.panuszewski.typesafe-conventions?style=flat)](https://plugins.gradle.org/plugin/dev.panuszewski.typesafe-conventions)
 
-A plugin that will make your convention plugins looking almost like regular `build.gradle.kts` buildscripts!
+A plugin that will bring type-safety to your convention plugins!
+
+```diff
+dependencies {
+-    implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
++    implementation(libs.kotlin.stdlib)
+}
+```
 
 ## Rationale
 
