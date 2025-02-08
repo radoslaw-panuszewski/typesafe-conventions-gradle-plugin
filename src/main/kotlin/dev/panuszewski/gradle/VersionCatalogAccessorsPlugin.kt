@@ -47,10 +47,10 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
     private fun writeCatalogEntrypoint(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val source = readResourceAsString("/Libs.kt")
+        val source = readResourceAsString("/EntrypointForLibs.kt")
             .replace("libs", catalog.name)
             .replace("Libs", catalog.capitalizedName)
-        val file = project.createNewFile("$GENERATED_SOURCES_DIR/${catalog.capitalizedName}.kt")
+        val file = project.createNewFile("$GENERATED_SOURCES_DIR/EntrypointFor${catalog.capitalizedName}.kt")
         file.writeText(source)
     }
 
