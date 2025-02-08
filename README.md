@@ -32,7 +32,7 @@ Apply `typesafe-conventions` in `buildSrc/settings.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("dev.panuszewski.typesafe-conventions") version "0.3.0"
+    id("dev.panuszewski.typesafe-conventions") version "0.4.0"
 }
 ```
 
