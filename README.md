@@ -113,11 +113,6 @@ dependencies {
 
 As an alternative to `buildSrc`, you can use custom included build (typically named `build-logic`). The `typesafe-conventions` will fit nicely in this kind of setup.
 
-> [!WARNING]
-> Make sure that your included build is nested in the main build!
-> 
-> (for `buildSrc` it's always the case, but for custom included build it's possible to put it anywhere)
-
 As opposed to `buildSrc`, the included build can have multiple subprojects with convention plugins. For example, you can have something like this:
 ```bash
 .
