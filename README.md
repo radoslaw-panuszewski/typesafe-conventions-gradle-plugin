@@ -77,6 +77,27 @@ dependencies {
 }
 ```
 
+#### Named package
+
+If your convention plugins are classes implementing the `org.gradle.api.Plugin` interface, and you have them in a named package (like `buildSrc/src/main/kotlin/com/myapp/gradle`), you need to explicitly import the `libs` extension:
+```diff
+package com.myapp.gradle
+
++import libs
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.dependencies
+
+class MyConventionPlugin : Plugin<Project> {
+
+    override fun apply(project: Project) {
+        project.dependencies {
+            add("implementation", project.libs.kotest.assertions)
+        }
+    }
+}
+```
+
 ### Version catalog in `buildSrc` buildscript
 
 In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`:
