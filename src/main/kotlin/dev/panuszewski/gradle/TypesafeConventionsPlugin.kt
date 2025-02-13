@@ -4,43 +4,63 @@ import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
+import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.support.serviceOf
+import java.io.File
 
 @Suppress("unused") // used as plugin implementation class
 internal class TypesafeConventionsPlugin : Plugin<Any> {
 
     override fun apply(target: Any) {
         val settings = target as? Settings ?: mustBeAppliedToSettings(target)
-        val parentBuild = settings.gradle.parent ?: mustBeAppliedToIncludedBuild()
+        val parentBuild = settings.gradle.parent as? GradleInternal ?: mustBeAppliedToIncludedBuild()
         require(settings.gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion(settings) }
 
         useVersionCatalogsFromParentBuild(target, parentBuild)
         enableCatalogAccessorsForAllProjects(target)
     }
 
-    private fun useVersionCatalogsFromParentBuild(settings: Settings, parentBuild: Gradle) {
-        val parentBuildDir = parentBuild.startParameter.currentDir
-        val parentGradleDir = parentBuildDir.resolve("gradle")
+    private fun useVersionCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
+        val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
+        val tomlFiles = discoverTomlFiles(parentGradleDir)
+        createVersionCatalogs(tomlFiles, settings)
+    }
+
+    private fun resolveParentGradleDir(parentBuild: GradleInternal, settings: Settings): File =
+        try {
+            parentBuild.settings.rootDir.resolve("gradle")
+        } catch (e: Throwable) {
+            settings.rootDir.resolve("..").resolve("gradle")
+        }
+
+    private fun discoverTomlFiles(parentGradleDir: File): List<File> {
+        val tomlFiles = parentGradleDir
+            .walk()
+            .filter { it.name.endsWith(".versions.toml") }
+            .toList()
+
+        if (tomlFiles.isEmpty()) {
+            logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
+        }
+        return tomlFiles
+    }
+
+    private fun createVersionCatalogs(tomlFiles: List<File>, settings: Settings) {
         val fileOperations = settings.serviceOf<FileOperations>()
 
-        parentGradleDir
-            .walk()
-            .map { it.name }
-            .filter { it.endsWith(".versions.toml") }
-            .forEach { tomlFileName ->
-                val catalogName = tomlFileName.substringBefore(".versions.toml")
-                val tomlFileLocation = parentGradleDir.resolve(tomlFileName)
+        tomlFiles.forEach { tomlFile ->
+            val catalogName = tomlFile.name.substringBefore(".versions.toml")
 
-                settings.dependencyResolutionManagement.versionCatalogs {
-                    create(catalogName) {
-                        from(fileOperations.configurableFiles(tomlFileLocation))
-                    }
+            settings.dependencyResolutionManagement.versionCatalogs {
+                create(catalogName) {
+                    from(fileOperations.configurableFiles(tomlFile))
                 }
             }
+        }
     }
 
     private fun enableCatalogAccessorsForAllProjects(target: Settings) {
@@ -52,7 +72,7 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
     }
 
     private fun mustBeAppliedToSettings(target: Any): Nothing {
-        val buildFileKind = when(target) {
+        val buildFileKind = when (target) {
             is Project -> "build.gradle.kts"
             is Gradle -> "init script"
             else -> target::class.simpleName
