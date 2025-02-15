@@ -57,7 +57,7 @@ abstract class BaseGradleSpec {
      * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
      */
     fun subprojectBuildGradleKts(subprojectName: String, content: () -> String) {
-        mainBuild.settingsGradleKts(content)
+        mainBuild.subprojectBuildGradleKts(subprojectName, content)
     }
 
     /**

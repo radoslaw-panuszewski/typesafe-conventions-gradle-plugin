@@ -2,6 +2,7 @@ plugins {
     `kotlin-dsl`
     alias(libs.plugins.plugin.publish)
     alias(libs.plugins.axion.release)
+    alias(libs.plugins.test.logger)
 }
 
 scmVersion {
@@ -29,6 +30,13 @@ gradlePlugin {
             tags = listOf("build-logic", "buildSrc")
         }
     }
+}
+
+testlogger {
+    showStandardStreams = true
+    showPassedStandardStreams = false
+    showSkippedStandardStreams = false
+    showFailedStandardStreams = true
 }
 
 dependencies {
