@@ -5,25 +5,24 @@ import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.IncludedBuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-class PluginMarkerSpec : BaseGradleSpec() {
+class ConventionPluginsSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should provide pluginMarker helper method`(
+    fun `should allow to use catalog accessors in convention plugin`(
         includedBuildForConventionPlugins: IncludedBuildConfigurator
     ) {
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
-        val taskRegisteredBySomePlugin = "verifyRelease"
+        val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
         customProjectFile("gradle/libs.versions.toml") {
             """
-            [plugins]
-            some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+            [libraries]
+            some-library = "$someLibrary"
             """
         }
 
@@ -42,18 +41,12 @@ class PluginMarkerSpec : BaseGradleSpec() {
         includedBuildForConventionPlugins {
             buildGradleKts {
                 """
-                import dev.panuszewski.gradle.pluginMarker
-                    
                 plugins {
                     `kotlin-dsl`
                 } 
                 
                 repositories {
                     mavenCentral()
-                }
-                
-                dependencies {
-                    implementation(pluginMarker(libs.plugins.some.plugin))
                 }
                 """
             }
@@ -76,17 +69,22 @@ class PluginMarkerSpec : BaseGradleSpec() {
             customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
                 """
                 plugins {
-                    id("$somePlugin")
+                    java
+                }
+                
+                dependencies {
+                    implementation(libs.some.library)
                 }
                 """
             }
         }
 
         // when
-        val result = runGradle("tasks")
+        val result = runGradle("dependencyInsight", "--dependency", someLibrary)
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain taskRegisteredBySomePlugin
+        result.output shouldContain someLibrary
+        result.output shouldNotContain "$someLibrary FAILED"
     }
 }
