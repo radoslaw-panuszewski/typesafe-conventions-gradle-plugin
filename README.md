@@ -125,6 +125,8 @@ dependencies {
 
 After applying `typesafe-conventions`, you can use `pluginMarker` helper method:
 ```kotlin
+import dev.panuszewski.gradle.pluginMarker
+
 dependencies {
     implementation(pluginMarker(libs.plugins.kotlin.jvm))
 }
