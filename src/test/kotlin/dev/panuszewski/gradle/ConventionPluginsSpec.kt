@@ -87,4 +87,78 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         result.output shouldContain someLibrary
         result.output shouldNotContain "$someLibrary FAILED"
     }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should allow to use catalog accessors in plugins block of convention plugin`(
+        includedBuildForConventionPlugins: IncludedBuildConfigurator
+    ) {
+        // given
+        val somePlugin = "pl.allegro.tech.build.axion-release"
+        val somePluginVersion = "1.18.16"
+        val taskRegisteredBySomePlugin = "verifyRelease"
+
+        customProjectFile("gradle/libs.versions.toml") {
+            """
+            [plugins]
+            some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+            """
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                id("some-convention")
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
+
+        includedBuildForConventionPlugins {
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+
+            settingsGradleKts {
+                """
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        mavenLocal()
+                    }
+                }
+                    
+                plugins {
+                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+                """
+                plugins {
+                    alias(libs.plugins.some.plugin)
+                }
+                """
+            }
+        }
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain taskRegisteredBySomePlugin
+    }
 }

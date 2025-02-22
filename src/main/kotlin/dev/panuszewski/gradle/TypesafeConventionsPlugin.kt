@@ -1,5 +1,6 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -66,7 +67,7 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
     private fun enableCatalogAccessorsForAllProjects(target: Settings) {
         target.gradle.rootProject {
             allprojects {
-                apply<VersionCatalogAccessorsPlugin>()
+                apply<CatalogAccessorsPlugin>()
             }
         }
     }
