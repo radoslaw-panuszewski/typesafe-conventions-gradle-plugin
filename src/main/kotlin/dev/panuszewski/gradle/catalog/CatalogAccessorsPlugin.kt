@@ -2,9 +2,10 @@
 
 package dev.panuszewski.gradle.catalog
 
+import dev.panuszewski.gradle.util.typesafeConventions
+import dev.panuszewski.gradle.util.settings
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.GradleInternal
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.configure
@@ -19,7 +20,10 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
 
             for (catalog in versionCatalogs) {
                 LibraryCatalogAccessorsSupport.apply(project, catalog)
-                PluginCatalogAccessorsSupport.apply(project, catalog)
+
+                if (project.typesafeConventions.accessorsInPluginsBlock.get()) {
+                    PluginCatalogAccessorsSupport.apply(project, catalog)
+                }
             }
         }
     }
@@ -33,8 +37,7 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
     }
 
     private fun declaredVersionCatalogs(project: Project): List<VersionCatalogBuilderInternal> =
-        (project.gradle as GradleInternal)
-            .settings
+        project.settings
             .dependencyResolutionManagement
             .dependenciesModelBuilders
             .filterIsInstance<VersionCatalogBuilderInternal>()

@@ -10,6 +10,7 @@ import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.apply
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.support.serviceOf
 import java.io.File
 
@@ -21,8 +22,13 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         val parentBuild = settings.gradle.parent as? GradleInternal ?: mustBeAppliedToIncludedBuild()
         require(settings.gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion(settings) }
 
-        useVersionCatalogsFromParentBuild(target, parentBuild)
-        enableCatalogAccessorsForAllProjects(target)
+        registerExtension(settings)
+        useVersionCatalogsFromParentBuild(settings, parentBuild)
+        enableCatalogAccessorsForAllProjects(settings)
+    }
+
+    private fun registerExtension(settings: Settings) {
+        settings.extensions.create<TypesafeConventionsExtension>("typesafeConventions")
     }
 
     private fun useVersionCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
