@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.IncludedBuildConfigurator
 import io.kotest.matchers.shouldBe
@@ -160,5 +161,159 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain taskRegisteredBySomePlugin
+    }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should respect disabling accessors in plugins block`(
+        includedBuildForConventionPlugins: IncludedBuildConfigurator
+    ) {
+        // given
+        val somePlugin = "pl.allegro.tech.build.axion-release"
+        val somePluginVersion = "1.18.16"
+
+        customProjectFile("gradle/libs.versions.toml") {
+            """
+            [plugins]
+            some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+            """
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                id("some-convention")
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
+
+        includedBuildForConventionPlugins {
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+
+            settingsGradleKts {
+                """
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        mavenLocal()
+                    }
+                }
+                    
+                plugins {
+                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                }
+                
+                typesafeConventions {
+                    accessorsInPluginsBlock = false
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+                """
+                plugins {
+                    alias(libs.plugins.some.plugin)
+                }
+                """
+            }
+        }
+
+        // when
+        val result = runGradle("help")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain "Unresolved reference: libs"
+    }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should respect disabling auto plugin dependencies`(
+        includedBuildForConventionPlugins: IncludedBuildConfigurator
+    ) {
+        // given
+        val somePlugin = "pl.allegro.tech.build.axion-release"
+        val somePluginVersion = "1.18.16"
+
+        customProjectFile("gradle/libs.versions.toml") {
+            """
+            [plugins]
+            some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+            """
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                id("some-convention")
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
+
+        includedBuildForConventionPlugins {
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+
+            settingsGradleKts {
+                """
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        mavenLocal()
+                    }
+                }
+                    
+                plugins {
+                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                }
+                
+                typesafeConventions {
+                    autoPluginDependencies = false
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+                """
+                plugins {
+                    alias(libs.plugins.some.plugin)
+                }
+                """
+            }
+        }
+
+        // when
+        val result = runGradle("help")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain "Plugin [id: '$somePlugin'] was not found in any of the following sources"
     }
 }

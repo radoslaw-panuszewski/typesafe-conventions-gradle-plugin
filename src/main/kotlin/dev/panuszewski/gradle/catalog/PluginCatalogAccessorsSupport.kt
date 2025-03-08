@@ -4,6 +4,7 @@ import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin.Companion.GENERATED
 import dev.panuszewski.gradle.util.capitalizedName
 import dev.panuszewski.gradle.util.createNewFile
 import dev.panuszewski.gradle.util.readResourceAsString
+import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Project
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.internal.management.VersionCatalogBuilderInternal
@@ -16,21 +17,14 @@ internal object PluginCatalogAccessorsSupport {
     private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(libs\.plugins\.(.+)\).*""".toRegex()
 
     fun apply(project: Project, catalog: VersionCatalogBuilderInternal) {
-        writeCatalogEntrypointForPluginBlock(project, catalog)
-
         val pluginDeclarations = collectPluginDeclarations(project, catalog)
-        addPluginMarkerDependencies(project, pluginDeclarations)
+
+        writeCatalogEntrypointForPluginBlock(project, catalog)
         patchPluginsBlocksBeforeCompilation(project, pluginDeclarations)
-    }
 
-    private fun writeCatalogEntrypointForPluginBlock(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val source = readResourceAsString("/EntrypointForLibsInPluginsBlock.kt")
-            .replace("libs", catalog.name)
-            .replace("Libs", catalog.capitalizedName)
-
-        val file = project.createNewFile("$GENERATED_SOURCES_DIR/EntrypointFor${catalog.capitalizedName}InPluginsBlock.kt")
-
-        file.writeText(source)
+        if (project.typesafeConventions.autoPluginDependencies.get()) {
+            addPluginMarkerDependencies(project, pluginDeclarations)
+        }
     }
 
     private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogBuilderInternal): List<PluginDeclaration> {
@@ -61,10 +55,14 @@ internal object PluginCatalogAccessorsSupport {
         return null
     }
 
-    private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: List<PluginDeclaration>) {
-        pluginDeclarations.forEach {
-            project.dependencies.add("implementation", it.pluginMarker)
-        }
+    private fun writeCatalogEntrypointForPluginBlock(project: Project, catalog: VersionCatalogBuilderInternal) {
+        val source = readResourceAsString("/EntrypointForLibsInPluginsBlock.kt")
+            .replace("libs", catalog.name)
+            .replace("Libs", catalog.capitalizedName)
+
+        val file = project.createNewFile("$GENERATED_SOURCES_DIR/EntrypointFor${catalog.capitalizedName}InPluginsBlock.kt")
+
+        file.writeText(source)
     }
 
     private fun patchPluginsBlocksBeforeCompilation(project: Project, pluginDeclarations: List<PluginDeclaration>) {
@@ -91,6 +89,12 @@ internal object PluginCatalogAccessorsSupport {
         }
 
         pluginsBlockFile.writeText(content)
+    }
+
+    private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: List<PluginDeclaration>) {
+        pluginDeclarations.forEach {
+            project.dependencies.add("implementation", it.pluginMarker)
+        }
     }
 }
 
