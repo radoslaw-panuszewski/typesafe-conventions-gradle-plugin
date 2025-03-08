@@ -26,7 +26,7 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
     /**
      * (enabled by default)
      *
-     * Enable or disable auto dependencies for every `alias(...)` plugin declaration in a convention plugin.
+     * Enable or disable auto dependency for every `alias(...)` plugin declaration in a convention plugin.
      *
      * Given the plugin declaration in convention plugin:
      * ```kotlin
