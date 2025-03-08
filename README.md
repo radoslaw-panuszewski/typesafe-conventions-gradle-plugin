@@ -5,13 +5,18 @@
 A plugin that will bring type-safety to your convention plugins!
 
 ```diff
+plugins {
+-    id("org.jetbrains.kotlin.jvm")
++    alias(libs.plugins.kotlin.jvm)
+}
+
 dependencies {
 -    implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
 +    implementation(libs.kotlin.stdlib)
 }
 ```
 
-## Rationale
+# Rationale
 
 According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_build_logic_between_subprojects.html), it is recommended to place convention plugins inside the included build or `buildSrc` (which is also treated as an included build). In the ideal world, we would just copy the contents of our `build.gradle.kts` and put it inside `buildSrc/src/some-convention.gradle.kts` to be reused between subprojects. However, there are some serious limitations:
 * the convention plugin can't use version catalog typesafe accessors (like `libs.kotlin.stdlib`)
@@ -21,7 +26,7 @@ According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_buil
 > [!NOTE]
 > If Gradle fixes some of the issues mentioned above, the respective features will be removed from `typesafe-conventions`. Ideally, all the features will be removed, and this plugin will not be needed anymore ;) In that case, this README will point to Gradle docs with the replacements.
 
-## Quickstart
+# Quickstart
 
 ### Prerequisites
 
@@ -39,7 +44,7 @@ Apply `typesafe-conventions` in `buildSrc/settings.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("dev.panuszewski.typesafe-conventions") version "0.4.1"
+    id("dev.panuszewski.typesafe-conventions") version "0.5.0"
 }
 ```
 
@@ -60,9 +65,34 @@ Your project structure should be similar to the following:
                 └── some-convention.gradle.kts  # you can use 'libs.kotlin.stdlib' here! 🚀
 ```
 
-## Features
+### Configuration
 
-### Version catalog in convention plugins
+The following snippet presents all possible configuration options with their default values:
+```kotlin
+typesafeConventions {
+    // enable or disable support for version catalog typesafe accessors in plugins block of a convention plugin
+    accessorsInPluginsBlock = true
+
+    // enable or disable auto dependency for every alias(...) plugin declaration in a convention plugin
+    // set it to 'false' if you prefer to add plugin marker dependencies manually (you can use the pluginMarker helper method for that) 
+    autoPluginDependencies = true
+}
+```
+
+# Features
+
+## Version catalog in convention plugins
+
+### ⏩ TL;DR
+
+```diff
+dependencies {
+-    implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
++    implementation(libs.kotlin.stdlib)
+}
+```
+
+### 🔍 Details
 
 In plain Gradle, applying dependency from version catalog in a convention plugin would look like this:
 ```kotlin
@@ -70,14 +100,15 @@ dependencies {
     implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
 }
 ```
-After applying `typesafe-conventions`, you can benefit from type-safe syntax:
+
+With `typesafe-conventions`, you can benefit from type-safe syntax:
 ```kotlin
 dependencies {
     implementation(libs.kotlin.stdlib)
 }
 ```
 
-#### Named package
+### Named package
 
 If you keep your convention plugins in a named package (for example in `buildSrc/src/main/kotlin/com/myapp/gradle`), you need to explicitly import the `libs` extension:
 ```diff
@@ -90,32 +121,80 @@ dependencies {
 }
 ```
 
-### Version catalog in `buildSrc` buildscript
+## Version catalog in `plugins {}` block of a convention plugin
 
-In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`:
-```kotlin
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("../gradle/libs.versions.toml"))
-        }
-    }
+### ⏩ TL;DR
+
+buildSrc/src/main/kotlin/some-convention.gradle.kts:
+```diff
+plugins {
+-    id("org.jetbrains.kotlin.jvm")
++    alias(libs.plugins.kotlin.jvm)
 }
 ```
 
-After applying `typesafe-conventions`, you don't need the above configuration - it works out-of-the-box.
+buildSrc/build.gradle.kts:
+```diff
+-dependencies {
+-    implementation(pluginMarker(libs.plugins.kotlin.jvm))
+-}
+-
+-fun pluginMarker(provider: Provider<PluginDependency>): String {
+-    val plugin = provider.get()
+-    return "${plugin.pluginId}:${plugin.pluginId}.gradle.plugin:${plugin.version}"
+-}
+```
 
-### Converting plugin ID to plugin dependency in `buildSrc` buildscript
+### 🔍 Details
 
-In plain Gradle, you need to manually make up the coordinates of plugin's marker artifact:
+Let's assume you have the following plugin declared in your `libs.versions.toml`:
+```toml
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.1.10" }
+```
+
+In plain Gradle, to apply external plugin from your convention plugin, you would need to add it as dependency to your `buildSrc/build.gradle.kts`:
 ```kotlin
 dependencies {
-    val plugin = libs.plugins.kotlin.jvm.get()
-    implementation("${plugin.pluginId}:${plugin.pluginId}.gradle.plugin:${plugin.version}")
+    implementation(pluginMarker(libs.plugins.kotlin.jvm))
+}
+
+/**
+ * This is a custom helper method to convert plugin ID into plugin marker artifact.
+ * Alternatively, you could add a dependency to "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10",
+ * but you need to know the exact coordinates of the plugin artifact (which can be arbitrary).
+ */
+fun pluginMarker(provider: Provider<PluginDependency>): String {
+    val plugin = provider.get()
+    return "${plugin.pluginId}:${plugin.pluginId}.gradle.plugin:${plugin.version}"
 }
 ```
 
-After applying `typesafe-conventions`, you can use `pluginMarker` helper method:
+And then apply it in your convention plugin via `id(...)` syntax:
+```kotlin
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+}
+```
+
+With `typesafe-conventions`, you can just apply the plugin via `alias(...)` syntax in your convention plugin:
+```kotlin
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+}
+```
+
+The plugin dependency will be added automatically to the project that hosts your convention plugin. In our case it's just the root project of `buildSrc`.
+
+### Manual plugin dependencies
+
+If you prefer to add the plugin dependencies manually, you can opt out from the auto dependencies feature in your `buildSrc/settings.gradle.kts`:
+```kotlin
+typesafeConventions {
+    autoPluginDependencies = false
+}
+```
+
+And use the `pluginMarker` helper method in `buildSrc/build.gradle.kts`:
 ```kotlin
 import dev.panuszewski.gradle.pluginMarker
 
@@ -124,7 +203,26 @@ dependencies {
 }
 ```
 
-## Multi-project setup (custom included build)
+## Version catalog in `buildSrc` buildscript
+
+### ⏩ TL;DR
+
+buildSrc/settings.gradle.kts:
+```diff
+-dependencyResolutionManagement {
+-    versionCatalogs {
+-        create("libs") {
+-            from(files("../gradle/libs.versions.toml"))
+-        }
+-    }
+-}
+```
+
+### 🔍 Details
+
+In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration - it works out-of-the-box.
+
+# Multi-project setup (custom included build)
 
 As an alternative to `buildSrc`, you can use custom included build (typically named `build-logic`). The `typesafe-conventions` will fit nicely in this kind of setup.
 
