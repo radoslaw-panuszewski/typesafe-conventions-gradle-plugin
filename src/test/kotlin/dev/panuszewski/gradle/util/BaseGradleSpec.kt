@@ -2,7 +2,6 @@ package dev.panuszewski.gradle.util
 
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
-import org.gradle.internal.declarativedsl.parsing.main
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import java.io.File
+import java.io.StringWriter
 import java.nio.file.Paths
 import java.util.stream.Stream
 
@@ -50,30 +50,22 @@ abstract class BaseGradleSpec {
     /**
      * Set the full content of build.gradle.kts
      */
-    fun buildGradleKts(content: () -> String) {
-        mainBuild.buildGradleKts(content)
+    fun buildGradleKts(configurator: GradleBuildscript.() -> String) {
+        mainBuild.buildGradleKts(configurator)
     }
 
     /**
      * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, content: () -> String) {
-        mainBuild.subprojectBuildGradleKts(subprojectName, content)
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> String) {
+        mainBuild.subprojectBuildGradleKts(subprojectName, configurator)
     }
 
     /**
      * Set the full content of settings.gradle.kts
      */
-    fun settingsGradleKts(content: () -> String) {
-        mainBuild.settingsGradleKts(content)
-    }
-
-    fun appendToSettingsGradleKts(content: () -> String) {
-        mainBuild.appendToSettingsGradleKts(content)
-    }
-
-    fun prependToSettingsGradleKts(content: () -> String) {
-        mainBuild.prependToSettingsGradleKts(content)
+    fun settingsGradleKts(configurator: GradleBuildscript.() -> String) {
+        mainBuild.settingsGradleKts(configurator)
     }
 
     /**
@@ -165,7 +157,7 @@ abstract class BaseGradleSpec {
     companion object {
         @JvmStatic
         fun includedBuildConfigurators(): Stream<Arguments> {
-            val notNestedBuildConfigurator: IncludedBuildConfigurator = {
+            val notNestedBuildConfigurator: BuildConfigurator = {
                 includedBuild("../not-nested-build-logic-for-${mainBuild.rootDir.name}", it)
             }
 
@@ -178,7 +170,7 @@ abstract class BaseGradleSpec {
     }
 }
 
-typealias IncludedBuildConfigurator = BaseGradleSpec.(GradleBuild.() -> Unit) -> Unit
+typealias BuildConfigurator = BaseGradleSpec.(GradleBuild.() -> Unit) -> Unit
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,
@@ -192,3 +184,7 @@ enum class BuildOutcome {
 
 val BuildResult.executedTasks: List<String>
     get() = tasks.map { it.path }
+
+fun GradleRunner.doNotForwardOutput() {
+    forwardStdOutput(StringWriter())
+}

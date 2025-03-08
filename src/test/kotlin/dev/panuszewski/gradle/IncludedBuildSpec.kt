@@ -2,7 +2,7 @@ package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.util.BaseGradleSpec
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.util.IncludedBuildConfigurator
+import dev.panuszewski.gradle.util.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.params.ParameterizedTest
@@ -12,9 +12,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should allow to use catalog accessors in included build`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
-    ) {
+    fun `should allow to use catalog accessors in included build`(includedBuild: BuildConfigurator) {
         // given
         val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
@@ -33,7 +31,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
             """
         }
 
-        includedBuildForConventionPlugins {
+        includedBuild {
             buildGradleKts {
                 """
                 plugins {
@@ -75,9 +73,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should allow to use catalog accessors in included build when running task from subproject`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
-    ) {
+    fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: BuildConfigurator) {
         // given
         val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
@@ -96,7 +92,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
             """
         }
 
-        includedBuildForConventionPlugins {
+        includedBuild {
             buildGradleKts {
                 """
                 plugins {
@@ -138,9 +134,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should provide pluginMarker helper method`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
-    ) {
+    fun `should provide pluginMarker helper method`(includedBuild: BuildConfigurator) {
         // given
         val somePlugin = "pl.allegro.tech.build.axion-release"
         val somePluginVersion = "1.18.16"
@@ -165,7 +159,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
             """
         }
 
-        includedBuildForConventionPlugins {
+        includedBuild {
             buildGradleKts {
                 """
                 import dev.panuszewski.gradle.pluginMarker

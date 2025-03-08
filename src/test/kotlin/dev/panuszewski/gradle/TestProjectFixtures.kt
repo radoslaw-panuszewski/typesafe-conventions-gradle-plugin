@@ -1,16 +1,13 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.util.BaseGradleSpec
-import dev.panuszewski.gradle.util.IncludedBuildConfigurator
+import dev.panuszewski.gradle.util.BuildConfigurator
 
-fun BaseGradleSpec.accessorUsedInConventionPlugin(
-    someLibrary: String,
-    includedBuildForConventionPlugins: IncludedBuildConfigurator
-) {
+fun BaseGradleSpec.accessorUsedInConventionPlugin(library: String, includedBuild: BuildConfigurator) {
     customProjectFile("gradle/libs.versions.toml") {
         """
         [libraries]
-        some-library = "$someLibrary"
+        some-library = "$library"
         """
     }
 
@@ -26,7 +23,7 @@ fun BaseGradleSpec.accessorUsedInConventionPlugin(
         """
     }
 
-    includedBuildForConventionPlugins {
+    includedBuild {
         buildGradleKts {
             """
             plugins {
@@ -68,15 +65,11 @@ fun BaseGradleSpec.accessorUsedInConventionPlugin(
     }
 }
 
-fun BaseGradleSpec.accessorUsedInPluginsBlockOfConventionPlugin(
-    somePlugin: String,
-    somePluginVersion: String,
-    includedBuildForConventionPlugins: IncludedBuildConfigurator
-) {
+fun BaseGradleSpec.accessorUsedInPluginsBlockOfConventionPlugin(pluginId: String, pluginVersion: String, includedBuild: BuildConfigurator) {
     customProjectFile("gradle/libs.versions.toml") {
         """
         [plugins]
-        some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+        some-plugin = { id = "$pluginId", version = "$pluginVersion" }
         """
     }
 
@@ -92,7 +85,7 @@ fun BaseGradleSpec.accessorUsedInPluginsBlockOfConventionPlugin(
         """
     }
 
-    includedBuildForConventionPlugins {
+    includedBuild {
         buildGradleKts {
             """
             plugins {

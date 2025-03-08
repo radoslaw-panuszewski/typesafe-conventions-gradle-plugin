@@ -3,7 +3,7 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.util.BaseGradleSpec
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.util.IncludedBuildConfigurator
+import dev.panuszewski.gradle.util.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -16,62 +16,64 @@ class ConventionPluginsSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should allow to use catalog accessors in convention plugin`(configurator: IncludedBuildConfigurator) {
+    fun `should allow to use catalog accessors in convention plugin`(includedBuild: BuildConfigurator) {
         // given
-        val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
-        accessorUsedInConventionPlugin(someLibrary, configurator)
+        val library = "org.apache.commons:commons-lang3:3.17.0"
+        accessorUsedInConventionPlugin(library, includedBuild)
 
         // when
-        val result = runGradle("dependencyInsight", "--dependency", someLibrary)
+        val result = runGradle("dependencyInsight", "--dependency", library)
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain someLibrary
-        result.output shouldNotContain "$someLibrary FAILED"
+        result.output shouldContain library
+        result.output shouldNotContain "$library FAILED"
     }
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should allow to use catalog accessors in plugins block of convention plugin`(configurator: IncludedBuildConfigurator) {
+    fun `should allow to use catalog accessors in plugins block of convention plugin`(includedBuild: BuildConfigurator) {
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
-        val taskRegisteredBySomePlugin = "verifyRelease"
+        val pluginId = "pl.allegro.tech.build.axion-release"
+        val pluginVersion = "1.18.16"
+        val taskRegisteredByPlugin = "verifyRelease"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(somePlugin, somePluginVersion, configurator)
+        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
 
         // when
         val result = runGradle("tasks")
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain taskRegisteredBySomePlugin
+        result.output shouldContain taskRegisteredByPlugin
     }
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
     fun `should respect disabling accessors in plugins block`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
+        includedBuild: BuildConfigurator
     ) {
         // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
+        val pluginId = "pl.allegro.tech.build.axion-release"
+        val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(somePlugin, somePluginVersion, includedBuildForConventionPlugins)
+        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
 
         // and
-        includedBuildForConventionPlugins {
-            appendToSettingsGradleKts {
-                """
-                typesafeConventions {
-                    accessorsInPluginsBlock = false
+        includedBuild {
+            settingsGradleKts {
+                append {
+                    """
+                    typesafeConventions {
+                        accessorsInPluginsBlock = false
+                    }
+                    """
                 }
-                """
             }
         }
 
@@ -85,32 +87,32 @@ class ConventionPluginsSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should respect disabling accessors in plugins block in old Gradle`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
-    ) {
+    fun `should respect disabling accessors in plugins block in old Gradle`(includedBuild: BuildConfigurator) {
         // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
         assumeTrue(gradleVersion < GradleVersion.version("8.8"))
 
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
+        val pluginId = "pl.allegro.tech.build.axion-release"
+        val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(somePlugin, somePluginVersion, includedBuildForConventionPlugins)
+        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
 
         // and
-        includedBuildForConventionPlugins {
-            prependToSettingsGradleKts {
-                """
-                import dev.panuszewski.gradle.TypesafeConventionsExtension
-                """
-            }
-            appendToSettingsGradleKts {
-                """
-                configure<TypesafeConventionsExtension> {
-                    accessorsInPluginsBlock = false
-                }    
-                """
+        includedBuild {
+            settingsGradleKts {
+                prepend {
+                    """
+                    import dev.panuszewski.gradle.TypesafeConventionsExtension
+                    """
+                }
+                append {
+                    """
+                    configure<TypesafeConventionsExtension> {
+                        accessorsInPluginsBlock = false
+                    }    
+                    """
+                }
             }
         }
 
@@ -124,27 +126,27 @@ class ConventionPluginsSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should respect disabling auto plugin dependencies`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
-    ) {
+    fun `should respect disabling auto plugin dependencies`(includedBuild: BuildConfigurator) {
         // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
+        val pluginId = "pl.allegro.tech.build.axion-release"
+        val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(somePlugin, somePluginVersion, includedBuildForConventionPlugins)
+        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
 
         // and
-        includedBuildForConventionPlugins {
-            appendToSettingsGradleKts {
-                """
-                typesafeConventions {
-                    autoPluginDependencies = false
+        includedBuild {
+            settingsGradleKts {
+                append {
+                    """
+                    typesafeConventions {
+                        autoPluginDependencies = false
+                    }
+                    """
                 }
-                """
             }
         }
 
@@ -153,37 +155,37 @@ class ConventionPluginsSpec : BaseGradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Plugin [id: '$somePlugin'] was not found in any of the following sources"
+        result.output shouldContain "Plugin [id: '$pluginId'] was not found in any of the following sources"
     }
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should respect disabling auto plugin dependencies in old Gradle`(
-        includedBuildForConventionPlugins: IncludedBuildConfigurator
-    ) {
+    fun `should respect disabling auto plugin dependencies in old Gradle`(includedBuild: BuildConfigurator) {
         // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
         assumeTrue(gradleVersion < GradleVersion.version("8.8"))
 
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
+        val pluginId = "pl.allegro.tech.build.axion-release"
+        val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(somePlugin, somePluginVersion, includedBuildForConventionPlugins)
+        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
 
         // and
-        includedBuildForConventionPlugins {
-            prependToSettingsGradleKts {
-                """
-                import dev.panuszewski.gradle.TypesafeConventionsExtension
-                """
-            }
-            appendToSettingsGradleKts {
-                """
-                configure<TypesafeConventionsExtension> {
-                    autoPluginDependencies = false
+        includedBuild {
+            settingsGradleKts {
+                prepend {
+                    """
+                    import dev.panuszewski.gradle.TypesafeConventionsExtension
+                    """
                 }
-                """
+                append {
+                    """
+                    configure<TypesafeConventionsExtension> {
+                        autoPluginDependencies = false
+                    }
+                    """
+                }
             }
         }
 
@@ -192,6 +194,6 @@ class ConventionPluginsSpec : BaseGradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Plugin [id: '$somePlugin'] was not found in any of the following sources"
+        result.output shouldContain "Plugin [id: '$pluginId'] was not found in any of the following sources"
     }
 }
