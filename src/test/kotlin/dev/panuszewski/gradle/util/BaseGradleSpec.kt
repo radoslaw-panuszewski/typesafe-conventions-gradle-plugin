@@ -2,6 +2,7 @@ package dev.panuszewski.gradle.util
 
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
+import org.gradle.internal.declarativedsl.parsing.main
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -67,6 +68,14 @@ abstract class BaseGradleSpec {
         mainBuild.settingsGradleKts(content)
     }
 
+    fun appendToSettingsGradleKts(content: () -> String) {
+        mainBuild.appendToSettingsGradleKts(content)
+    }
+
+    fun prependToSettingsGradleKts(content: () -> String) {
+        mainBuild.prependToSettingsGradleKts(content)
+    }
+
     /**
      * Register and configure included build
      */
@@ -83,8 +92,9 @@ abstract class BaseGradleSpec {
      * Register and configure buildSrc
      */
     fun buildSrc(configureBuild: GradleBuild.() -> Unit) {
-        val build = GradleBuild("buildSrc", mainBuild.rootDir.resolve("buildSrc"), gradleVersion)
-        includedBuilds["buildSrc"] = build
+        val build = includedBuilds.computeIfAbsent("buildSrc") {
+            GradleBuild("buildSrc", mainBuild.rootDir.resolve("buildSrc"), gradleVersion)
+        }
         build.configureBuild()
     }
 

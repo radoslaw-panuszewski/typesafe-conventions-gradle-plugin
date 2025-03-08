@@ -79,6 +79,16 @@ typesafeConventions {
 }
 ```
 
+In Gradle < 8.8, you should use the following syntax instead:
+```kotlin
+import dev.panuszewski.gradle.TypesafeConventionsExtension
+
+configure<TypesafeConventionsExtension> {
+    accessorsInPluginsBlock = true
+    // ...
+}
+```
+
 # Features
 
 ## Version catalog in convention plugins

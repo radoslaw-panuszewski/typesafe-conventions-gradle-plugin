@@ -68,6 +68,15 @@ class GradleBuild(
         settings.writeText(content().trimIndent().trimStart())
     }
 
+    fun appendToSettingsGradleKts(content: () -> String) {
+        settings.appendText("\n" + content().trimIndent().trimStart())
+    }
+
+    fun prependToSettingsGradleKts(content: () -> String) {
+        val previousSettingsContent = settings.readText()
+        settings.writeText(content().trimIndent().trimStart() + "\n" + previousSettingsContent)
+    }
+
     fun registerIncludedBuild(buildPath: String): GradleBuild {
         val buildDir = rootDir.resolve(buildPath)
         val buildName = buildDir.name
