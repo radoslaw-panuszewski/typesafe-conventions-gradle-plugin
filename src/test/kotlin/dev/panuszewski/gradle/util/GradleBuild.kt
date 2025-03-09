@@ -8,76 +8,61 @@ class GradleBuild(
     val rootDir: File,
     val gradleVersion: GradleVersion
 ) {
-    val buildscript: File
-    val settings: File
-    val subprojectBuildscripts: MutableMap<String, File> = mutableMapOf()
+    private val buildGradleKts: WrapperConfiguringGradleBuildscript
+    private val settingsGradleKts: GradleBuildscript
+    private val subprojectBuildGradleKts: MutableMap<String, GradleBuildscript> = mutableMapOf()
 
     init {
         rootDir.deleteRecursively()
         rootDir.mkdirs()
-        buildscript = rootDir.resolveOrCreate("build.gradle.kts")
-        settings = rootDir.resolveOrCreate("settings.gradle.kts")
-        settings.writeText(
+        buildGradleKts = WrapperConfiguringGradleBuildscript(rootDir.resolveOrCreate("build.gradle.kts"), gradleVersion)
+        settingsGradleKts = GradleBuildscript(rootDir.resolveOrCreate("settings.gradle.kts"))
+        settingsGradleKts.setContent {
             """
             rootProject.name = "$rootProjectName"
-            """.trimIndent()
-        )
+            """
+        }
     }
 
     /**
      * Set the full content of build.gradle.kts
      */
-    fun buildGradleKts(content: () -> String) {
-        buildscript.writeText(content().trimIndent().trimStart())
-        buildscript.appendText(buildGradleKtsTailContent())
-    }
-
-    private fun buildGradleKtsTailContent() = buildString {
-        append("\n\n")
-        append(
-            """
-            tasks {
-                withType<Wrapper> {
-                    gradleVersion = "${gradleVersion.version}"
-                }
-            }
-            """.trimIndent()
-        )
+    fun buildGradleKts(configurator: GradleBuildscript.() -> Any) {
+        buildGradleKts.acceptConfigurator(configurator)
     }
 
     /**
      * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, content: () -> String) {
-        subprojectBuildscripts[subprojectName] = rootDir
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> Any) {
+        subprojectBuildGradleKts[subprojectName] = rootDir
             .resolveOrCreate("$subprojectName/build.gradle.kts")
-            .apply { writeText(content().trimIndent().trimStart()) }
+            .let(::GradleBuildscript)
+            .acceptConfigurator(configurator)
 
-        settings.appendText("\n")
-        settings.appendText(
+        settingsGradleKts.append {
             """
             include(":$subprojectName")    
-            """.trimIndent()
-        )
+            """
+        }
     }
 
     /**
      * Set the full content of settings.gradle.kts
      */
-    fun settingsGradleKts(content: () -> String) {
-        settings.writeText(content().trimIndent().trimStart())
+    fun settingsGradleKts(configurator: GradleBuildscript.() -> Any) {
+        settingsGradleKts.acceptConfigurator(configurator)
     }
 
     fun registerIncludedBuild(buildPath: String): GradleBuild {
         val buildDir = rootDir.resolve(buildPath)
         val buildName = buildDir.name
 
-        settings.appendText("\n")
-        settings.appendText(
+        settingsGradleKts.append {
             """
             includeBuild("$buildPath")    
-            """.trimIndent()
-        )
+            """
+        }
         return GradleBuild(buildName, buildDir, gradleVersion)
     }
 
@@ -88,5 +73,50 @@ class GradleBuild(
         val file = rootDir.resolveOrCreate(path)
         file.writeText(content().trimIndent())
         return file
+    }
+}
+
+open class GradleBuildscript(
+    private val buildscriptFile: File
+) {
+    fun acceptConfigurator(configurator: GradleBuildscript.() -> Any): GradleBuildscript {
+        val maybeNewContent = configurator()
+
+        if (maybeNewContent is String) {
+            setContent { maybeNewContent }
+        }
+        return this
+    }
+
+    open fun setContent(content: () -> String) {
+        buildscriptFile.writeText(content().trimIndent().trimStart())
+    }
+
+    fun prepend(content: () -> String) {
+        val previousSettingsContent = buildscriptFile.readText()
+        buildscriptFile.writeText(content().trimIndent().trimStart() + "\n\n" + previousSettingsContent)
+    }
+
+    fun append(content: () -> String) {
+        buildscriptFile.appendText("\n\n" + content().trimIndent().trimStart())
+    }
+}
+
+class WrapperConfiguringGradleBuildscript(
+    file: File,
+    private val gradleVersion: GradleVersion
+) : GradleBuildscript(file) {
+
+    override fun setContent(content: () -> String) {
+        super.setContent(content)
+        append {
+            """
+            tasks {
+                withType<Wrapper> {
+                    gradleVersion = "${gradleVersion.version}"
+                }
+            }
+            """
+        }
     }
 }

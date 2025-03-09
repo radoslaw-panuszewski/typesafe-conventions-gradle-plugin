@@ -12,6 +12,7 @@ import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import java.io.File
+import java.io.StringWriter
 import java.nio.file.Paths
 import java.util.stream.Stream
 
@@ -43,28 +44,28 @@ abstract class BaseGradleSpec {
     var gradleVersion: GradleVersion = GradleVersions.GRADLE_VERSION_TO_TEST
     val buildEnvironment = mutableMapOf<String, String>()
 
-    private lateinit var mainBuild: GradleBuild
-    private val includedBuilds = mutableMapOf<String, GradleBuild>()
+    lateinit var mainBuild: GradleBuild
+    val includedBuilds = mutableMapOf<String, GradleBuild>()
 
     /**
      * Set the full content of build.gradle.kts
      */
-    fun buildGradleKts(content: () -> String) {
-        mainBuild.buildGradleKts(content)
+    fun buildGradleKts(configurator: GradleBuildscript.() -> Any) {
+        mainBuild.buildGradleKts(configurator)
     }
 
     /**
      * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, content: () -> String) {
-        mainBuild.subprojectBuildGradleKts(subprojectName, content)
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> Any) {
+        mainBuild.subprojectBuildGradleKts(subprojectName, configurator)
     }
 
     /**
      * Set the full content of settings.gradle.kts
      */
-    fun settingsGradleKts(content: () -> String) {
-        mainBuild.settingsGradleKts(content)
+    fun settingsGradleKts(configurator: GradleBuildscript.() -> Any) {
+        mainBuild.settingsGradleKts(configurator)
     }
 
     /**
@@ -83,8 +84,9 @@ abstract class BaseGradleSpec {
      * Register and configure buildSrc
      */
     fun buildSrc(configureBuild: GradleBuild.() -> Unit) {
-        val build = GradleBuild("buildSrc", mainBuild.rootDir.resolve("buildSrc"), gradleVersion)
-        includedBuilds["buildSrc"] = build
+        val build = includedBuilds.computeIfAbsent("buildSrc") {
+            GradleBuild("buildSrc", mainBuild.rootDir.resolve("buildSrc"), gradleVersion)
+        }
         build.configureBuild()
     }
 
@@ -155,7 +157,7 @@ abstract class BaseGradleSpec {
     companion object {
         @JvmStatic
         fun includedBuildConfigurators(): Stream<Arguments> {
-            val notNestedBuildConfigurator: IncludedBuildConfigurator = {
+            val notNestedBuildConfigurator: BuildConfigurator = {
                 includedBuild("../not-nested-build-logic-for-${mainBuild.rootDir.name}", it)
             }
 
@@ -168,7 +170,7 @@ abstract class BaseGradleSpec {
     }
 }
 
-typealias IncludedBuildConfigurator = BaseGradleSpec.(GradleBuild.() -> Unit) -> Unit
+typealias BuildConfigurator = BaseGradleSpec.(GradleBuild.() -> Unit) -> Unit
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,
@@ -182,3 +184,7 @@ enum class BuildOutcome {
 
 val BuildResult.executedTasks: List<String>
     get() = tasks.map { it.path }
+
+fun GradleRunner.doNotForwardOutput() {
+    forwardStdOutput(StringWriter())
+}
