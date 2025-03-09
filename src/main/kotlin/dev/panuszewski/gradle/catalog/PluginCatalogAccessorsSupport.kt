@@ -8,6 +8,7 @@ import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Project
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.internal.management.VersionCatalogBuilderInternal
+import org.gradle.kotlin.dsl.add
 import java.io.File
 
 internal object PluginCatalogAccessorsSupport {
@@ -93,7 +94,9 @@ internal object PluginCatalogAccessorsSupport {
 
     private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: List<PluginDeclaration>) {
         pluginDeclarations.forEach {
-            project.dependencies.add("implementation", it.pluginMarker)
+            project.dependencies.add("implementation", it.pluginMarkerWithoutVersion) {
+                version { prefer(it.pluginVersion) }
+            }
         }
     }
 }
@@ -105,5 +108,5 @@ private data class PluginDeclaration(
 ) {
     val declarationByAlias = "alias(libs.plugins.$pluginAlias)"
     val declarationById = "id(\"${pluginId}\")"
-    val pluginMarker = "${pluginId}:${pluginId}.gradle.plugin:${pluginVersion}"
+    val pluginMarkerWithoutVersion = "${pluginId}:${pluginId}.gradle.plugin"
 }

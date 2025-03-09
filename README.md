@@ -213,6 +213,31 @@ dependencies {
 }
 ```
 
+### Overriding versions of auto plugin dependencies
+
+The auto dependencies will have the weakest version constraint (`prefer`) so you can easily override the version by simply declaring the dependency.
+
+> [!WARNING]
+> This method works only for plugin marker artifacts, not the actual artifacts that contain plugin code!
+> For example, it works for `org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin`,
+> but not for `org.jetbrains.kotlin:kotlin-gradle-plugin`
+
+You may want to do it when you determine the version dynamically:
+```kotlin
+import dev.panuszewski.gradle.pluginMarker
+
+dependencies {
+    val kotlinVersion = resolveKotlinVersionFromSpringBom()
+    
+    // hardcode the coordinates...
+    implementation("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:$kotlinVersion")
+    
+    // ...or use version catalog accessor and set stronger constraint
+    // (the accessor comes with 'require' constraint by default, so you need to use 'strictly')
+    implementation(pluginMarker(libs.plugins.kotlin.jvm)) { version { strictly(kotlinVersion) } }
+}
+```
+
 ## Version catalog in `buildSrc` buildscript
 
 ### ⏩ TL;DR

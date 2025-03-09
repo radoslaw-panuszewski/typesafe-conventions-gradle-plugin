@@ -44,27 +44,27 @@ abstract class BaseGradleSpec {
     var gradleVersion: GradleVersion = GradleVersions.GRADLE_VERSION_TO_TEST
     val buildEnvironment = mutableMapOf<String, String>()
 
-    private lateinit var mainBuild: GradleBuild
-    private val includedBuilds = mutableMapOf<String, GradleBuild>()
+    lateinit var mainBuild: GradleBuild
+    val includedBuilds = mutableMapOf<String, GradleBuild>()
 
     /**
      * Set the full content of build.gradle.kts
      */
-    fun buildGradleKts(configurator: GradleBuildscript.() -> String) {
+    fun buildGradleKts(configurator: GradleBuildscript.() -> Any) {
         mainBuild.buildGradleKts(configurator)
     }
 
     /**
      * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> String) {
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> Any) {
         mainBuild.subprojectBuildGradleKts(subprojectName, configurator)
     }
 
     /**
      * Set the full content of settings.gradle.kts
      */
-    fun settingsGradleKts(configurator: GradleBuildscript.() -> String) {
+    fun settingsGradleKts(configurator: GradleBuildscript.() -> Any) {
         mainBuild.settingsGradleKts(configurator)
     }
 

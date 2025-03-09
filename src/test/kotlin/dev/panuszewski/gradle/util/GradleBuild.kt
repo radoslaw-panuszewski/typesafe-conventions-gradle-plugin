@@ -27,14 +27,14 @@ class GradleBuild(
     /**
      * Set the full content of build.gradle.kts
      */
-    fun buildGradleKts(configurator: GradleBuildscript.() -> String) {
+    fun buildGradleKts(configurator: GradleBuildscript.() -> Any) {
         buildGradleKts.acceptConfigurator(configurator)
     }
 
     /**
      * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> String) {
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> Any) {
         subprojectBuildGradleKts[subprojectName] = rootDir
             .resolveOrCreate("$subprojectName/build.gradle.kts")
             .let(::GradleBuildscript)

@@ -196,4 +196,43 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         result.buildOutcome shouldBe BUILD_FAILED
         result.output shouldContain "Plugin [id: '$pluginId'] was not found in any of the following sources"
     }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should allow to override auto plugin dependency`(includedBuild: BuildConfigurator) {
+        // given
+        val pluginId = "pl.allegro.tech.build.axion-release"
+        val pluginMarker = "$pluginId:$pluginId.gradle.plugin"
+        val pluginVersion = "1.18.16"
+        val overriddenPluginVersion = "1.18.15"
+
+        // and
+        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+
+        // and
+        includedBuild {
+            buildGradleKts {
+                prepend {
+                    """
+                    import dev.panuszewski.gradle.TypesafeConventionsExtension    
+                    """
+                }
+                append {
+                    """
+                    dependencies {
+                        implementation("$pluginMarker:$overriddenPluginVersion")
+                    }
+                    """
+                }
+            }
+        }
+
+        // when
+        val buildName = includedBuilds.keys.first().substringAfterLast("/")
+        val result = runGradle(":$buildName:dependencyInsight", "--dependency", pluginMarker)
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "dependencyInsight${System.lineSeparator()}$pluginMarker:$overriddenPluginVersion"
+    }
 }
