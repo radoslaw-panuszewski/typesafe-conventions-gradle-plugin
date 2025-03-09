@@ -2,13 +2,14 @@ package dev.panuszewski.gradle.catalog
 
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR
 import dev.panuszewski.gradle.util.capitalizedName
-import dev.panuszewski.gradle.util.createNewFile
 import dev.panuszewski.gradle.util.readResourceAsString
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Project
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.add
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
 internal object PluginCatalogAccessorsSupport {
@@ -20,7 +21,7 @@ internal object PluginCatalogAccessorsSupport {
     fun apply(project: Project, catalog: VersionCatalogBuilderInternal) {
         val pluginDeclarations = collectPluginDeclarations(project, catalog)
 
-        writeCatalogEntrypointForPluginBlock(project, catalog)
+        writeCatalogEntrypointBeforeCompilation(project, catalog)
         patchPluginsBlocksBeforeCompilation(project, pluginDeclarations)
 
         if (project.typesafeConventions.autoPluginDependencies.get()) {
@@ -56,18 +57,39 @@ internal object PluginCatalogAccessorsSupport {
         return null
     }
 
-    private fun writeCatalogEntrypointForPluginBlock(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val source = readResourceAsString("/EntrypointForLibsInPluginsBlock.kt")
-            .replace("libs", catalog.name)
-            .replace("Libs", catalog.capitalizedName)
+    private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: VersionCatalogBuilderInternal) {
+        val entrypointName = "EntrypointFor${catalog.capitalizedName}InPluginsBlock"
 
-        val file = project.createNewFile("$GENERATED_SOURCES_DIR/EntrypointFor${catalog.capitalizedName}InPluginsBlock.kt")
+        val generateEntrypointTask = project.tasks.register("generate$entrypointName") {
+            outputs.file("$GENERATED_SOURCES_DIR/$entrypointName.kt")
+            outputs.cacheIf { true }
 
-        file.writeText(source)
+            doLast {
+                val source = readResourceAsString("/EntrypointForLibsInPluginsBlock.kt")
+                    .replace("libs", catalog.name)
+                    .replace("Libs", catalog.capitalizedName)
+
+                outputs.files.singleFile.writeText(source)
+            }
+        }
+        project.tasks.withType<KotlinCompile>().configureEach {
+            dependsOn(generateEntrypointTask)
+        }
     }
 
     private fun patchPluginsBlocksBeforeCompilation(project: Project, pluginDeclarations: List<PluginDeclaration>) {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
+            /**
+             * This task will never be UP-TO-DATE as it modifies output of another task.
+             *
+             * Theoretically, we could output the patched blocks to some other directory and set it as input for
+             * compilePluginsBlocks task, but we would also need to add PluginSpecBuilders.kt to the input files
+             * (see DefaultPrecompiledScriptPluginsSupport and GenerateExternalPluginSpecBuilders).
+             *
+             * There are 2 problems with the current implementation:
+             * - it will be never UT-TO-DATE or FROM-CACHE (but there is still problem of invalidation when catalog changes)
+             * - it requires 2 runs before configuration cache can be reused (probably not a big deal, but still)
+             */
             project.tasks.register("patchPluginsBlocks") {
                 doLast {
                     val extractedPluginsBlocksDir =
