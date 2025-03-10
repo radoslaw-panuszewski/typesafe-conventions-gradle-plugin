@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     `jvm-test-suite`
     alias(libs.plugins.test.logger)
@@ -8,6 +10,14 @@ testlogger {
     showPassedStandardStreams = false
     showSkippedStandardStreams = false
     showFailedStandardStreams = true
+}
+
+testing {
+    suites {
+        named<JvmTestSuite>("test") {
+            useJUnitJupiter()
+        }
+    }
 }
 
 tasks {
