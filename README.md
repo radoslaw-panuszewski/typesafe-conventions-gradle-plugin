@@ -19,8 +19,9 @@ dependencies {
 # Rationale
 
 According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_build_logic_between_subprojects.html), it is recommended to place convention plugins inside the included build or `buildSrc` (which is also treated as an included build). In the ideal world, we would just copy the contents of our `build.gradle.kts` and put it inside `buildSrc/src/some-convention.gradle.kts` to be reused between subprojects. However, there are some serious limitations:
-* the convention plugin can't use version catalog typesafe accessors (like `libs.kotlin.stdlib`)
+* the convention plugin can't use version catalog typesafe accessors (like `libs.kotlin.stdlib` or `libs.plugins.kotlin.jvm`)
 * the buildscript of included build (e.g `buildSrc/build.gradle.kts`) doesn't have access to the version catalog of the main build
+* if convention plugin wants to apply an external plugin, the plugin dependency must be manually added to `buildSrc`
 * there is no built-in way to convert plugin ID (like `org.jetbrains.kotlin.jvm`) to plugin dependency (like `org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10`)
 
 > [!NOTE]
