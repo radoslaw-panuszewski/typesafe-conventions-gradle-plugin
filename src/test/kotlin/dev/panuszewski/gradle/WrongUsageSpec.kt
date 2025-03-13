@@ -16,7 +16,7 @@ class WrongUsageSpec : BaseGradleSpec() {
         buildGradleKts {
             """
             plugins {
-                id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
             }
             """
         }
@@ -54,7 +54,7 @@ class WrongUsageSpec : BaseGradleSpec() {
             }
                 
             plugins {
-                id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
             }
             """
         }
@@ -84,7 +84,7 @@ class WrongUsageSpec : BaseGradleSpec() {
                 }
                     
                 plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 """
             }

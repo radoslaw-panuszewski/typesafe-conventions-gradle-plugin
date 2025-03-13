@@ -235,4 +235,55 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "dependencyInsight${System.lineSeparator()}$pluginMarker:$overriddenPluginVersion"
     }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should support multiple catalogs`(includedBuild: BuildConfigurator) {
+        // given
+        val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
+        val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
+        multipleVersionCatalogs(someLibrary, anotherLibrary, includedBuild)
+
+        // when
+        val someLibraryResult = runGradle("dependencyInsight", "--dependency", someLibrary)
+        val anotherLibraryResult = runGradle("dependencyInsight", "--dependency", anotherLibrary)
+
+        // then
+        someLibraryResult.buildOutcome shouldBe BUILD_SUCCESSFUL
+        someLibraryResult.output shouldContain someLibrary
+        someLibraryResult.output shouldNotContain "$someLibrary FAILED"
+
+        anotherLibraryResult.buildOutcome shouldBe BUILD_SUCCESSFUL
+        anotherLibraryResult.output shouldContain anotherLibrary
+        anotherLibraryResult.output shouldNotContain "$anotherLibrary FAILED"
+    }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should support multiple catalogs in plugins block`(includedBuild: BuildConfigurator) {
+        // given
+        val somePluginId = "pl.allegro.tech.build.axion-release"
+        val somePluginVersion = "1.18.16"
+        val taskRegisteredBySomePlugin = "verifyRelease"
+
+        val anotherPluginId = "com.github.ben-manes.versions"
+        val anotherPluginVersion = "0.52.0"
+        val taskRegisteredByAnotherPlugin = "dependencyUpdates"
+
+        multipleCatalogsInPluginsBlockOfConventionPlugin(
+            somePluginId,
+            somePluginVersion,
+            anotherPluginId,
+            anotherPluginVersion,
+            includedBuild
+        )
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain taskRegisteredBySomePlugin
+        result.output shouldContain taskRegisteredByAnotherPlugin
+    }
 }

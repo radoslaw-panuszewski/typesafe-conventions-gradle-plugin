@@ -14,13 +14,13 @@ internal object PluginCatalogAccessorsSupport {
 
     private const val MAIN_KOTLIN_SRC_DIR = "src/main/kotlin"
     private const val EXTRACTED_PLUGINS_BLOCKS_DIR = "kotlin-dsl/plugins-blocks/extracted"
-    private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(libs\.plugins\.(.+)\).*""".toRegex()
+    private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(.+\.plugins\.(.+)\).*""".toRegex()
 
     fun apply(project: Project, catalog: VersionCatalogBuilderInternal) {
         val pluginDeclarations = collectPluginDeclarations(project, catalog)
 
         writeCatalogEntrypointBeforeCompilation(project, catalog)
-        patchPluginsBlocksBeforeCompilation(project, pluginDeclarations)
+        patchPluginsBlocksBeforeCompilation(project, catalog, pluginDeclarations)
 
         if (project.typesafeConventions.autoPluginDependencies.get()) {
             addPluginMarkerDependencies(project, pluginDeclarations)
@@ -38,19 +38,23 @@ internal object PluginCatalogAccessorsSupport {
             .toList()
     }
 
-    private fun parsePluginDeclaration(line: String, model: DefaultVersionCatalog): PluginDeclaration? {
+    private fun parsePluginDeclaration(line: String, catalogModel: DefaultVersionCatalog): PluginDeclaration? {
         val matchResult = PLUGIN_DECLARATION_BY_ALIAS.matchEntire(line)
 
         if (matchResult != null) {
             val alias = matchResult.groupValues[1]
             val aliasKebabCase = alias.replace(".", "-")
-            val pluginModel = model.getPlugin(aliasKebabCase)
 
-            return PluginDeclaration(
-                pluginAlias = alias,
-                pluginId = pluginModel.id,
-                pluginVersion = pluginModel.version.toString()
-            )
+            if (catalogModel.hasPlugin(aliasKebabCase)) {
+                val pluginModel = catalogModel.getPlugin(aliasKebabCase)
+
+                return PluginDeclaration(
+                    pluginAlias = alias,
+                    pluginId = pluginModel.id,
+                    pluginVersion = pluginModel.version.toString(),
+                    catalogName = catalogModel.name,
+                )
+            }
         }
         return null
     }
@@ -75,20 +79,26 @@ internal object PluginCatalogAccessorsSupport {
         }
     }
 
-    private fun patchPluginsBlocksBeforeCompilation(project: Project, pluginDeclarations: List<PluginDeclaration>) {
+    /**
+     * The patchPluginsBlocksFor* task will never be UP-TO-DATE as it modifies output of another task.
+     *
+     * Theoretically, we could output the patched blocks to some other directory and set it as input for
+     * compilePluginsBlocks task, but we would also need to add PluginSpecBuilders.kt to the input files
+     * (see DefaultPrecompiledScriptPluginsSupport and GenerateExternalPluginSpecBuilders).
+     *
+     * There are 2 problems with the current implementation:
+     * - it will be never UT-TO-DATE or FROM-CACHE (but there is still problem of invalidation when catalog changes)
+     * - it requires 2 runs before configuration cache can be reused (probably not a big deal, but still)
+     */
+    private fun patchPluginsBlocksBeforeCompilation(
+        project: Project,
+        catalog: VersionCatalogBuilderInternal,
+        pluginDeclarations: List<PluginDeclaration>
+    ) {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
-            /**
-             * This task will never be UP-TO-DATE as it modifies output of another task.
-             *
-             * Theoretically, we could output the patched blocks to some other directory and set it as input for
-             * compilePluginsBlocks task, but we would also need to add PluginSpecBuilders.kt to the input files
-             * (see DefaultPrecompiledScriptPluginsSupport and GenerateExternalPluginSpecBuilders).
-             *
-             * There are 2 problems with the current implementation:
-             * - it will be never UT-TO-DATE or FROM-CACHE (but there is still problem of invalidation when catalog changes)
-             * - it requires 2 runs before configuration cache can be reused (probably not a big deal, but still)
-             */
-            project.tasks.register("patchPluginsBlocks") {
+            val taskName = "patchPluginsBlocksFor${catalog.capitalizedName}"
+
+            val patchPluginsBlocksTask = project.tasks.register(taskName) {
                 doLast {
                     val extractedPluginsBlocksDir =
                         project.layout.buildDirectory.file(EXTRACTED_PLUGINS_BLOCKS_DIR).get().asFile
@@ -98,7 +108,7 @@ internal object PluginCatalogAccessorsSupport {
                         .forEach { file -> patchPluginsBlock(file, pluginDeclarations) }
                 }
             }
-            project.tasks.findByName("compilePluginsBlocks")?.dependsOn("patchPluginsBlocks")
+            project.tasks.findByName("compilePluginsBlocks")?.dependsOn(patchPluginsBlocksTask)
         }
     }
 
@@ -124,9 +134,10 @@ internal object PluginCatalogAccessorsSupport {
 private data class PluginDeclaration(
     val pluginAlias: String,
     val pluginId: String,
-    val pluginVersion: String
+    val pluginVersion: String,
+    val catalogName: String
 ) {
-    val declarationByAlias = "alias(libs.plugins.$pluginAlias)"
+    val declarationByAlias = "alias($catalogName.plugins.$pluginAlias)"
     val declarationById = "id(\"${pluginId}\")"
     val pluginMarkerWithoutVersion = "${pluginId}:${pluginId}.gradle.plugin"
 }
