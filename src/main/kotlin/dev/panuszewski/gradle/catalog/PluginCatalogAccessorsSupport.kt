@@ -20,7 +20,7 @@ internal object PluginCatalogAccessorsSupport {
         val pluginDeclarations = collectPluginDeclarations(project, catalog)
 
         writeCatalogEntrypointBeforeCompilation(project, catalog)
-        patchPluginsBlocksBeforeCompilation(project, pluginDeclarations)
+        patchPluginsBlocksBeforeCompilation(project, catalog, pluginDeclarations)
 
         if (project.typesafeConventions.autoPluginDependencies.get()) {
             addPluginMarkerDependencies(project, pluginDeclarations)
@@ -44,13 +44,16 @@ internal object PluginCatalogAccessorsSupport {
         if (matchResult != null) {
             val alias = matchResult.groupValues[1]
             val aliasKebabCase = alias.replace(".", "-")
-            val pluginModel = model.getPlugin(aliasKebabCase)
 
-            return PluginDeclaration(
-                pluginAlias = alias,
-                pluginId = pluginModel.id,
-                pluginVersion = pluginModel.version.toString()
-            )
+            if (model.hasPlugin(aliasKebabCase)) {
+                val pluginModel = model.getPlugin(aliasKebabCase)
+
+                return PluginDeclaration(
+                    pluginAlias = alias,
+                    pluginId = pluginModel.id,
+                    pluginVersion = pluginModel.version.toString()
+                )
+            }
         }
         return null
     }
@@ -75,7 +78,11 @@ internal object PluginCatalogAccessorsSupport {
         }
     }
 
-    private fun patchPluginsBlocksBeforeCompilation(project: Project, pluginDeclarations: List<PluginDeclaration>) {
+    private fun patchPluginsBlocksBeforeCompilation(
+        project: Project,
+        catalog: VersionCatalogBuilderInternal,
+        pluginDeclarations: List<PluginDeclaration>
+    ) {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
             /**
              * This task will never be UP-TO-DATE as it modifies output of another task.
@@ -88,7 +95,9 @@ internal object PluginCatalogAccessorsSupport {
              * - it will be never UT-TO-DATE or FROM-CACHE (but there is still problem of invalidation when catalog changes)
              * - it requires 2 runs before configuration cache can be reused (probably not a big deal, but still)
              */
-            project.tasks.register("patchPluginsBlocks") {
+            val taskName = "patchPluginsBlocksFor${catalog.capitalizedName}"
+
+            val patchPluginsBlocksTask = project.tasks.register(taskName) {
                 doLast {
                     val extractedPluginsBlocksDir =
                         project.layout.buildDirectory.file(EXTRACTED_PLUGINS_BLOCKS_DIR).get().asFile
@@ -98,7 +107,7 @@ internal object PluginCatalogAccessorsSupport {
                         .forEach { file -> patchPluginsBlock(file, pluginDeclarations) }
                 }
             }
-            project.tasks.findByName("compilePluginsBlocks")?.dependsOn("patchPluginsBlocks")
+            project.tasks.findByName("compilePluginsBlocks")?.dependsOn(patchPluginsBlocksTask)
         }
     }
 
