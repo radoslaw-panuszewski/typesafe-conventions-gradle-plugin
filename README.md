@@ -29,6 +29,8 @@ According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_buil
 
 # Quickstart
 
+If you prefer watching over reading, check out this [cool video](https://www.youtube.com/watch?v=9BhtoNxgPks) from Duncan McGregor 😉
+
 ### Prerequisites
 
 * Gradle version is at least 8.4
