@@ -5,6 +5,7 @@ import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -208,5 +209,45 @@ class IncludedBuildSpec : BaseGradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain taskRegisteredBySomePlugin
+    }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should not prevent applying kotlin plugin in included build`(includedBuild: BuildConfigurator) {
+        // given
+        includedBuild {
+            buildGradleKts {
+                """
+                plugins {
+                    embeddedKotlin("jvm")
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+
+            settingsGradleKts {
+                """
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        mavenLocal()
+                    }
+                }
+                    
+                plugins {
+                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                }
+                """
+            }
+        }
+
+        // when
+        val result = runGradle("help")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
 }

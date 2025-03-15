@@ -8,8 +8,6 @@ import org.gradle.api.Project
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.add
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
 internal object PluginCatalogAccessorsSupport {
@@ -72,7 +70,7 @@ internal object PluginCatalogAccessorsSupport {
                 outputs.files.singleFile.writeText(source)
             }
         }
-        project.tasks.withType<KotlinCompile>().configureEach {
+        project.tasks.named("compileKotlin") {
             dependsOn(generateEntrypointTask)
         }
     }
