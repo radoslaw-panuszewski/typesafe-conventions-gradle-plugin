@@ -43,6 +43,7 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
     companion object {
+        // TODO separated source sets for generated Java and Kotlin files
         internal const val GENERATED_SOURCES_DIR = "build/generated-sources/typesafe-conventions/kotlin"
     }
 }

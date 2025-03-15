@@ -11,8 +11,6 @@ import org.gradle.api.internal.catalog.LibrariesSourceGenerator
 import org.gradle.api.problems.Problems
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.support.serviceOf
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.StringWriter
 
 internal object LibraryCatalogAccessorsSupport {
@@ -37,7 +35,7 @@ internal object LibraryCatalogAccessorsSupport {
                 outputs.files.singleFile.writeText(source)
             }
         }
-        project.tasks.withType<KotlinCompile>().configureEach {
+        project.tasks.named("compileKotlin") {
             dependsOn(generateEntrypointTask)
         }
     }
@@ -53,7 +51,7 @@ internal object LibraryCatalogAccessorsSupport {
                 file.writeText(source)
             }
         }
-        project.tasks.withType<KotlinCompile>().configureEach {
+        project.tasks.named("compileKotlin") {
             dependsOn(generateAccessorsTask)
         }
     }
