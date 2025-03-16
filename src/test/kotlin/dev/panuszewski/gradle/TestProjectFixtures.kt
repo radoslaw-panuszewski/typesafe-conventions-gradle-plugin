@@ -3,7 +3,7 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.util.BaseGradleSpec
 import dev.panuszewski.gradle.util.BuildConfigurator
 
-fun BaseGradleSpec.accessorUsedInConventionPlugin(library: String, includedBuild: BuildConfigurator) {
+fun BaseGradleSpec.libsInDependenciesBlock(library: String, includedBuild: BuildConfigurator) {
     customProjectFile("gradle/libs.versions.toml") {
         """
         [libraries]
@@ -65,7 +65,7 @@ fun BaseGradleSpec.accessorUsedInConventionPlugin(library: String, includedBuild
     }
 }
 
-fun BaseGradleSpec.accessorUsedInPluginsBlockOfConventionPlugin(pluginId: String, pluginVersion: String, includedBuild: BuildConfigurator) {
+fun BaseGradleSpec.libsInPluginsBlock(pluginId: String, pluginVersion: String, includedBuild: BuildConfigurator) {
     customProjectFile("gradle/libs.versions.toml") {
         """
         [plugins]
@@ -123,7 +123,7 @@ fun BaseGradleSpec.accessorUsedInPluginsBlockOfConventionPlugin(pluginId: String
     }
 }
 
-fun BaseGradleSpec.multipleVersionCatalogs(someLibrary: String, anotherLibrary: String, includedBuild: BuildConfigurator) {
+fun BaseGradleSpec.multipleCatalogsInDependenciesBlock(someLibrary: String, anotherLibrary: String, includedBuild: BuildConfigurator) {
     customProjectFile("gradle/libs.versions.toml") {
         """
         [libraries]
@@ -207,7 +207,7 @@ fun BaseGradleSpec.multipleVersionCatalogs(someLibrary: String, anotherLibrary: 
     }
 }
 
-fun BaseGradleSpec.multipleCatalogsInPluginsBlockOfConventionPlugin(
+fun BaseGradleSpec.multipleCatalogsInPluginsBlock(
     somePluginId: String,
     somePluginVersion: String,
     anotherPluginId: String,

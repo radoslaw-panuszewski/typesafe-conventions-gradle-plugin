@@ -110,7 +110,7 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
 
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
-        internal const val MINIMAL_GRADLE_VERSION = "8.4"
+        internal const val MINIMAL_GRADLE_VERSION = "8.7"
     }
 }
 

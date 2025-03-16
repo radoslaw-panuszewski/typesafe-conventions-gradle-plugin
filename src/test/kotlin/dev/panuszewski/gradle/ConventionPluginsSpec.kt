@@ -19,7 +19,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     fun `should allow to use catalog accessors in convention plugin`(includedBuild: BuildConfigurator) {
         // given
         val library = "org.apache.commons:commons-lang3:3.17.0"
-        accessorUsedInConventionPlugin(library, includedBuild)
+        libsInDependenciesBlock(library, includedBuild)
 
         // when
         val result = runGradle("dependencyInsight", "--dependency", library)
@@ -39,7 +39,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val taskRegisteredByPlugin = "verifyRelease"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+        libsInPluginsBlock(pluginId, pluginVersion, includedBuild)
 
         // when
         val result = runGradle("tasks")
@@ -62,7 +62,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+        libsInPluginsBlock(pluginId, pluginVersion, includedBuild)
 
         // and
         includedBuild {
@@ -96,7 +96,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+        libsInPluginsBlock(pluginId, pluginVersion, includedBuild)
 
         // and
         includedBuild {
@@ -135,7 +135,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+        libsInPluginsBlock(pluginId, pluginVersion, includedBuild)
 
         // and
         includedBuild {
@@ -169,7 +169,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val pluginVersion = "1.18.16"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+        libsInPluginsBlock(pluginId, pluginVersion, includedBuild)
 
         // and
         includedBuild {
@@ -207,7 +207,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val overriddenPluginVersion = "1.18.15"
 
         // and
-        accessorUsedInPluginsBlockOfConventionPlugin(pluginId, pluginVersion, includedBuild)
+        libsInPluginsBlock(pluginId, pluginVersion, includedBuild)
 
         // and
         includedBuild {
@@ -242,7 +242,9 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         // given
         val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
         val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
-        multipleVersionCatalogs(someLibrary, anotherLibrary, includedBuild)
+
+        // and
+        multipleCatalogsInDependenciesBlock(someLibrary, anotherLibrary, includedBuild)
 
         // when
         val someLibraryResult = runGradle("dependencyInsight", "--dependency", someLibrary)
@@ -270,12 +272,13 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         val anotherPluginVersion = "0.52.0"
         val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-        multipleCatalogsInPluginsBlockOfConventionPlugin(
-            somePluginId,
-            somePluginVersion,
-            anotherPluginId,
-            anotherPluginVersion,
-            includedBuild
+        // and
+        multipleCatalogsInPluginsBlock(
+            somePluginId = somePluginId,
+            somePluginVersion = somePluginVersion,
+            anotherPluginId = anotherPluginId,
+            anotherPluginVersion = anotherPluginVersion,
+            includedBuild = includedBuild
         )
 
         // when
