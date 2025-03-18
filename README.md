@@ -284,3 +284,27 @@ As opposed to `buildSrc`, the included build can have multiple subprojects with 
 > [!TIP]
 > Why would you prefer `build-logic` over `buildSrc`? If your build contains a lot of projects, and those projects apply different combinations of convention plugins, placing every convention plugin in its own subproject can improve performance. It's because modifying the convention plugin code will only trigger reload of the subprojects that are actually using it. 
 
+# Top-level build
+
+In most cases, you should apply `typesafe-convention` to either included build or `buildSrc`, because that's 
+where convention plugins are typically stored and the included build will "inherit" version catalogs from 
+the main build.
+
+By default, applying `typesafe-conventions` to a top-level build is not allowed, but you can change this default in your `settings.gradle.kts`:
+```kotlin
+typesafeConventions { 
+    allowTopLevelBuild = true 
+}
+```
+> [!WARNING]
+> Allow top-level build only if you know what you're doing!
+
+If you apply `typesafe-conventions` to a top-level build, be aware that your convention plugins will be
+compiled against typesafe accessors generated for version catalogs (TOML files) your local build has access to.
+If you publish your convention plugins to remote repo and use them in another build, make sure the version
+catalogs in that another build are **exactly** the same as in the original one. Otherwise, you will end up if
+referencing catalog entries that are not existing!
+
+A valid use case is when you publish your convention plugins together with the version catalog (with the same 
+version) and the catalog has entry to self-reference this version. This way, you can assure the version 
+catalog and convention plugins are always in sync.
