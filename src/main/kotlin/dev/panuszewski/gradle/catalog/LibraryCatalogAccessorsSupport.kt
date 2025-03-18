@@ -3,7 +3,7 @@
 package dev.panuszewski.gradle.catalog
 
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR
-import dev.panuszewski.gradle.util.capitalizedName
+import dev.panuszewski.gradle.util.capitalized
 import dev.panuszewski.gradle.util.createNewFile
 import dev.panuszewski.gradle.util.readResourceAsString
 import org.gradle.api.Project
@@ -21,16 +21,19 @@ internal object LibraryCatalogAccessorsSupport {
     }
 
     private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val entrypointName = "EntrypointFor${catalog.capitalizedName}"
+        val entrypointName = "EntrypointFor${catalog.name.capitalized}"
 
         val generateEntrypointTask = project.tasks.register("generate$entrypointName") {
+            inputs.property("catalogName", catalog.name)
             outputs.file("$GENERATED_SOURCES_DIR/$entrypointName.kt")
             outputs.cacheIf { true }
 
             doLast {
+                val catalogName = inputs.properties["catalogName"].toString()
+
                 val source = readResourceAsString("/EntrypointForLibs.kt")
-                    .replace("libs", catalog.name)
-                    .replace("Libs", catalog.capitalizedName)
+                    .replace("libs", catalogName)
+                    .replace("Libs", catalogName.capitalized)
 
                 outputs.files.singleFile.writeText(source)
             }
@@ -41,7 +44,7 @@ internal object LibraryCatalogAccessorsSupport {
     }
 
     private fun writeCatalogAccessorsBeforeCompilation(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val accessorsName = "LibrariesFor${catalog.capitalizedName}"
+        val accessorsName = "LibrariesFor${catalog.name.capitalized}"
 
         // this task will never be UP-TO-DATE as otherwise it would not take into account changes in version catalog
         val generateAccessorsTask = project.tasks.register("generate$accessorsName") {
@@ -60,7 +63,7 @@ internal object LibraryCatalogAccessorsSupport {
         val writer = StringWriter()
         val model = catalog.build()
         val packageName = "org.gradle.accessors.dm"
-        val className = "LibrariesFor${catalog.capitalizedName}"
+        val className = "LibrariesFor${catalog.name.capitalized}"
         val problemsService = project.serviceOf<Problems>()
         LibrariesSourceGenerator.generateSource(writer, model, packageName, className, problemsService)
         return writer.toString()

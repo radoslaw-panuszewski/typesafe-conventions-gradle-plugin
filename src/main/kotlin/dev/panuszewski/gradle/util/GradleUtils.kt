@@ -17,11 +17,6 @@ internal fun currentGradleVersion(): GradleVersion =
 internal fun gradleVersionAtLeast(version: String): Boolean =
     currentGradleVersion() >= gradleVersion(version)
 
-internal val VersionCatalogBuilder.capitalizedName: String
-    get() = name.replaceFirstChar {
-        if (it.isLowerCase()) it.titlecase() else it.toString()
-    }
-
 internal val Project.settings: SettingsInternal
     get() = (project.gradle as GradleInternal).settings
 

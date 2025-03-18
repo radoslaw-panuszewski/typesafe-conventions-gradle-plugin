@@ -1,7 +1,7 @@
 package dev.panuszewski.gradle.catalog
 
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR
-import dev.panuszewski.gradle.util.capitalizedName
+import dev.panuszewski.gradle.util.capitalized
 import dev.panuszewski.gradle.util.readResourceAsString
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Project
@@ -60,7 +60,7 @@ internal object PluginCatalogAccessorsSupport {
     }
 
     private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val entrypointName = "EntrypointFor${catalog.capitalizedName}InPluginsBlock"
+        val entrypointName = "EntrypointFor${catalog.name.capitalized}InPluginsBlock"
 
         val generateEntrypointTask = project.tasks.register("generate$entrypointName") {
             outputs.file("$GENERATED_SOURCES_DIR/$entrypointName.kt")
@@ -69,7 +69,7 @@ internal object PluginCatalogAccessorsSupport {
             doLast {
                 val source = readResourceAsString("/EntrypointForLibsInPluginsBlock.kt")
                     .replace("libs", catalog.name)
-                    .replace("Libs", catalog.capitalizedName)
+                    .replace("Libs", catalog.name.capitalized)
 
                 outputs.files.singleFile.writeText(source)
             }
@@ -96,7 +96,7 @@ internal object PluginCatalogAccessorsSupport {
         pluginDeclarations: List<PluginDeclaration>
     ) {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
-            val taskName = "patchPluginsBlocksFor${catalog.capitalizedName}"
+            val taskName = "patchPluginsBlocksFor${catalog.name.capitalized}"
 
             val patchPluginsBlocksTask = project.tasks.register(taskName) {
                 doLast {
