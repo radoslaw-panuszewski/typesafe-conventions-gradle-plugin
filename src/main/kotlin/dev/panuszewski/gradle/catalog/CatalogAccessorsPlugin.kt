@@ -55,5 +55,6 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
         private val logger = Logging.getLogger(CatalogAccessorsPlugin::class.java)
         // TODO separated source sets for generated Java and Kotlin files
         internal const val GENERATED_SOURCES_DIR = "build/generated-sources/typesafe-conventions/kotlin"
+        internal const val GENERATED_SOURCES_DIR_RELATIVE = "generated-sources/typesafe-conventions/kotlin"
     }
 }
