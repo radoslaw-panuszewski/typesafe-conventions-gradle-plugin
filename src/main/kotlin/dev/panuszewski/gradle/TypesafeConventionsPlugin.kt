@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin
+import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,12 +19,15 @@ import java.io.File
 internal class TypesafeConventionsPlugin : Plugin<Any> {
 
     override fun apply(target: Any) {
+        require(gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion() }
+
         val settings = target as? Settings ?: mustBeAppliedToSettings(target)
-        val parentBuild = settings.gradle.parent as? GradleInternal ?: mustBeAppliedToIncludedBuild()
-        require(settings.gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion(settings) }
+        val parentBuild = (settings.gradle.parent as? GradleInternal) ?: mustBeAppliedToIncludedBuild()
+
+        // TODO write tests for multiple catalogs
 
         registerExtension(settings)
-        useVersionCatalogsFromParentBuild(settings, parentBuild)
+        inheritCatalogsFromParentBuild(settings, parentBuild)
         enableCatalogAccessorsForAllProjects(settings)
     }
 
@@ -31,7 +35,7 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         settings.extensions.create<TypesafeConventionsExtension>("typesafeConventions")
     }
 
-    private fun useVersionCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
+    private fun inheritCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
         val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
         val tomlFiles = discoverTomlFiles(parentGradleDir)
         createVersionCatalogs(tomlFiles, settings)
@@ -97,16 +101,16 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         )
     }
 
-    private fun mustUseMinimalGradleVersion(settings: Settings): Nothing {
+    private fun mustUseMinimalGradleVersion(): Nothing {
         error(
             "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
-                "but currently Gradle ${settings.gradle.gradleVersion} is used."
+                "but currently ${currentGradleVersion()} is used."
         )
     }
 
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
-        internal const val MINIMAL_GRADLE_VERSION = "8.4"
+        internal const val MINIMAL_GRADLE_VERSION = "8.7"
     }
 }
 

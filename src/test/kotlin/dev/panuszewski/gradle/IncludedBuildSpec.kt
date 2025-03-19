@@ -59,7 +59,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
                 }
                     
                 plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 """
             }
@@ -120,7 +120,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
                 }
                     
                 plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 """
             }
@@ -189,7 +189,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
                 }
                     
                 plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 """
             }
@@ -238,7 +238,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
                 }
                     
                 plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${System.getenv("PROJECT_VERSION")}"
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 """
             }

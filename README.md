@@ -33,7 +33,7 @@ If you prefer watching over reading, check out this [cool video](https://www.you
 
 ### Prerequisites
 
-* Gradle version is at least 8.4
+* Gradle version is at least 8.7
 * There is `gradle/*.versions.toml` file
 * There is an included build for build logic (we will refer to it as `buildSrc`)
 * At least one project within `buildSrc` has [precompiled script plugins](https://docs.gradle.org/8.12.1/userguide/implementing_gradle_plugins_precompiled.html) enabled (you can do this by applying the `kotlin-dsl` plugin)

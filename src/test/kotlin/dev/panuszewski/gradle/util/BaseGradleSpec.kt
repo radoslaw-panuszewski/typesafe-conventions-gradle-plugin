@@ -42,6 +42,7 @@ abstract class BaseGradleSpec {
      * Gradle with the given version will be used in [GradleRunner]
      */
     var gradleVersion: GradleVersion = GradleVersions.GRADLE_VERSION_TO_TEST
+    val projectVersion: String = System.getenv("PROJECT_VERSION")
     val buildEnvironment = mutableMapOf<String, String>()
 
     lateinit var mainBuild: GradleBuild
