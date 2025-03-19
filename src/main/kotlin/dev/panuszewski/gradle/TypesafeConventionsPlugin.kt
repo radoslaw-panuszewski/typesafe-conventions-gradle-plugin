@@ -3,6 +3,7 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
+import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
@@ -22,12 +23,15 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         require(gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion() }
 
         val settings = target as? Settings ?: mustBeAppliedToSettings(target)
-        val parentBuild = (settings.gradle.parent as? GradleInternal) ?: mustBeAppliedToIncludedBuild()
-
-        // TODO write tests for multiple catalogs
-
         registerExtension(settings)
-        inheritCatalogsFromParentBuild(settings, parentBuild)
+
+        val parentBuild = settings.gradle.parent as? GradleInternal
+
+        if (parentBuild != null) {
+            inheritCatalogsFromParentBuild(settings, parentBuild)
+        } else {
+            failIfTopLevelBuildIsNotAllowed(settings)
+        }
         enableCatalogAccessorsForAllProjects(settings)
     }
 
@@ -94,18 +98,30 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         )
     }
 
-    private fun mustBeAppliedToIncludedBuild(): Nothing {
-        error(
-            "The typesafe-conventions plugin must be applied to an included build, " +
-                "but attempted to apply it to a top-level build"
-        )
-    }
-
+    // TODO use GradlePluginApiVersion attribute instead
     private fun mustUseMinimalGradleVersion(): Nothing {
         error(
             "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
                 "but currently ${currentGradleVersion()} is used."
         )
+    }
+
+    private fun failIfTopLevelBuildIsNotAllowed(settings: Settings) {
+        settings.gradle.settingsEvaluated {
+            if (!typesafeConventions.allowTopLevelBuild.get()) {
+                error(
+                    """
+                    The typesafe-conventions plugin is applied to a top-level build, but in most cases it should be applied to an included build or buildSrc. If you know what you're doing, allow top-level build in your settings.gradle.kts:
+        
+                    typesafeConventions { 
+                        allowTopLevelBuild = true 
+                    }
+        
+                    Read more here: https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/blob/main/README.md#top-level-build
+                    """.trimIndent()
+                )
+            }
+        }
     }
 
     companion object {
