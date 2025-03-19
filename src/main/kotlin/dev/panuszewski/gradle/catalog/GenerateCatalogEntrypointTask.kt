@@ -13,6 +13,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
+// TODO tests for caching and invalidating on input changes
 @CacheableTask
 internal abstract class GenerateCatalogEntrypointTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
@@ -28,8 +29,8 @@ internal abstract class GenerateCatalogEntrypointTask @Inject constructor(object
     @TaskAction
     fun execute() {
         val source = readResourceAsString("/${entrypointTemplateName.get()}.kt")
-            .replace("libs", catalogName.get())
-            .replace("Libs", catalogName.get().capitalized)
+            .replace("catalog", catalogName.get())
+            .replace("Catalog", catalogName.get().capitalized)
 
         outputFile.get().asFile.writeText(source)
     }

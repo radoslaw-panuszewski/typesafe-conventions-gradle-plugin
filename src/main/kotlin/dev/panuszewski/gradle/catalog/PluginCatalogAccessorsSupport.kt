@@ -65,7 +65,7 @@ internal object PluginCatalogAccessorsSupport {
 
         val generateEntrypointTask = project.tasks.register<GenerateCatalogEntrypointTask>("generate$entrypointName") {
             this.catalogName.set(catalog.name)
-            this.entrypointTemplateName.set("EntrypointForLibsInPluginsBlock")
+            this.entrypointTemplateName.set("EntrypointForCatalogInPluginsBlock")
             this.outputFile.set(project.layout.buildDirectory.file("$GENERATED_SOURCES_DIR_RELATIVE/$entrypointName.kt"))
         }
 
