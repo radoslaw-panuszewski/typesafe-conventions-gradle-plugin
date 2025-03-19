@@ -7,6 +7,8 @@ import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import org.gradle.util.GradleVersion
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 
 class WrongUsageSpec : BaseGradleSpec() {
@@ -77,7 +79,10 @@ class WrongUsageSpec : BaseGradleSpec() {
     }
 
     @Test
-    fun `should allow applying to top-level build when opted in`() {
+    fun `should allow applying to top-level build when explicitly allowed`() {
+        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
+        assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
+
         // given
         settingsGradleKts {
             """
@@ -93,6 +98,40 @@ class WrongUsageSpec : BaseGradleSpec() {
             }
             
             typesafeConventions { 
+                allowTopLevelBuild = true 
+            }
+            """
+        }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+    }
+
+    @Test
+    fun `should allow applying to top-level build when explicitly allowed in old Gradle`() {
+        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
+        assumeTrue(gradleVersion < GradleVersion.version("8.8"))
+
+        // given
+        settingsGradleKts {
+            """
+            import dev.panuszewski.gradle.TypesafeConventionsExtension
+                
+            pluginManagement {
+                repositories {
+                    gradlePluginPortal()
+                    mavenLocal()
+                }
+            }
+                
+            plugins {
+                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
+            }
+            
+            configure<TypesafeConventionsExtension> { 
                 allowTopLevelBuild = true 
             }
             """

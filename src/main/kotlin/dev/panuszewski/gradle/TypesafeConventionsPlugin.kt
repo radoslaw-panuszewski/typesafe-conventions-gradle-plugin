@@ -98,6 +98,7 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         )
     }
 
+    // TODO use GradlePluginApiVersion attribute instead
     private fun mustUseMinimalGradleVersion(): Nothing {
         error(
             "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
