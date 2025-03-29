@@ -66,6 +66,8 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
     public val autoPluginDependencies: Property<Boolean> = objects.property<Boolean>().convention(true)
 
     /**
+     * (disabled by default)
+     *
      * Suppress the warning about plugin usage on top-level build
      *
      * @since 0.6.0
