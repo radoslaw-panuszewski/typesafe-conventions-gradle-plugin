@@ -14,14 +14,13 @@ import java.io.Serializable
 internal object PluginCatalogAccessorsSupport {
 
     private const val MAIN_KOTLIN_SRC_DIR = "src/main/kotlin"
-    private const val EXTRACTED_PLUGINS_BLOCKS_DIR = "kotlin-dsl/plugins-blocks/extracted"
     private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(.+\.plugins\.(.+)\).*""".toRegex()
 
     fun apply(project: Project, catalog: VersionCatalogBuilderInternal) {
         val pluginDeclarations = collectPluginDeclarations(project, catalog)
 
         writeCatalogEntrypointBeforeCompilation(project, catalog)
-        patchPluginsBlocksBeforeCompilation(project, pluginDeclarations)
+        patchPluginsBlocksAfterExtraction(project, pluginDeclarations)
 
         if (project.typesafeConventions.autoPluginDependencies.get()) {
             addPluginMarkerDependencies(project, pluginDeclarations)
@@ -74,13 +73,13 @@ internal object PluginCatalogAccessorsSupport {
         }
     }
 
-    private fun patchPluginsBlocksBeforeCompilation(project: Project, pluginDeclarations: List<PluginDeclaration>) {
+    private fun patchPluginsBlocksAfterExtraction(project: Project, pluginDeclarations: List<PluginDeclaration>) {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
             // we add action to existing task instead of registering a dedicated task to allow caching
             // (otherwise the dedicated task would modify its own input and never be UP-TO-DATE)
             project.tasks.findByName("extractPrecompiledScriptPluginPlugins")
                 ?.doLast {
-                    project.layout.buildDirectory.dir(EXTRACTED_PLUGINS_BLOCKS_DIR).get().asFile.walk()
+                    outputs.files.asFileTree
                         .filter { file -> file.name.endsWith(".gradle.kts") }
                         .forEach { file -> patchPluginsBlock(file, pluginDeclarations) }
                 }

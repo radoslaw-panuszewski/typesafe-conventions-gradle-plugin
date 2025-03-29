@@ -9,6 +9,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -51,9 +52,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
 
     @ParameterizedTest
     @MethodSource("includedBuildConfigurators")
-    fun `should respect disabling accessors in plugins block`(
-        includedBuild: BuildConfigurator
-    ) {
+    fun `should respect disabling accessors in plugins block`(includedBuild: BuildConfigurator) {
         // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
@@ -288,5 +287,72 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain taskRegisteredBySomePlugin
         result.output shouldContain taskRegisteredByAnotherPlugin
+    }
+
+    @Test
+    fun `should work for top-level build`() {
+        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
+        assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
+
+        // given
+        customProjectFile("gradle/libs.versions.toml") {
+            """
+            [plugins]
+            some-plugin = { id = "pl.allegro.tech.build.axion-release", version = "1.18.16" }
+            
+            [libraries]
+            some-library = "org.apache.commons:commons-lang3:3.17.0"
+            """
+        }
+
+        customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+            """
+            plugins {
+                java
+                alias(libs.plugins.some.plugin)
+            }
+            
+            dependencies {
+                implementation(libs.some.library)
+            }
+            """
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                `kotlin-dsl`
+            }
+            
+            repositories {
+                gradlePluginPortal()
+            }
+            """
+        }
+
+        settingsGradleKts {
+            """
+            pluginManagement {
+                repositories {
+                    gradlePluginPortal()
+                    mavenLocal()
+                }
+            }
+                
+            plugins {
+                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
+            }
+            
+            typesafeConventions { 
+                allowTopLevelBuild = true 
+            }
+            """
+        }
+
+        // when
+        val result = runGradle("assemble")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
 }

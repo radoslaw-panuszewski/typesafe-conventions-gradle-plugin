@@ -7,7 +7,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.api.internal.catalog.LibrariesSourceGenerator
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
@@ -20,16 +19,16 @@ import javax.inject.Inject
 
 // TODO tests for caching and invalidating on input changes
 @CacheableTask
-internal abstract class GenerateCatalogAccessorsTask @Inject constructor(
-    objects: ObjectFactory,
-    private val problems: Problems
-) : DefaultTask() {
+internal abstract class GenerateCatalogAccessorsTask : DefaultTask() {
 
     @Input
-    val catalogModel: Property<DefaultVersionCatalog> = objects.property()
+    val catalogModel: Property<DefaultVersionCatalog> = project.objects.property()
 
     @OutputFile
-    val outputFile: RegularFileProperty = objects.fileProperty()
+    val outputFile: RegularFileProperty = project.objects.fileProperty()
+
+    @get:Inject
+    abstract val problems: Problems
 
     @TaskAction
     fun execute() {
