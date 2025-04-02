@@ -79,6 +79,10 @@ typesafeConventions {
     // enable or disable auto dependency for every alias(...) plugin declaration in a convention plugin
     // set it to 'false' if you prefer to add plugin marker dependencies manually (you can use the pluginMarker helper method for that) 
     autoPluginDependencies = true
+
+    // whether to allow plugin usage for a top-level build
+    // set it to 'true' only if you know what you're doing!
+    allowTopLevelBuild = false
 }
 ```
 
