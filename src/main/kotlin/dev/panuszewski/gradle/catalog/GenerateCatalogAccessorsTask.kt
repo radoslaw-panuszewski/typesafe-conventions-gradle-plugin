@@ -17,7 +17,6 @@ import org.gradle.kotlin.dsl.property
 import java.io.StringWriter
 import javax.inject.Inject
 
-// TODO tests for caching and invalidating on input changes
 @CacheableTask
 internal abstract class GenerateCatalogAccessorsTask : DefaultTask() {
 
