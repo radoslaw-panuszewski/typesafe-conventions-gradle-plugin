@@ -77,12 +77,16 @@ internal object PluginCatalogAccessorsSupport {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
             // we add action to existing task instead of registering a dedicated task to allow caching
             // (otherwise the dedicated task would modify its own input and never be UP-TO-DATE)
-            project.tasks.findByName("extractPrecompiledScriptPluginPlugins")
-                ?.doLast {
+            project.tasks.findByName("extractPrecompiledScriptPluginPlugins")?.apply {
+                // this input is only needed to invalidate this task on changes in libs.versions.toml
+                inputs.property("pluginDeclarations", pluginDeclarations)
+
+                doLast {
                     outputs.files.asFileTree
                         .filter { file -> file.name.endsWith(".gradle.kts") }
                         .forEach { file -> patchPluginsBlock(file, pluginDeclarations) }
                 }
+            }
         }
     }
 

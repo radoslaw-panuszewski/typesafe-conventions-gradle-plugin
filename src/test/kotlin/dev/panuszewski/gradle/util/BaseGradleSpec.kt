@@ -2,6 +2,7 @@ package dev.panuszewski.gradle.util
 
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
+import org.gradle.internal.impldep.org.jsoup.Connection.Base
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -48,6 +49,9 @@ abstract class BaseGradleSpec {
     lateinit var mainBuild: GradleBuild
     val includedBuilds = mutableMapOf<String, GradleBuild>()
 
+    var configurationCacheEnabled = true
+    var buildCacheEnabled = true
+
     /**
      * Set the full content of build.gradle.kts
      */
@@ -77,6 +81,9 @@ abstract class BaseGradleSpec {
         build.configureBuild()
     }
 
+    /**
+     * Register and configure build-logic included build
+     */
     fun buildLogic(configureBuild: GradleBuild.() -> Unit) {
         includedBuild("build-logic", configureBuild)
     }
@@ -89,6 +96,10 @@ abstract class BaseGradleSpec {
             GradleBuild("buildSrc", mainBuild.rootDir.resolve("buildSrc"), gradleVersion)
         }
         build.configureBuild()
+    }
+
+    fun notNestedBuildLogic(configureBuild: GradleBuild.() -> Unit) {
+        includedBuild("../build-logic-for-${mainBuild.rootDir.name}", configureBuild)
     }
 
     /**
@@ -111,7 +122,8 @@ abstract class BaseGradleSpec {
             val args = buildList {
                 addAll(arguments)
                 add("--stacktrace")
-                add("--configuration-cache")
+                if (configurationCacheEnabled) add("--configuration-cache")
+                if (buildCacheEnabled) add("--build-cache")
             }
 
             dumpBuildEnvironment()
@@ -157,17 +169,12 @@ abstract class BaseGradleSpec {
 
     companion object {
         @JvmStatic
-        fun includedBuildConfigurators(): Stream<Arguments> {
-            val notNestedBuildConfigurator: BuildConfigurator = {
-                includedBuild("../not-nested-build-logic-for-${mainBuild.rootDir.name}", it)
-            }
-
-            return Stream.of(
+        fun includedBuildConfigurators(): Stream<Arguments> =
+            Stream.of(
                 argumentSet("buildSrc", BaseGradleSpec::buildSrc),
                 argumentSet("build-logic", BaseGradleSpec::buildLogic),
-                argumentSet("not-nested-build-logic", notNestedBuildConfigurator),
+                argumentSet("not-nested-build-logic", BaseGradleSpec::notNestedBuildLogic),
             )
-        }
     }
 }
 
