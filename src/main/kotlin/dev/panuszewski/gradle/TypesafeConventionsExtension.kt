@@ -68,7 +68,8 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
     /**
      * (disabled by default)
      *
-     * Suppress the warning about plugin usage on top-level build
+     * Whether to allow plugin usage for a top-level build.
+     * Set it to `true` only if you know what you're doing!
      *
      * @since 0.6.0
      */
