@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Please share your thoughts in the discussion: [Which style of accessors would you prefer for convention plugins themselves?](https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/discussions/48)
+
 # Typesafe Conventions Gradle Plugin
 
 [![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/dev.panuszewski.typesafe-conventions?style=flat)](https://plugins.gradle.org/plugin/dev.panuszewski.typesafe-conventions)
