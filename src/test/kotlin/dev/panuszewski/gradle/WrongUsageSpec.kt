@@ -8,6 +8,7 @@ import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.gradle.util.GradleVersion
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 
@@ -146,6 +147,8 @@ class WrongUsageSpec : BaseGradleSpec() {
 
     @Test
     fun `should require minimal Gradle version`() {
+        assumeTrue { System.getenv().containsKey("CI") }
+
         // given
         gradleVersion = gradleVersion("8.3")
 

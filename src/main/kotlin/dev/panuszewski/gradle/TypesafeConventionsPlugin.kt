@@ -11,13 +11,19 @@ import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
+import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.support.serviceOf
 import java.io.File
+import javax.inject.Inject
 
 @Suppress("unused") // used as plugin implementation class
-internal class TypesafeConventionsPlugin : Plugin<Any> {
+internal class TypesafeConventionsPlugin @Inject constructor(
+    private val objects: ObjectFactory
+) : Plugin<Any> {
 
     override fun apply(target: Any) {
         require(gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion() }
@@ -40,9 +46,39 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
     }
 
     private fun inheritCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
+        val builders = discoverBuilders(settings, parentBuild)
+        val tomlFiles = discoverTomlFiles(settings, parentBuild)
+
+        val contributorsByName = builders.associateBy(VersionCatalogContributor::catalogName).toMutableMap()
+
+        tomlFiles.forEach { tomlFile -> contributorsByName.computeIfAbsent(tomlFile.catalogName) { tomlFile } }
+
+        contributorsByName.values.forEach { it.contributeTo(settings.dependencyResolutionManagement.versionCatalogs) }
+    }
+
+    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<VersionCatalogContributor> {
+        val catalogBuilders = parentBuild.settings
+            .dependencyResolutionManagement
+            .dependenciesModelBuilders
+            .filterIsInstance<VersionCatalogBuilderInternal>()
+
+        return catalogBuilders.map { objects.newInstance<BuilderVersionCatalogContributor>(it) }
+    }
+
+    private fun discoverTomlFiles(settings: Settings, parentBuild: GradleInternal): List<VersionCatalogContributor> {
         val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
-        val tomlFiles = discoverTomlFiles(parentGradleDir)
-        createVersionCatalogs(tomlFiles, settings)
+
+        val tomlFiles = parentGradleDir
+            .walk()
+            .filter { it.name.endsWith(".versions.toml") }
+            .toList()
+
+        if (tomlFiles.isEmpty()) {
+            logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
+        }
+
+        // TODO investigate why fileOperations can't be automatically injected
+        return tomlFiles.map { objects.newInstance<TomlFileVersionCatalogContributor>(it, settings.serviceOf<FileOperations>() ) }
     }
 
     private fun resolveParentGradleDir(parentBuild: GradleInternal, settings: Settings): File =
@@ -52,31 +88,27 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
             settings.rootDir.resolve("..").resolve("gradle")
         }
 
-    private fun discoverTomlFiles(parentGradleDir: File): List<File> {
-        val tomlFiles = parentGradleDir
-            .walk()
-            .filter { it.name.endsWith(".versions.toml") }
-            .toList()
+//    private fun createVersionCatalogsFromTomlFiles(tomlFiles: List<File>, settings: Settings) {
+//        val fileOperations = settings.serviceOf<FileOperations>()
+//
+//        tomlFiles.forEach { tomlFile ->
+//            val catalogName = tomlFile.name.substringBefore(".versions.toml")
+//
+//            settings.dependencyResolutionManagement.versionCatalogs {
+//                create(catalogName) {
+//                    from(fileOperations.configurableFiles(tomlFile))
+//                }
+//            }
+//        }
+//    }
 
-        if (tomlFiles.isEmpty()) {
-            logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
-        }
-        return tomlFiles
-    }
-
-    private fun createVersionCatalogs(tomlFiles: List<File>, settings: Settings) {
-        val fileOperations = settings.serviceOf<FileOperations>()
-
-        tomlFiles.forEach { tomlFile ->
-            val catalogName = tomlFile.name.substringBefore(".versions.toml")
-
-            settings.dependencyResolutionManagement.versionCatalogs {
-                create(catalogName) {
-                    from(fileOperations.configurableFiles(tomlFile))
-                }
-            }
-        }
-    }
+//    private fun createVersionCatalogsFromBuilders(catalogBuilders: List<VersionCatalogBuilderInternal>, settings: Settings) {
+//        catalogBuilders.forEach { versionCatalog ->
+//            settings.dependencyResolutionManagement.versionCatalogs {
+//                add(versionCatalog)
+//            }
+//        }
+//    }
 
     private fun enableCatalogAccessorsForAllProjects(target: Settings) {
         target.gradle.rootProject {
