@@ -3,6 +3,7 @@ package dev.panuszewski.gradle
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
 import org.gradle.api.initialization.resolve.MutableVersionCatalogContainer
 import org.gradle.api.internal.file.FileOperations
+import org.gradle.api.model.ObjectFactory
 import java.io.File
 import javax.inject.Inject
 
@@ -13,7 +14,7 @@ internal interface VersionCatalogContributor {
 
 internal open class TomlFileVersionCatalogContributor @Inject constructor(
     private val tomlFile: File,
-    private val fileOperations: FileOperations
+    private val objects: ObjectFactory
 ) : VersionCatalogContributor {
 
     override val catalogName = tomlFile.name.substringBefore(".versions.toml")
@@ -22,7 +23,7 @@ internal open class TomlFileVersionCatalogContributor @Inject constructor(
         println("Contributing $catalogName from TOML file")
 
         container.create(catalogName) {
-            from(fileOperations.configurableFiles(tomlFile))
+            from(objects.fileCollection().from(tomlFile))
         }
     }
 }

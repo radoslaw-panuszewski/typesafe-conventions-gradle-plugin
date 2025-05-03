@@ -77,8 +77,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
         }
 
-        // TODO investigate why fileOperations can't be automatically injected
-        return tomlFiles.map { objects.newInstance<TomlFileVersionCatalogContributor>(it, settings.serviceOf<FileOperations>() ) }
+        return tomlFiles.map { objects.newInstance<TomlFileVersionCatalogContributor>(it) }
     }
 
     private fun resolveParentGradleDir(parentBuild: GradleInternal, settings: Settings): File =
@@ -87,28 +86,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         } catch (e: Throwable) {
             settings.rootDir.resolve("..").resolve("gradle")
         }
-
-//    private fun createVersionCatalogsFromTomlFiles(tomlFiles: List<File>, settings: Settings) {
-//        val fileOperations = settings.serviceOf<FileOperations>()
-//
-//        tomlFiles.forEach { tomlFile ->
-//            val catalogName = tomlFile.name.substringBefore(".versions.toml")
-//
-//            settings.dependencyResolutionManagement.versionCatalogs {
-//                create(catalogName) {
-//                    from(fileOperations.configurableFiles(tomlFile))
-//                }
-//            }
-//        }
-//    }
-
-//    private fun createVersionCatalogsFromBuilders(catalogBuilders: List<VersionCatalogBuilderInternal>, settings: Settings) {
-//        catalogBuilders.forEach { versionCatalog ->
-//            settings.dependencyResolutionManagement.versionCatalogs {
-//                add(versionCatalog)
-//            }
-//        }
-//    }
 
     private fun enableCatalogAccessorsForAllProjects(target: Settings) {
         target.gradle.rootProject {
