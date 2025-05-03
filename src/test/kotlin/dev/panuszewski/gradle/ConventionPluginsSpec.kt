@@ -355,4 +355,54 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
+
+    @ParameterizedTest
+    @MethodSource("includedBuildConfigurators")
+    fun `should support imported version catalogs`(includedBuild: BuildConfigurator) {
+        // given
+        val library = "org.apache.commons:commons-lang3:3.17.0"
+        libsInDependenciesBlock(library, includedBuild)
+
+        // and
+        settingsGradleKts {
+            append {
+                """
+                dependencyResolutionManagement {
+                    repositories {
+                        mavenCentral()
+                    }
+                
+                    versionCatalogs {
+                        create("mn") {
+                            from("io.micronaut.platform:micronaut-platform:4.8.2")
+                        }
+                    }
+                }
+                """
+            }
+        }
+
+        // and
+        includedBuild {
+            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+                """
+                plugins {
+                    java
+                }
+                
+                dependencies {
+                    implementation(mn.micronaut.core)
+                }
+                """
+            }
+        }
+
+        // when
+        val result = runGradle("dependencyInsight", "--dependency", library)
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain library
+        result.output shouldNotContain "$library FAILED"
+    }
 }

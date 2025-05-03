@@ -8,7 +8,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
-import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
@@ -16,7 +15,6 @@ import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.newInstance
-import org.gradle.kotlin.dsl.support.serviceOf
 import java.io.File
 import javax.inject.Inject
 
@@ -49,23 +47,23 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         val builders = discoverBuilders(settings, parentBuild)
         val tomlFiles = discoverTomlFiles(settings, parentBuild)
 
-        val contributorsByName = builders.associateBy(VersionCatalogContributor::catalogName).toMutableMap()
+        val contributorsByName = builders.associateBy(CatalogContributor::catalogName).toMutableMap()
 
         tomlFiles.forEach { tomlFile -> contributorsByName.computeIfAbsent(tomlFile.catalogName) { tomlFile } }
 
         contributorsByName.values.forEach { it.contributeTo(settings.dependencyResolutionManagement.versionCatalogs) }
     }
 
-    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<VersionCatalogContributor> {
+    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> {
         val catalogBuilders = parentBuild.settings
             .dependencyResolutionManagement
             .dependenciesModelBuilders
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
-        return catalogBuilders.map { objects.newInstance<BuilderVersionCatalogContributor>(it) }
+        return catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
     }
 
-    private fun discoverTomlFiles(settings: Settings, parentBuild: GradleInternal): List<VersionCatalogContributor> {
+    private fun discoverTomlFiles(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> {
         val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
 
         val tomlFiles = parentGradleDir
@@ -77,7 +75,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
         }
 
-        return tomlFiles.map { objects.newInstance<TomlFileVersionCatalogContributor>(it) }
+        return tomlFiles.map { tomlFile -> objects.newInstance<TomlCatalogContributor>(tomlFile) }
     }
 
     private fun resolveParentGradleDir(parentBuild: GradleInternal, settings: Settings): File =
