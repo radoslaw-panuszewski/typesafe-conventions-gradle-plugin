@@ -1,10 +1,10 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
-import dev.panuszewski.gradle.util.GradleSpec
-import dev.panuszewski.gradle.util.BuildConfigurator
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildConfigurator
+import dev.panuszewski.gradle.framework.NoConfigFixture
 
-object MultipleCatalogsInPluginsBlock : Fixture {
+object MultipleCatalogsInPluginsBlock : NoConfigFixture {
 
     const val somePluginId = "pl.allegro.tech.build.axion-release"
     const val somePluginVersion = "1.18.16"
@@ -14,7 +14,7 @@ object MultipleCatalogsInPluginsBlock : Fixture {
     const val anotherPluginVersion = "0.52.0"
     const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         spec.libsVersionsToml {
             """
             [plugins]
@@ -43,13 +43,13 @@ object MultipleCatalogsInPluginsBlock : Fixture {
             }
         }
 
-        spec.conventionPluginAppliedInRootProject(includedBuild) {
-            """
-            plugins {
-                alias(libs.plugins.some.plugin)
-                alias(tools.plugins.another.plugin)
-            }
-            """
+        spec.installFixture(ConventionPlugin) {
+            pluginBody = """
+                plugins {
+                    alias(libs.plugins.some.plugin)
+                    alias(tools.plugins.another.plugin)
+                }
+                """
         }
     }
 }

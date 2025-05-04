@@ -2,7 +2,7 @@ package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
-import dev.panuszewski.gradle.util.GradleSpec
+import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.collections.shouldContain
 import org.junit.jupiter.api.Test
 

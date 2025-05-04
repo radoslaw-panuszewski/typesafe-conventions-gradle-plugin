@@ -1,14 +1,14 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
-import dev.panuszewski.gradle.util.GradleSpec
-import dev.panuszewski.gradle.util.BuildConfigurator
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildConfigurator
+import dev.panuszewski.gradle.framework.NoConfigFixture
 
-object LibsInDependenciesBlock : Fixture {
+object LibsInDependenciesBlock : NoConfigFixture {
 
-    val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
+    const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         spec.libsVersionsToml {
             """
             [libraries]
@@ -16,16 +16,16 @@ object LibsInDependenciesBlock : Fixture {
             """
         }
 
-        spec.conventionPluginAppliedInRootProject(includedBuild) {
-            """
-            plugins {
-                java
-            }
-            
-            dependencies {
-                implementation(libs.some.library)
-            }
-            """
+        spec.installFixture(ConventionPlugin) {
+            pluginBody = """
+                plugins {
+                    java
+                }
+                
+                dependencies {
+                    implementation(libs.some.library)
+                }
+                """
         }
     }
 }

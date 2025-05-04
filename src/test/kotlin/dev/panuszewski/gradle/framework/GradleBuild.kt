@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.util
+package dev.panuszewski.gradle.framework
 
 import org.gradle.util.GradleVersion
 import java.io.File
@@ -41,14 +41,14 @@ class GradleBuild(
     }
 
     /**
-     * Set the full content of build.gradle.kts
+     * Override, append or prepend content of `build.gradle.kts`
      */
     fun buildGradleKts(configurator: AppendableFile.() -> Any) {
         buildGradleKts.acceptConfigurator(configurator)
     }
 
     /**
-     * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
+     * Override, append or prepend content of `<subprojectName>/build.gradle.kts` and includes the subproject in the build
      */
     fun subprojectBuildGradleKts(subprojectName: String, configurator: AppendableFile.() -> Any) {
         subprojectBuildGradleKts[subprojectName] = rootDir
@@ -64,21 +64,24 @@ class GradleBuild(
     }
 
     /**
-     * Set the full content of settings.gradle.kts
+     * Override, append or prepend content of `settings.gradle.kts`
      */
     fun settingsGradleKts(configurator: AppendableFile.() -> Any) {
         settingsGradleKts.acceptConfigurator(configurator)
     }
 
+    /**
+     * Override, append or prepend content of `gradle/libs.versions.toml`
+     */
     fun libsVersionsToml(configurator: AppendableFile.() -> Any) {
         customProjectFile("gradle/libs.versions.toml", configurator)
     }
 
     /**
-     * Create the file under given [path] (relative to the test project root) with the given [content]
+     * Override, append or prepend content of a custom file under [path]
      */
     fun customProjectFile(path: String, configurator: AppendableFile.() -> Any) {
-        subprojectBuildGradleKts[path] = rootDir
+        customProjectFiles[path] = rootDir
             .resolveOrCreate(path)
             .let(::AppendableFile)
             .acceptConfigurator(configurator)

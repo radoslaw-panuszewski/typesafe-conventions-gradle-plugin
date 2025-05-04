@@ -1,9 +1,9 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
-import dev.panuszewski.gradle.util.GradleSpec
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain

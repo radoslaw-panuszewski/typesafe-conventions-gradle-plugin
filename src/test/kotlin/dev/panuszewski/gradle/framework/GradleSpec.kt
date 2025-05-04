@@ -1,9 +1,5 @@
-package dev.panuszewski.gradle.util
+package dev.panuszewski.gradle.framework
 
-import dev.panuszewski.gradle.fixtures.Fixture
-import dev.panuszewski.gradle.fixtures.FixturesExtension
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -59,38 +55,43 @@ abstract class GradleSpec {
     @RegisterExtension
     val fixtures = FixturesExtension()
 
-    fun <T : Fixture> installFixture(fixture: T): T {
-        fixtures.installFixture(fixture)
+    fun <T : Fixture<C>, C : Any> installFixture(fixture: T, configure: C.() -> Unit = {}): T {
+        val config = fixture.defaultConfig()
+        config.configure()
+        fixtures.installFixture(fixture, config)
         return fixture
     }
 
     /**
-     * Set the full content of build.gradle.kts
+     * Override, append or prepend content of `build.gradle.kts`
      */
     fun buildGradleKts(configurator: AppendableFile.() -> Any) {
         mainBuild.buildGradleKts(configurator)
     }
 
     /**
-     * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
+     * Override, append or prepend content of `<subprojectName>/build.gradle.kts` and include the subproject in the build
      */
     fun subprojectBuildGradleKts(subprojectName: String, configurator: AppendableFile.() -> Any) {
         mainBuild.subprojectBuildGradleKts(subprojectName, configurator)
     }
 
     /**
-     * Set the full content of settings.gradle.kts
+     * Override, append or prepend content of `settings.gradle.kts`
      */
     fun settingsGradleKts(configurator: AppendableFile.() -> Any) {
         mainBuild.settingsGradleKts(configurator)
     }
 
+    /**
+     * Override, append or prepend content of `gradle/libs.versions.toml`
+     */
     fun libsVersionsToml(configurator: AppendableFile.() -> Any) {
         mainBuild.libsVersionsToml(configurator)
     }
 
     /**
-     * Create the file under given [path] (relative to the test project root) with the given [content]
+     * Override, append or prepend content of a custom file under [path]
      */
     fun customProjectFile(path: String, configurator: AppendableFile.() -> Any) {
         mainBuild.customProjectFile(path, configurator)
@@ -150,9 +151,9 @@ abstract class GradleSpec {
                 .withArguments(args)
                 .apply(customizer)
                 .build()
-                .let { SuccessOrFailureBuildResult(it, BUILD_SUCCESSFUL) }
+                .let { SuccessOrFailureBuildResult(it, BuildOutcome.BUILD_SUCCESSFUL) }
         } catch (e: UnexpectedBuildFailure) {
-            SuccessOrFailureBuildResult(e.buildResult, BUILD_FAILED)
+            SuccessOrFailureBuildResult(e.buildResult, BuildOutcome.BUILD_FAILED)
         }
 
     private fun dumpBuildEnvironment() {
@@ -197,8 +198,6 @@ abstract class GradleSpec {
     @Retention(RUNTIME)
     annotation class AllIncludedBuildTypes
 }
-
-typealias BuildConfigurator = GradleSpec.(GradleBuild.() -> Unit) -> Unit
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,

@@ -1,11 +1,13 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.util.GradleSpec
-import dev.panuszewski.gradle.util.BuildConfigurator
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildConfigurator
+import dev.panuszewski.gradle.framework.Fixture
+import dev.panuszewski.gradle.framework.NoConfigFixture
 
-object TopLevelBuild : Fixture {
+object TopLevelBuild : NoConfigFixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         spec.libsVersionsToml {
             """
             [plugins]

@@ -19,8 +19,6 @@ internal open class TomlCatalogContributor @Inject constructor(
     override val catalogName = tomlFile.name.substringBefore(".versions.toml")
 
     override fun contributeTo(container: MutableVersionCatalogContainer) {
-        println("Contributing $catalogName from TOML file")
-
         container.create(catalogName) {
             from(objects.fileCollection().from(tomlFile))
         }
@@ -34,7 +32,6 @@ internal open class BuilderCatalogContributor @Inject constructor(
     override val catalogName = builder.name
 
     override fun contributeTo(container: MutableVersionCatalogContainer) {
-        println("Contributing $catalogName from builder")
         container.add(builder)
     }
 }

@@ -1,8 +1,8 @@
 package dev.panuszewski.gradle
 
-import dev.panuszewski.gradle.util.GradleSpec
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.util.BuildConfigurator
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.params.ParameterizedTest
