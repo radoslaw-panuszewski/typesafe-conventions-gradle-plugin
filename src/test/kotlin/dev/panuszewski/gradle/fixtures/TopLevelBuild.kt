@@ -5,7 +5,7 @@ import dev.panuszewski.gradle.util.BuildConfigurator
 
 object TopLevelBuild : Fixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): TopLevelBuild {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         spec.libsVersionsToml {
             """
             [plugins]
@@ -59,7 +59,5 @@ object TopLevelBuild : Fixture {
             }
             """
         }
-
-        return this
     }
 }

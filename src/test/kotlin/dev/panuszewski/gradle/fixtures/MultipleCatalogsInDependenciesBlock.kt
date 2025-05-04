@@ -9,7 +9,7 @@ object MultipleCatalogsInDependenciesBlock : Fixture {
     const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
     const val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): MultipleCatalogsInDependenciesBlock {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         spec.libsVersionsToml {
             """
             [libraries]
@@ -50,7 +50,5 @@ object MultipleCatalogsInDependenciesBlock : Fixture {
             }
             """
         }
-
-        return this
     }
 }

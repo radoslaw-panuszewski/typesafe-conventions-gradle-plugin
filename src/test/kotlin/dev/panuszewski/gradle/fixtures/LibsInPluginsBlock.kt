@@ -11,7 +11,7 @@ object LibsInPluginsBlock : Fixture {
     const val pluginVersion = "1.18.16"
     const val taskRegisteredByPlugin = "verifyRelease"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): LibsInPluginsBlock {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         spec.libsVersionsToml {
             """
             [plugins]
@@ -26,6 +26,5 @@ object LibsInPluginsBlock : Fixture {
             }
             """
         }
-        return this
     }
 }

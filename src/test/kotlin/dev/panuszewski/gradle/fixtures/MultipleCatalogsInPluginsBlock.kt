@@ -14,7 +14,7 @@ object MultipleCatalogsInPluginsBlock : Fixture {
     const val anotherPluginVersion = "0.52.0"
     const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): MultipleCatalogsInPluginsBlock {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         spec.libsVersionsToml {
             """
             [plugins]
@@ -51,7 +51,5 @@ object MultipleCatalogsInPluginsBlock : Fixture {
             }
             """
         }
-
-        return this
     }
 }

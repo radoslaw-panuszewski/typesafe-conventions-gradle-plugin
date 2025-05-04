@@ -9,7 +9,7 @@ object ImportedCatalog : Fixture {
     const val catalogCoordinates = "io.micronaut.platform:micronaut-platform:4.8.2"
     const val libraryFromCatalog = "io.micronaut:micronaut-core:4.8.11"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): ImportedCatalog {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         spec.settingsGradleKts {
             append {
                 """
@@ -39,7 +39,5 @@ object ImportedCatalog : Fixture {
             }
             """
         }
-
-        return this
     }
 }

@@ -8,7 +8,7 @@ object LibsInDependenciesBlock : Fixture {
 
     val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): LibsInDependenciesBlock {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         spec.libsVersionsToml {
             """
             [libraries]
@@ -27,6 +27,5 @@ object LibsInDependenciesBlock : Fixture {
             }
             """
         }
-        return this
     }
 }
