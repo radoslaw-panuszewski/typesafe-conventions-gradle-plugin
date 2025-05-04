@@ -2,11 +2,11 @@ package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import io.kotest.matchers.collections.shouldContain
 import org.junit.jupiter.api.Test
 
-class CachingSpec : BaseGradleSpec() {
+class CachingSpec : GradleSpec() {
 
     @Test
     fun `should generateEntrypointForLibs be UP-TO-DATE`() {

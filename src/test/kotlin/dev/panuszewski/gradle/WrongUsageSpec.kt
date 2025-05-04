@@ -1,18 +1,17 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.gradle.util.GradleVersion
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 
-class WrongUsageSpec : BaseGradleSpec() {
+class WrongUsageSpec : GradleSpec() {
 
     @Test
     fun `should not allow applying to project`() {

@@ -1,7 +1,7 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildConfigurator
 
 object MultipleCatalogsInPluginsBlock : Fixture {
@@ -14,7 +14,7 @@ object MultipleCatalogsInPluginsBlock : Fixture {
     const val anotherPluginVersion = "0.52.0"
     const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): MultipleCatalogsInPluginsBlock {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): MultipleCatalogsInPluginsBlock {
         spec.libsVersionsToml {
             """
             [plugins]

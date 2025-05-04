@@ -6,7 +6,7 @@ import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.BuildConfigurator
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 
-class ConventionPluginsSpec : BaseGradleSpec() {
+class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes

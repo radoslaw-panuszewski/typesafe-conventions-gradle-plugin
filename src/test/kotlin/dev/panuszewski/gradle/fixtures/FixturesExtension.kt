@@ -1,6 +1,6 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildConfigurator
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
@@ -12,7 +12,7 @@ import java.lang.reflect.Method
 
 class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
 
-    private lateinit var spec: BaseGradleSpec
+    private lateinit var spec: GradleSpec
     private lateinit var includedBuild: BuildConfigurator
 
     fun installFixture(fixture: Fixture) {
@@ -20,7 +20,7 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
     }
 
     override fun beforeEach(context: ExtensionContext) {
-        spec = context.requiredTestInstance as? BaseGradleSpec
+        spec = context.requiredTestInstance as? GradleSpec
             ?: error("The ${javaClass.simpleName} extension can only be applied to subclasses of BaseGradleSpec")
     }
 
@@ -46,6 +46,6 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
         includedBuild = invocationContext.arguments
             .filterIsInstance<BuildConfigurator>()
             .firstOrNull()
-            ?: BaseGradleSpec::buildSrc
+            ?: GradleSpec::buildSrc
     }
 }

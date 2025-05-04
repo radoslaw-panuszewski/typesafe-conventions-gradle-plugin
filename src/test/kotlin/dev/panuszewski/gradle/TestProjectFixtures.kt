@@ -1,10 +1,10 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.util.AppendableFile
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildConfigurator
 
-fun BaseGradleSpec.conventionPluginAppliedInRootProject(
+fun GradleSpec.conventionPluginAppliedInRootProject(
     includedBuild: BuildConfigurator,
     conventionPluginConfigurator: AppendableFile.() -> Any
 ) {
@@ -52,7 +52,7 @@ fun BaseGradleSpec.conventionPluginAppliedInRootProject(
     }
 }
 
-fun BaseGradleSpec.multipleCatalogsInPluginsBlock(
+fun GradleSpec.multipleCatalogsInPluginsBlock(
     somePluginId: String,
     somePluginVersion: String,
     anotherPluginId: String,

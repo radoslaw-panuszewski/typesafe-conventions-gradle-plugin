@@ -2,12 +2,6 @@ package dev.panuszewski.gradle.util
 
 import dev.panuszewski.gradle.fixtures.Fixture
 import dev.panuszewski.gradle.fixtures.FixturesExtension
-import dev.panuszewski.gradle.fixtures.ImportedCatalog
-import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
-import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
-import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
-import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
-import dev.panuszewski.gradle.fixtures.TopLevelBuild
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import org.gradle.testkit.runner.BuildResult
@@ -45,7 +39,7 @@ import kotlin.annotation.AnnotationTarget.FUNCTION
  * ```
  */
 @DisplayNameGeneration(GradleVersionDisplayNameGenerator::class)
-abstract class BaseGradleSpec {
+abstract class GradleSpec {
 
     val rootProjectName = "test-project"
 
@@ -192,9 +186,9 @@ abstract class BaseGradleSpec {
         @JvmStatic
         fun allIncludedBuildTypes(): Stream<Arguments> =
             Stream.of(
-                argumentSet("buildSrc", BaseGradleSpec::buildSrc),
-                argumentSet("build-logic", BaseGradleSpec::buildLogic),
-                argumentSet("not-nested-build-logic", BaseGradleSpec::notNestedBuildLogic),
+                argumentSet("buildSrc", GradleSpec::buildSrc),
+                argumentSet("build-logic", GradleSpec::buildLogic),
+                argumentSet("not-nested-build-logic", GradleSpec::notNestedBuildLogic),
             )
     }
 
@@ -204,7 +198,7 @@ abstract class BaseGradleSpec {
     annotation class AllIncludedBuildTypes
 }
 
-typealias BuildConfigurator = BaseGradleSpec.(GradleBuild.() -> Unit) -> Unit
+typealias BuildConfigurator = GradleSpec.(GradleBuild.() -> Unit) -> Unit
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,

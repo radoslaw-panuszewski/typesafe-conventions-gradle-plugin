@@ -1,7 +1,7 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildConfigurator
 
 object LibsInPluginsBlock : Fixture {
@@ -11,7 +11,7 @@ object LibsInPluginsBlock : Fixture {
     const val pluginVersion = "1.18.16"
     const val taskRegisteredByPlugin = "verifyRelease"
 
-    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): LibsInPluginsBlock {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator): LibsInPluginsBlock {
         spec.libsVersionsToml {
             """
             [plugins]

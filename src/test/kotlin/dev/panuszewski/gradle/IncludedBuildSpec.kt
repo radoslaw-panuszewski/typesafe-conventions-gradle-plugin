@@ -1,15 +1,13 @@
 package dev.panuszewski.gradle
 
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.GradleSpec
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 
-class IncludedBuildSpec : BaseGradleSpec() {
+class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
