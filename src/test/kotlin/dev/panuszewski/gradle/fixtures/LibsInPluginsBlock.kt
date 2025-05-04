@@ -1,15 +1,17 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
+import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.BuildConfigurator
 
-class LibsInPluginsBlock : TestFixture() {
+object LibsInPluginsBlock : Fixture {
 
-    val pluginId = "pl.allegro.tech.build.axion-release"
-    val pluginMarker = "$pluginId:$pluginId.gradle.plugin"
-    val pluginVersion = "1.18.16"
-    val taskRegisteredByPlugin = "verifyRelease"
+    const val pluginId = "pl.allegro.tech.build.axion-release"
+    const val pluginMarker = "$pluginId:$pluginId.gradle.plugin"
+    const val pluginVersion = "1.18.16"
+    const val taskRegisteredByPlugin = "verifyRelease"
 
-    override fun installFixture(): LibsInPluginsBlock {
+    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): LibsInPluginsBlock {
         spec.libsVersionsToml {
             """
             [plugins]

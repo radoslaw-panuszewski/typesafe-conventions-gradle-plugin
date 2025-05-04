@@ -6,13 +6,18 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.InvocationInterceptor
+import org.junit.jupiter.api.extension.InvocationInterceptor.Invocation
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext
 import java.lang.reflect.Method
 
-abstract class TestFixture : Extension, BeforeEachCallback, InvocationInterceptor {
+class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
 
-    protected lateinit var spec: BaseGradleSpec
-    protected lateinit var includedBuild: BuildConfigurator
+    private lateinit var spec: BaseGradleSpec
+    private lateinit var includedBuild: BuildConfigurator
+
+    fun installFixture(fixture: Fixture) {
+        fixture.install(spec, includedBuild)
+    }
 
     override fun beforeEach(context: ExtensionContext) {
         spec = context.requiredTestInstance as? BaseGradleSpec
@@ -20,7 +25,7 @@ abstract class TestFixture : Extension, BeforeEachCallback, InvocationIntercepto
     }
 
     override fun interceptTestMethod(
-        invocation: InvocationInterceptor.Invocation<Void>,
+        invocation: Invocation<Void>,
         invocationContext: ReflectiveInvocationContext<Method>,
         extensionContext: ExtensionContext
     ) {
@@ -29,9 +34,9 @@ abstract class TestFixture : Extension, BeforeEachCallback, InvocationIntercepto
     }
 
     override fun interceptTestTemplateMethod(
-        invocation: InvocationInterceptor.Invocation<Void>,
+        invocation: Invocation<Void>,
         invocationContext: ReflectiveInvocationContext<Method>,
-        extensionContext: ExtensionContext?
+        extensionContext: ExtensionContext
     ) {
         captureIncludedBuild(invocationContext)
         invocation.proceed()
@@ -43,6 +48,4 @@ abstract class TestFixture : Extension, BeforeEachCallback, InvocationIntercepto
             .firstOrNull()
             ?: BaseGradleSpec::buildSrc
     }
-
-    abstract fun installFixture(): TestFixture
 }

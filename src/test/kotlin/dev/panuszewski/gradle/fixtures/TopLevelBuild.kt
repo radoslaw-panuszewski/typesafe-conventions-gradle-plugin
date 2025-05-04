@@ -1,8 +1,11 @@
 package dev.panuszewski.gradle.fixtures
 
-class TopLevelBuild : TestFixture() {
+import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.BuildConfigurator
 
-    override fun installFixture(): TopLevelBuild {
+object TopLevelBuild : Fixture {
+
+    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): TopLevelBuild {
         spec.libsVersionsToml {
             """
             [plugins]

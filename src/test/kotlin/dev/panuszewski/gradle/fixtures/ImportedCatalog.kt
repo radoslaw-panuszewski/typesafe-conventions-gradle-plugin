@@ -1,13 +1,15 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
+import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.BuildConfigurator
 
-class ImportedCatalog : TestFixture() {
+object ImportedCatalog : Fixture {
 
-    val catalogCoordinates = "io.micronaut.platform:micronaut-platform:4.8.2"
-    val libraryFromCatalog = "io.micronaut:micronaut-core:4.8.11"
+    const val catalogCoordinates = "io.micronaut.platform:micronaut-platform:4.8.2"
+    const val libraryFromCatalog = "io.micronaut:micronaut-core:4.8.11"
 
-    override fun installFixture(): ImportedCatalog {
+    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): ImportedCatalog {
         spec.settingsGradleKts {
             append {
                 """

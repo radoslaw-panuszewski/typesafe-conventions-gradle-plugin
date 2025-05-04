@@ -1,5 +1,7 @@
 package dev.panuszewski.gradle.util
 
+import dev.panuszewski.gradle.fixtures.Fixture
+import dev.panuszewski.gradle.fixtures.FixturesExtension
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
@@ -61,22 +63,12 @@ abstract class BaseGradleSpec {
     var buildCacheEnabled = true
 
     @RegisterExtension
-    val libsInDependenciesBlock = LibsInDependenciesBlock()
+    val fixtures = FixturesExtension()
 
-    @RegisterExtension
-    val libsInPluginsBlock = LibsInPluginsBlock()
-
-    @RegisterExtension
-    val multipleCatalogsInDependenciesBlock = MultipleCatalogsInDependenciesBlock()
-
-    @RegisterExtension
-    val multipleCatalogsInPluginsBlock = MultipleCatalogsInPluginsBlock()
-
-    @RegisterExtension
-    val topLevelBuild = TopLevelBuild()
-
-    @RegisterExtension
-    val importedCatalog = ImportedCatalog()
+    fun <T : Fixture> installFixture(fixture: T): T {
+        fixtures.installFixture(fixture)
+        return fixture
+    }
 
     /**
      * Set the full content of build.gradle.kts

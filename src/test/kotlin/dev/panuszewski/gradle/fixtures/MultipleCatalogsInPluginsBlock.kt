@@ -1,18 +1,20 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
+import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.BuildConfigurator
 
-class MultipleCatalogsInPluginsBlock : TestFixture() {
+object MultipleCatalogsInPluginsBlock : Fixture {
 
-    val somePluginId = "pl.allegro.tech.build.axion-release"
-    val somePluginVersion = "1.18.16"
-    val taskRegisteredBySomePlugin = "verifyRelease"
+    const val somePluginId = "pl.allegro.tech.build.axion-release"
+    const val somePluginVersion = "1.18.16"
+    const val taskRegisteredBySomePlugin = "verifyRelease"
 
-    val anotherPluginId = "com.github.ben-manes.versions"
-    val anotherPluginVersion = "0.52.0"
-    val taskRegisteredByAnotherPlugin = "dependencyUpdates"
+    const val anotherPluginId = "com.github.ben-manes.versions"
+    const val anotherPluginVersion = "0.52.0"
+    const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-    override fun installFixture(): MultipleCatalogsInPluginsBlock {
+    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): MultipleCatalogsInPluginsBlock {
         spec.libsVersionsToml {
             """
             [plugins]

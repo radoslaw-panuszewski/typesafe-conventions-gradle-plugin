@@ -1,5 +1,11 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.fixtures.ImportedCatalog
+import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
+import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.TopLevelBuild
 import dev.panuszewski.gradle.util.BaseGradleSpec
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
@@ -18,7 +24,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in convention plugin`() {
         // given
-        val fixture = libsInDependenciesBlock.installFixture()
+        val fixture = installFixture(LibsInDependenciesBlock)
 
         // when
         val result = runGradle("dependencyInsight", "--dependency", fixture.someLibrary)
@@ -33,7 +39,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in plugins block of convention plugin`() {
         // given
-        val fixture = libsInPluginsBlock.installFixture()
+        val fixture = installFixture(LibsInPluginsBlock)
 
         // when
         val result = runGradle("tasks")
@@ -50,7 +56,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        libsInPluginsBlock.installFixture()
+        installFixture(LibsInPluginsBlock)
 
         // and
         includedBuild {
@@ -80,7 +86,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         assumeTrue(gradleVersion < GradleVersion.version("8.8"))
 
         // given
-        libsInPluginsBlock.installFixture()
+        installFixture(LibsInPluginsBlock)
 
         // and
         includedBuild {
@@ -115,7 +121,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        val fixture = libsInPluginsBlock.installFixture()
+        val fixture = installFixture(LibsInPluginsBlock)
 
         // and
         includedBuild {
@@ -145,7 +151,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         assumeTrue(gradleVersion < GradleVersion.version("8.8"))
 
         // given
-        val fixture = libsInPluginsBlock.installFixture()
+        val fixture = installFixture(LibsInPluginsBlock)
 
         // and
         includedBuild {
@@ -177,7 +183,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     @AllIncludedBuildTypes
     fun `should allow to override auto plugin dependency`(includedBuild: BuildConfigurator) {
         // given
-        val fixture = libsInPluginsBlock.installFixture()
+        val fixture = installFixture(LibsInPluginsBlock)
 
         // and
         val overriddenPluginVersion = "1.18.15"
@@ -213,7 +219,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     @AllIncludedBuildTypes
     fun `should support multiple catalogs`() {
         // given
-        val fixture = multipleCatalogsInDependenciesBlock.installFixture()
+        val fixture = installFixture(MultipleCatalogsInDependenciesBlock)
 
         // when
         val someLibraryResult = runGradle("dependencyInsight", "--dependency", fixture.someLibrary)
@@ -233,7 +239,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     @AllIncludedBuildTypes
     fun `should support multiple catalogs in plugins block`() {
         // given
-        val fixture = multipleCatalogsInPluginsBlock.installFixture()
+        val fixture = installFixture(MultipleCatalogsInPluginsBlock)
 
         // when
         val result = runGradle("tasks")
@@ -250,7 +256,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        topLevelBuild.installFixture()
+        installFixture(TopLevelBuild)
 
         // when
         val result = runGradle("assemble")
@@ -263,7 +269,7 @@ class ConventionPluginsSpec : BaseGradleSpec() {
     @AllIncludedBuildTypes
     fun `should support imported version catalogs`() {
         // given
-        val fixture = importedCatalog.installFixture()
+        val fixture = installFixture(ImportedCatalog)
 
         // when
         val result = runGradle("dependencyInsight", "--dependency", fixture.libraryFromCatalog)

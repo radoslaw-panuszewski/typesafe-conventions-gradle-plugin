@@ -1,5 +1,7 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.util.BaseGradleSpec
 import io.kotest.matchers.collections.shouldContain
 import org.junit.jupiter.api.Test
@@ -9,7 +11,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateEntrypointForLibs be UP-TO-DATE`() {
         // given
-        libsInDependenciesBlock.installFixture()
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateEntrypointForLibs")
@@ -23,7 +25,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateEntrypointForLibs be FROM-CACHE`() {
         // given
-        libsInDependenciesBlock.installFixture()
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateEntrypointForLibs")
@@ -38,7 +40,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be UP-TO-DATE`() {
         // given
-        libsInDependenciesBlock.installFixture()
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateLibrariesForLibs")
@@ -52,7 +54,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be FROM-CACHE`() {
         // given
-        libsInDependenciesBlock.installFixture()
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateLibrariesForLibs")
@@ -67,7 +69,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should invalidate generateLibrariesForLibs when version catalog changes`() {
         // given
-        val fixture = libsInDependenciesBlock.installFixture()
+        val fixture = installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateLibrariesForLibs")
@@ -89,7 +91,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be UP-TO-DATE`() {
         // given
-        libsInPluginsBlock.installFixture()
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
@@ -103,7 +105,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be FROM-CACHE`() {
         // given
-        libsInPluginsBlock.installFixture()
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
@@ -118,7 +120,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should invalidate extractPrecompiledScriptPluginPlugins when plugins in version catalog changes`() {
         // given
-        libsInPluginsBlock.installFixture()
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
@@ -142,7 +144,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should not invalidate extractPrecompiledScriptPluginPlugins when libraries in version catalog changes`() {
         // given
-        libsInPluginsBlock.installFixture()
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")

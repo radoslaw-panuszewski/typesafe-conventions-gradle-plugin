@@ -1,13 +1,15 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.conventionPluginAppliedInRootProject
+import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.util.BuildConfigurator
 
-class MultipleCatalogsInDependenciesBlock : TestFixture() {
+object MultipleCatalogsInDependenciesBlock : Fixture {
 
-    val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
-    val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
+    const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
+    const val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
 
-    override fun installFixture(): MultipleCatalogsInDependenciesBlock {
+    override fun install(spec: BaseGradleSpec, includedBuild: BuildConfigurator): MultipleCatalogsInDependenciesBlock {
         spec.libsVersionsToml {
             """
             [libraries]
