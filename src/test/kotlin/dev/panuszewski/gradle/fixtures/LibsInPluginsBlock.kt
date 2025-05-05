@@ -12,19 +12,23 @@ object LibsInPluginsBlock : NoConfigFixture {
     const val taskRegisteredByPlugin = "verifyRelease"
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        spec.libsVersionsToml {
-            """
-            [plugins]
-            some-plugin = { id = "$pluginId", version = "$pluginVersion" }
-            """
-        }
+        with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-        spec.installFixture(ConventionPlugin) {
-            pluginBody = """
-                plugins {
-                    alias(libs.plugins.some.plugin)
-                }
+            installFixture(ConventionPlugin) {
+                pluginBody = """
+                    plugins {
+                        alias(libs.plugins.some.plugin)
+                    }
+                    """
+            }
+
+            libsVersionsToml {
                 """
+                [plugins]
+                some-plugin = { id = "$pluginId", version = "$pluginVersion" }
+                """
+            }
         }
     }
 }

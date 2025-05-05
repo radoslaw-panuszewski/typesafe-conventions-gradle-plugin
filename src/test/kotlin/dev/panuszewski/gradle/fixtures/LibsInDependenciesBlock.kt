@@ -9,23 +9,27 @@ object LibsInDependenciesBlock : NoConfigFixture {
     const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        spec.libsVersionsToml {
-            """
-            [libraries]
-            some-library = "$someLibrary"
-            """
-        }
+        with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-        spec.installFixture(ConventionPlugin) {
-            pluginBody = """
-                plugins {
-                    java
-                }
-                
-                dependencies {
-                    implementation(libs.some.library)
-                }
+            installFixture(ConventionPlugin) {
+                pluginBody = """
+                    plugins {
+                        java
+                    }
+                    
+                    dependencies {
+                        implementation(libs.some.library)
+                    }
+                    """
+            }
+
+            libsVersionsToml {
                 """
+                [libraries]
+                some-library = "$someLibrary"
+                """
+            }
         }
     }
 }

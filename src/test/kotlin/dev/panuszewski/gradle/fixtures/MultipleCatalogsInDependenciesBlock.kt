@@ -10,45 +10,49 @@ object MultipleCatalogsInDependenciesBlock : NoConfigFixture {
     const val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        spec.libsVersionsToml {
-            """
-            [libraries]
-            some-library = "$someLibrary"
-            """
-        }
+        with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-        spec.customProjectFile("gradle/tools.versions.toml") {
-            """
-            [libraries]
-            another-library = "$anotherLibrary"
-            """
-        }
-
-        spec.settingsGradleKts {
-            append {
-                """
-                dependencyResolutionManagement {
-                    versionCatalogs {
-                        create("tools") {
-                            from(files("gradle/tools.versions.toml"))
-                        }
+            installFixture(ConventionPlugin) {
+                pluginBody = """
+                    plugins {
+                        java
                     }
-                }
+                    
+                    dependencies {
+                        implementation(libs.some.library)
+                        implementation(tools.another.library)
+                    }
+                    """
+            }
+
+            libsVersionsToml {
+                """
+                [libraries]
+                some-library = "$someLibrary"
                 """
             }
-        }
 
-        spec.installFixture(ConventionPlugin) {
-            pluginBody = """
-                plugins {
-                    java
-                }
-                
-                dependencies {
-                    implementation(libs.some.library)
-                    implementation(tools.another.library)
-                }
+            customProjectFile("gradle/tools.versions.toml") {
                 """
+                [libraries]
+                another-library = "$anotherLibrary"
+                """
+            }
+
+            settingsGradleKts {
+                append {
+                    """
+                    dependencyResolutionManagement {
+                        versionCatalogs {
+                            create("tools") {
+                                from(files("gradle/tools.versions.toml"))
+                            }
+                        }
+                    }
+                    """
+                }
+            }
         }
     }
 }

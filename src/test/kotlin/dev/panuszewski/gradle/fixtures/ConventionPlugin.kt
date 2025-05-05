@@ -13,48 +13,35 @@ import dev.panuszewski.gradle.framework.GradleSpec
 object ConventionPlugin : Fixture<Config> {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Config) {
-        spec.buildGradleKts {
-            """
-            plugins {
-                id("${config.pluginName}")
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            """
-        }
-
-        spec.includedBuild {
-            customProjectFile("src/main/kotlin/${config.pluginName}.gradle.kts") {
-                config.pluginBody.trimIndent()
-            }
-
+        with(spec) {
             buildGradleKts {
                 """
                 plugins {
-                    `kotlin-dsl`
-                } 
+                    id("${config.pluginName}")
+                }
                 
                 repositories {
-                    gradlePluginPortal()
+                    mavenCentral()
                 }
                 """
             }
 
-            settingsGradleKts {
-                """
-                pluginManagement {
+            includedBuild {
+                customProjectFile("src/main/kotlin/${config.pluginName}.gradle.kts") {
+                    config.pluginBody.trimIndent()
+                }
+
+                buildGradleKts {
+                    """
+                    plugins {
+                        `kotlin-dsl`
+                    } 
+                    
                     repositories {
                         gradlePluginPortal()
-                        mavenLocal()
                     }
+                    """
                 }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${spec.projectVersion}"
-                }
-                """
             }
         }
     }
