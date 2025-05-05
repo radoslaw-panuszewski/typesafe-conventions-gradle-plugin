@@ -1,36 +1,32 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.fixtures.ConventionPlugin.Config
 import dev.panuszewski.gradle.framework.BuildConfigurator
-import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.NoConfigFixture
 
-/**
- * The convention plugin with given name and body:
- * - defined in included build
- * - applied in the root project of the main build
- */
-object ConventionPlugin : Fixture<Config> {
+object LibsInIncludedBuild : NoConfigFixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Config) {
-        with (spec) {
+    const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
+
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
+        with(spec) {
+
+            libsVersionsToml {
+                """
+                [libraries]
+                some-library = "$someLibrary"
+                """
+            }
+
             buildGradleKts {
                 """
                 plugins {
-                    id("${config.pluginName}")
-                }
-                
-                repositories {
-                    mavenCentral()
+                    java
                 }
                 """
             }
 
             includedBuild {
-                customProjectFile("src/main/kotlin/${config.pluginName}.gradle.kts") {
-                    config.pluginBody.trimIndent()
-                }
-
                 buildGradleKts {
                     """
                     plugins {
@@ -38,7 +34,11 @@ object ConventionPlugin : Fixture<Config> {
                     } 
                     
                     repositories {
-                        gradlePluginPortal()
+                        mavenCentral()
+                    }
+                    
+                    dependencies {
+                        implementation(libs.some.library)
                     }
                     """
                 }
@@ -59,12 +59,5 @@ object ConventionPlugin : Fixture<Config> {
                 }
             }
         }
-    }
-
-    override fun defaultConfig() = Config()
-
-    class Config {
-        var pluginName = "some-convention"
-        var pluginBody: String = ""
     }
 }

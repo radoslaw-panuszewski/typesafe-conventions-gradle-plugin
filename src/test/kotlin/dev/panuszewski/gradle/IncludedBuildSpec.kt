@@ -1,8 +1,10 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.fixtures.EmbeddedKotlinUsage
+import dev.panuszewski.gradle.fixtures.LibsInIncludedBuild
+import dev.panuszewski.gradle.fixtures.PluginMarkerUsage
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.params.ParameterizedTest
@@ -11,57 +13,9 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in included build`(includedBuild: BuildConfigurator) {
+    fun `should allow to use catalog accessors in included build`() {
         // given
-        val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
-
-        libsVersionsToml {
-            """
-            [libraries]
-            some-library = "$someLibrary"
-            """
-        }
-
-        buildGradleKts {
-            """
-            plugins {
-                java
-            }
-            """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                } 
-                
-                repositories {
-                    mavenCentral()
-                }
-                
-                dependencies {
-                    implementation(libs.some.library)
-                }
-                """
-            }
-
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
-            }
-        }
+        installFixture(LibsInIncludedBuild)
 
         // when
         val result = runGradle("assemble")
@@ -72,56 +26,17 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: BuildConfigurator) {
+    fun `should allow to use catalog accessors in included build when running task from subproject`() {
         // given
-        val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
+        installFixture(LibsInIncludedBuild)
 
-        libsVersionsToml {
-            """
-            [libraries]
-            some-library = "$someLibrary"
-            """
-        }
-
+        // and
         subprojectBuildGradleKts("subproject") {
             """
             plugins {
                 java
             }
             """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                }
-                    
-                repositories {
-                    mavenCentral()
-                }
-                
-                dependencies {
-                    implementation(libs.some.library)
-                }
-                """
-            }
-
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
-            }
         }
 
         // when
@@ -133,72 +48,30 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should provide pluginMarker helper method`(includedBuild: BuildConfigurator) {
+    fun `should provide pluginMarker helper method`() {
         // given
-        val somePlugin = "pl.allegro.tech.build.axion-release"
-        val somePluginVersion = "1.18.16"
-        val taskRegisteredBySomePlugin = "verifyRelease"
+        val fixture = installFixture(PluginMarkerUsage)
 
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain fixture.taskRegisteredBySomePlugin
+    }
+
+    @ParameterizedTest
+    @AllIncludedBuildTypes
+    fun `should the pluginMarker method support rich versions`() {
+        // given
+        val fixture = installFixture(PluginMarkerUsage)
+
+        // and
         libsVersionsToml {
             """
             [plugins]
-            some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+            some-plugin = { id = "${fixture.somePlugin}", version.prefer = "${fixture.somePluginVersion}" }
             """
-        }
-
-        buildGradleKts {
-            """
-            plugins {
-                id("some-convention")
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                import dev.panuszewski.gradle.pluginMarker
-                    
-                plugins {
-                    `kotlin-dsl`
-                } 
-                
-                repositories {
-                    mavenCentral()
-                }
-                
-                dependencies {
-                    implementation(pluginMarker(libs.plugins.some.plugin))
-                }
-                """
-            }
-
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
-                """
-                plugins {
-                    id("$somePlugin")
-                }
-                """
-            }
         }
 
         // when
@@ -206,41 +79,14 @@ class IncludedBuildSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain taskRegisteredBySomePlugin
+        result.output shouldContain fixture.taskRegisteredBySomePlugin
     }
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should not prevent applying kotlin plugin in included build`(includedBuild: BuildConfigurator) {
+    fun `should not mess up with kotlin dependency in included build`() {
         // given
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    embeddedKotlin("jvm")
-                } 
-                
-                repositories {
-                    mavenCentral()
-                }
-                """
-            }
-
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
-            }
-        }
+        installFixture(EmbeddedKotlinUsage)
 
         // when
         val result = runGradle("help")
