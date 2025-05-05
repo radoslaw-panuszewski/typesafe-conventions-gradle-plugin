@@ -1,9 +1,9 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
-import dev.panuszewski.gradle.util.BaseGradleSpec
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -11,7 +11,7 @@ import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 
-class WrongUsageSpec : BaseGradleSpec() {
+class WrongUsageSpec : GradleSpec() {
 
     @Test
     fun `should not allow applying to project`() {
@@ -146,6 +146,8 @@ class WrongUsageSpec : BaseGradleSpec() {
 
     @Test
     fun `should require minimal Gradle version`() {
+        assumeTrue { System.getenv().containsKey("CI") }
+
         // given
         gradleVersion = gradleVersion("8.3")
 

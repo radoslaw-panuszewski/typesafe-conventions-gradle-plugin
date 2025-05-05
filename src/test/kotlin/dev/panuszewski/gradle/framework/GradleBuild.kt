@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.util
+package dev.panuszewski.gradle.framework
 
 import org.gradle.util.GradleVersion
 import java.io.File
@@ -8,14 +8,15 @@ class GradleBuild(
     val rootDir: File,
     val gradleVersion: GradleVersion
 ) {
-    private val buildGradleKts: GradleBuildscript
-    private val settingsGradleKts: GradleBuildscript
-    private val subprojectBuildGradleKts: MutableMap<String, GradleBuildscript> = mutableMapOf()
+    private val buildGradleKts: AppendableFile
+    private val settingsGradleKts: AppendableFile
+    private val subprojectBuildGradleKts: MutableMap<String, AppendableFile> = mutableMapOf()
+    private val customProjectFiles: MutableMap<String, AppendableFile> = mutableMapOf()
 
     init {
         rootDir.deleteRecursively()
         rootDir.mkdirs()
-        buildGradleKts = GradleBuildscript(
+        buildGradleKts = AppendableFile(
             file = rootDir.resolveOrCreate("build.gradle.kts"),
             tailContent = """
                 tasks {
@@ -25,7 +26,7 @@ class GradleBuild(
                 }
                 """
         )
-        settingsGradleKts = GradleBuildscript(
+        settingsGradleKts = AppendableFile(
             file = rootDir.resolveOrCreate("settings.gradle.kts"),
             tailContent = """
                 rootProject.name = "$rootProjectName"
@@ -40,19 +41,19 @@ class GradleBuild(
     }
 
     /**
-     * Set the full content of build.gradle.kts
+     * Override, append or prepend content of `build.gradle.kts`
      */
-    fun buildGradleKts(configurator: GradleBuildscript.() -> Any) {
+    fun buildGradleKts(configurator: AppendableFile.() -> Any) {
         buildGradleKts.acceptConfigurator(configurator)
     }
 
     /**
-     * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
+     * Override, append or prepend content of `<subprojectName>/build.gradle.kts` and includes the subproject in the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> Any) {
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: AppendableFile.() -> Any) {
         subprojectBuildGradleKts[subprojectName] = rootDir
             .resolveOrCreate("$subprojectName/build.gradle.kts")
-            .let(::GradleBuildscript)
+            .let(::AppendableFile)
             .acceptConfigurator(configurator)
 
         settingsGradleKts.append {
@@ -63,10 +64,27 @@ class GradleBuild(
     }
 
     /**
-     * Set the full content of settings.gradle.kts
+     * Override, append or prepend content of `settings.gradle.kts`
      */
-    fun settingsGradleKts(configurator: GradleBuildscript.() -> Any) {
+    fun settingsGradleKts(configurator: AppendableFile.() -> Any) {
         settingsGradleKts.acceptConfigurator(configurator)
+    }
+
+    /**
+     * Override, append or prepend content of `gradle/libs.versions.toml`
+     */
+    fun libsVersionsToml(configurator: AppendableFile.() -> Any) {
+        customProjectFile("gradle/libs.versions.toml", configurator)
+    }
+
+    /**
+     * Override, append or prepend content of a custom file under [path]
+     */
+    fun customProjectFile(path: String, configurator: AppendableFile.() -> Any) {
+        customProjectFiles[path] = rootDir
+            .resolveOrCreate(path)
+            .let(::AppendableFile)
+            .acceptConfigurator(configurator)
     }
 
     fun registerIncludedBuild(buildPath: String): GradleBuild {
@@ -80,18 +98,9 @@ class GradleBuild(
         }
         return GradleBuild(buildName, buildDir, gradleVersion)
     }
-
-    /**
-     * Create the file under given [path] (relative to the test project root) with the given [content]
-     */
-    fun customProjectFile(path: String, content: () -> String): File {
-        val file = rootDir.resolveOrCreate(path)
-        file.writeText(content().trimIndent())
-        return file
-    }
 }
 
-class GradleBuildscript(
+class AppendableFile(
     private val file: File,
     private val tailContent: String? = null
 ) {
@@ -99,7 +108,7 @@ class GradleBuildscript(
         appendTailContent()
     }
 
-    fun acceptConfigurator(configurator: GradleBuildscript.() -> Any): GradleBuildscript {
+    fun acceptConfigurator(configurator: AppendableFile.() -> Any): AppendableFile {
         val maybeNewContent = configurator()
 
         if (maybeNewContent is String) {

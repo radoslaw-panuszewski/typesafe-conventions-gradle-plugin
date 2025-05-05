@@ -37,7 +37,7 @@ If you prefer watching over reading, check out this [cool video](https://www.you
 ### Prerequisites
 
 * Gradle version is at least 8.7
-* There is `gradle/*.versions.toml` file
+* Either local or imported version catalog is used
 * There is an included build for build logic (we will refer to it as `buildSrc`)
 * At least one project within `buildSrc` has [precompiled script plugins](https://docs.gradle.org/8.12.1/userguide/implementing_gradle_plugins_precompiled.html) enabled (you can do this by applying the `kotlin-dsl` plugin)
 
@@ -267,7 +267,43 @@ buildSrc/settings.gradle.kts:
 
 In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration - it works out-of-the-box.
 
-# Multi-project setup (custom included build)
+# Other config tips
+
+## Custom version catalogs 
+
+It's perfectly OK to use other version catalogs than `libs` as `typesafe-conventions` supports them out-of-the-box!
+
+### Local catalogs
+
+Create a file like `gradle/custom.versions.toml` with the contents similar to `gradle/libs.versions.toml`.
+
+Remember that you must manually register it in `settings.gradle.kts`! (that's how Gradle works, nothing to do with `typesafe-conventions`):
+```kotlin
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("custom") {
+            from(files("gradle/custom.versions.toml"))
+        }
+    }
+}
+```
+
+### Imported catalogs
+
+Import the catalog in your `settings.gradle.kts`:
+```kotlin
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("mn") {
+            from("io.micronaut.platform:micronaut-platform:4.8.2")
+        }
+    }
+}
+```
+
+In the example above, we import the version catalog provided by Micronaut.
+
+## Multi-project setup (custom included build)
 
 As an alternative to `buildSrc`, you can use custom included build (typically named `build-logic`). The `typesafe-conventions` will fit nicely in this kind of setup.
 
@@ -291,7 +327,7 @@ As opposed to `buildSrc`, the included build can have multiple subprojects with 
 > [!TIP]
 > Why would you prefer `build-logic` over `buildSrc`? If your build contains a lot of projects, and those projects apply different combinations of convention plugins, placing every convention plugin in its own subproject can improve performance. It's because modifying the convention plugin code will only trigger reload of the subprojects that are actually using it. 
 
-# Top-level build
+## Top-level build
 
 In most cases, you should apply `typesafe-conventions` to either included build or `buildSrc`, because that's 
 where convention plugins are typically stored and the included build will "inherit" version catalogs from 

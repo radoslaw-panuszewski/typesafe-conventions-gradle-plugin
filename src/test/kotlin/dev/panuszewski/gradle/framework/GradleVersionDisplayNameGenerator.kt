@@ -1,13 +1,12 @@
-package dev.panuszewski.gradle.util
+package dev.panuszewski.gradle.framework
 
-import dev.panuszewski.gradle.util.GradleVersions.GRADLE_VERSION_TO_TEST
 import org.junit.jupiter.api.DisplayNameGenerator
 import java.lang.reflect.Method
 
 class GradleVersionDisplayNameGenerator : DisplayNameGenerator.Standard() {
 
     override fun generateDisplayNameForClass(testClass: Class<*>): String {
-        val prefix = "[${GRADLE_VERSION_TO_TEST.version.replaceDotWithWithSimilarSymbol()}]"
+        val prefix = "[${GradleVersions.GRADLE_VERSION_TO_TEST.version.replaceDotWithWithSimilarSymbol()}]"
         return "$prefix ${super.generateDisplayNameForClass(testClass)}"
     }
 

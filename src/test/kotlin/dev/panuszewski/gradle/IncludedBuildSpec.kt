@@ -1,23 +1,21 @@
 package dev.panuszewski.gradle
 
-import dev.panuszewski.gradle.util.BaseGradleSpec
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.util.BuildConfigurator
+import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.BuildConfigurator
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
 
-class IncludedBuildSpec : BaseGradleSpec() {
+class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
-    @MethodSource("includedBuildConfigurators")
+    @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in included build`(includedBuild: BuildConfigurator) {
         // given
         val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-        customProjectFile("gradle/libs.versions.toml") {
+        libsVersionsToml {
             """
             [libraries]
             some-library = "$someLibrary"
@@ -73,12 +71,12 @@ class IncludedBuildSpec : BaseGradleSpec() {
     }
 
     @ParameterizedTest
-    @MethodSource("includedBuildConfigurators")
+    @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: BuildConfigurator) {
         // given
         val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-        customProjectFile("gradle/libs.versions.toml") {
+        libsVersionsToml {
             """
             [libraries]
             some-library = "$someLibrary"
@@ -134,14 +132,14 @@ class IncludedBuildSpec : BaseGradleSpec() {
     }
 
     @ParameterizedTest
-    @MethodSource("includedBuildConfigurators")
+    @AllIncludedBuildTypes
     fun `should provide pluginMarker helper method`(includedBuild: BuildConfigurator) {
         // given
         val somePlugin = "pl.allegro.tech.build.axion-release"
         val somePluginVersion = "1.18.16"
         val taskRegisteredBySomePlugin = "verifyRelease"
 
-        customProjectFile("gradle/libs.versions.toml") {
+        libsVersionsToml {
             """
             [plugins]
             some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
@@ -212,7 +210,7 @@ class IncludedBuildSpec : BaseGradleSpec() {
     }
 
     @ParameterizedTest
-    @MethodSource("includedBuildConfigurators")
+    @AllIncludedBuildTypes
     fun `should not prevent applying kotlin plugin in included build`(includedBuild: BuildConfigurator) {
         // given
         includedBuild {

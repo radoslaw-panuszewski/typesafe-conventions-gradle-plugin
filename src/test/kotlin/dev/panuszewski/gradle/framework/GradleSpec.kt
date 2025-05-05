@@ -1,8 +1,5 @@
-package dev.panuszewski.gradle.util
+package dev.panuszewski.gradle.framework
 
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_FAILED
-import dev.panuszewski.gradle.util.BuildOutcome.BUILD_SUCCESSFUL
-import org.gradle.internal.impldep.org.jsoup.Connection.Base
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -10,12 +7,15 @@ import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayNameGeneration
 import org.junit.jupiter.api.TestInfo
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
-import java.io.File
+import org.junit.jupiter.params.provider.MethodSource
 import java.io.StringWriter
 import java.nio.file.Paths
 import java.util.stream.Stream
+import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.FUNCTION
 
 /**
  * NOTE: Always execute the tests via Gradle!
@@ -35,7 +35,7 @@ import java.util.stream.Stream
  * ```
  */
 @DisplayNameGeneration(GradleVersionDisplayNameGenerator::class)
-abstract class BaseGradleSpec {
+abstract class GradleSpec {
 
     val rootProjectName = "test-project"
 
@@ -52,25 +52,49 @@ abstract class BaseGradleSpec {
     var configurationCacheEnabled = true
     var buildCacheEnabled = true
 
+    @RegisterExtension
+    val fixtures = FixturesExtension()
+
+    fun <T : Fixture<C>, C : Any> installFixture(fixture: T, configure: C.() -> Unit = {}): T {
+        val config = fixture.defaultConfig()
+        config.configure()
+        fixtures.installFixture(fixture, config)
+        return fixture
+    }
+
     /**
-     * Set the full content of build.gradle.kts
+     * Override, append or prepend content of `build.gradle.kts`
      */
-    fun buildGradleKts(configurator: GradleBuildscript.() -> Any) {
+    fun buildGradleKts(configurator: AppendableFile.() -> Any) {
         mainBuild.buildGradleKts(configurator)
     }
 
     /**
-     * Set the full content of [subprojectName]/build.gradle.kts and includes the subproject into the build
+     * Override, append or prepend content of `<subprojectName>/build.gradle.kts` and include the subproject in the build
      */
-    fun subprojectBuildGradleKts(subprojectName: String, configurator: GradleBuildscript.() -> Any) {
+    fun subprojectBuildGradleKts(subprojectName: String, configurator: AppendableFile.() -> Any) {
         mainBuild.subprojectBuildGradleKts(subprojectName, configurator)
     }
 
     /**
-     * Set the full content of settings.gradle.kts
+     * Override, append or prepend content of `settings.gradle.kts`
      */
-    fun settingsGradleKts(configurator: GradleBuildscript.() -> Any) {
+    fun settingsGradleKts(configurator: AppendableFile.() -> Any) {
         mainBuild.settingsGradleKts(configurator)
+    }
+
+    /**
+     * Override, append or prepend content of `gradle/libs.versions.toml`
+     */
+    fun libsVersionsToml(configurator: AppendableFile.() -> Any) {
+        mainBuild.libsVersionsToml(configurator)
+    }
+
+    /**
+     * Override, append or prepend content of a custom file under [path]
+     */
+    fun customProjectFile(path: String, configurator: AppendableFile.() -> Any) {
+        mainBuild.customProjectFile(path, configurator)
     }
 
     /**
@@ -103,15 +127,6 @@ abstract class BaseGradleSpec {
     }
 
     /**
-     * Create the file under given [path] (relative to the test project root) with the given [content]
-     */
-    fun customProjectFile(path: String, content: () -> String): File {
-        val file = mainBuild.rootDir.resolveOrCreate(path)
-        file.writeText(content().trimIndent())
-        return file
-    }
-
-    /**
      * Execute Gradle build in the temporary directory
      */
     protected fun runGradle(
@@ -136,9 +151,9 @@ abstract class BaseGradleSpec {
                 .withArguments(args)
                 .apply(customizer)
                 .build()
-                .let { SuccessOrFailureBuildResult(it, BUILD_SUCCESSFUL) }
+                .let { SuccessOrFailureBuildResult(it, BuildOutcome.BUILD_SUCCESSFUL) }
         } catch (e: UnexpectedBuildFailure) {
-            SuccessOrFailureBuildResult(e.buildResult, BUILD_FAILED)
+            SuccessOrFailureBuildResult(e.buildResult, BuildOutcome.BUILD_FAILED)
         }
 
     private fun dumpBuildEnvironment() {
@@ -168,17 +183,21 @@ abstract class BaseGradleSpec {
     }
 
     companion object {
+        @Suppress("unused") // used in @AllIncludedBuildTypes
         @JvmStatic
-        fun includedBuildConfigurators(): Stream<Arguments> =
+        fun allIncludedBuildTypes(): Stream<Arguments> =
             Stream.of(
-                argumentSet("buildSrc", BaseGradleSpec::buildSrc),
-                argumentSet("build-logic", BaseGradleSpec::buildLogic),
-                argumentSet("not-nested-build-logic", BaseGradleSpec::notNestedBuildLogic),
+                argumentSet("buildSrc", GradleSpec::buildSrc),
+                argumentSet("build-logic", GradleSpec::buildLogic),
+                argumentSet("not-nested-build-logic", GradleSpec::notNestedBuildLogic),
             )
     }
-}
 
-typealias BuildConfigurator = BaseGradleSpec.(GradleBuild.() -> Unit) -> Unit
+    @MethodSource("allIncludedBuildTypes")
+    @Target(FUNCTION)
+    @Retention(RUNTIME)
+    annotation class AllIncludedBuildTypes
+}
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,

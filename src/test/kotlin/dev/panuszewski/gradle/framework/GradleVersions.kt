@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.util
+package dev.panuszewski.gradle.framework
 
 import org.gradle.util.GradleVersion
 

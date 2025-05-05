@@ -1,16 +1,17 @@
 package dev.panuszewski.gradle
 
-import dev.panuszewski.gradle.util.BaseGradleSpec
+import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
+import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.collections.shouldContain
 import org.junit.jupiter.api.Test
 
-class CachingSpec : BaseGradleSpec() {
+class CachingSpec : GradleSpec() {
 
     @Test
     fun `should generateEntrypointForLibs be UP-TO-DATE`() {
         // given
-        val library = "org.apache.commons:commons-lang3:3.17.0"
-        libsInDependenciesBlock(library, BaseGradleSpec::buildSrc)
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateEntrypointForLibs")
@@ -24,8 +25,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateEntrypointForLibs be FROM-CACHE`() {
         // given
-        val library = "org.apache.commons:commons-lang3:3.17.0"
-        libsInDependenciesBlock(library, BaseGradleSpec::buildSrc)
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateEntrypointForLibs")
@@ -40,8 +40,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be UP-TO-DATE`() {
         // given
-        val library = "org.apache.commons:commons-lang3:3.17.0"
-        libsInDependenciesBlock(library, BaseGradleSpec::buildSrc)
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateLibrariesForLibs")
@@ -55,8 +54,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be FROM-CACHE`() {
         // given
-        val library = "org.apache.commons:commons-lang3:3.17.0"
-        libsInDependenciesBlock(library, BaseGradleSpec::buildSrc)
+        installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateLibrariesForLibs")
@@ -71,17 +69,16 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should invalidate generateLibrariesForLibs when version catalog changes`() {
         // given
-        val library = "org.apache.commons:commons-lang3:3.17.0"
-        libsInDependenciesBlock(library, BaseGradleSpec::buildSrc)
+        val fixture = installFixture(LibsInDependenciesBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:generateLibrariesForLibs")
 
-        customProjectFile("gradle/libs.versions.toml") {
+        libsVersionsToml {
             """
             [libraries]
-            some-library = "$library"
-            another-library = "$library"
+            some-library = "${fixture.someLibrary}"
+            another-library = "${fixture.someLibrary}"
             """
         }
         val secondResult = runGradle(":buildSrc:generateLibrariesForLibs")
@@ -94,9 +91,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be UP-TO-DATE`() {
         // given
-        val pluginId = "pl.allegro.tech.build.axion-release"
-        val pluginVersion = "1.18.16"
-        libsInPluginsBlock(pluginId, pluginVersion, BaseGradleSpec::buildSrc)
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
@@ -110,9 +105,7 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be FROM-CACHE`() {
         // given
-        val pluginId = "pl.allegro.tech.build.axion-release"
-        val pluginVersion = "1.18.16"
-        libsInPluginsBlock(pluginId, pluginVersion, BaseGradleSpec::buildSrc)
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
@@ -127,21 +120,20 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should invalidate extractPrecompiledScriptPluginPlugins when plugins in version catalog changes`() {
         // given
-        val pluginId = "pl.allegro.tech.build.axion-release"
-        val pluginVersion = "1.18.16"
-        val changedPluginId = "com.github.ben-manes.versions"
-        val changedPluginVersion = "0.52.0"
-        libsInPluginsBlock(pluginId, pluginVersion, BaseGradleSpec::buildSrc)
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
-        customProjectFile("gradle/libs.versions.toml") {
+        // and then plugins in libs.versions.toml are changed
+        libsVersionsToml {
             """
             [plugins]
-            some-plugin = { id = "$changedPluginId", version = "$changedPluginVersion" }
+            some-plugin = { id = "com.github.ben-manes.versions", version = "0.52.0" }
             """
         }
+
+        // when
         val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
         // then
@@ -152,22 +144,22 @@ class CachingSpec : BaseGradleSpec() {
     @Test
     fun `should not invalidate extractPrecompiledScriptPluginPlugins when libraries in version catalog changes`() {
         // given
-        val pluginId = "pl.allegro.tech.build.axion-release"
-        val pluginVersion = "1.18.16"
-        libsInPluginsBlock(pluginId, pluginVersion, BaseGradleSpec::buildSrc)
+        installFixture(LibsInPluginsBlock)
 
         // when
         val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
-        customProjectFile("gradle/libs.versions.toml") {
-            """
-            [plugins]
-            some-plugin = { id = "$pluginId", version = "$pluginVersion" }
-            
-            [libraries]
-            some-library = "org.apache.commons:commons-lang3:3.17.0"
-            """
+        // and then libraries in libs.versions.toml are changed (while keeping plugins unchanged)
+        libsVersionsToml {
+            append {
+                """
+                [libraries]
+                some-library = "org.apache.commons:commons-lang3:3.17.0"
+                """
+            }
         }
+
+        // when
         val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
         // then

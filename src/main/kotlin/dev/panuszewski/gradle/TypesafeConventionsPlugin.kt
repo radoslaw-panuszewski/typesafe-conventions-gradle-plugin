@@ -8,16 +8,20 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
-import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
+import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.support.serviceOf
+import org.gradle.kotlin.dsl.newInstance
 import java.io.File
+import javax.inject.Inject
 
 @Suppress("unused") // used as plugin implementation class
-internal class TypesafeConventionsPlugin : Plugin<Any> {
+internal class TypesafeConventionsPlugin @Inject constructor(
+    private val objects: ObjectFactory
+) : Plugin<Any> {
 
     override fun apply(target: Any) {
         require(gradleVersionAtLeast(MINIMAL_GRADLE_VERSION)) { mustUseMinimalGradleVersion() }
@@ -40,19 +44,28 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
     }
 
     private fun inheritCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
-        val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
-        val tomlFiles = discoverTomlFiles(parentGradleDir)
-        createVersionCatalogs(tomlFiles, settings)
+        val builders = discoverBuilders(settings, parentBuild)
+        val tomlFiles = discoverTomlFiles(settings, parentBuild)
+
+        val contributorsByName = builders.associateBy(CatalogContributor::catalogName).toMutableMap()
+
+        tomlFiles.forEach { tomlFile -> contributorsByName.computeIfAbsent(tomlFile.catalogName) { tomlFile } }
+
+        contributorsByName.values.forEach { it.contributeTo(settings.dependencyResolutionManagement.versionCatalogs) }
     }
 
-    private fun resolveParentGradleDir(parentBuild: GradleInternal, settings: Settings): File =
-        try {
-            parentBuild.settings.rootDir.resolve("gradle")
-        } catch (e: Throwable) {
-            settings.rootDir.resolve("..").resolve("gradle")
-        }
+    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> {
+        val catalogBuilders = parentBuild.settings
+            .dependencyResolutionManagement
+            .dependenciesModelBuilders
+            .filterIsInstance<VersionCatalogBuilderInternal>()
 
-    private fun discoverTomlFiles(parentGradleDir: File): List<File> {
+        return catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
+    }
+
+    private fun discoverTomlFiles(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> {
+        val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
+
         val tomlFiles = parentGradleDir
             .walk()
             .filter { it.name.endsWith(".versions.toml") }
@@ -61,22 +74,16 @@ internal class TypesafeConventionsPlugin : Plugin<Any> {
         if (tomlFiles.isEmpty()) {
             logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
         }
-        return tomlFiles
+
+        return tomlFiles.map { tomlFile -> objects.newInstance<TomlCatalogContributor>(tomlFile) }
     }
 
-    private fun createVersionCatalogs(tomlFiles: List<File>, settings: Settings) {
-        val fileOperations = settings.serviceOf<FileOperations>()
-
-        tomlFiles.forEach { tomlFile ->
-            val catalogName = tomlFile.name.substringBefore(".versions.toml")
-
-            settings.dependencyResolutionManagement.versionCatalogs {
-                create(catalogName) {
-                    from(fileOperations.configurableFiles(tomlFile))
-                }
-            }
+    private fun resolveParentGradleDir(parentBuild: GradleInternal, settings: Settings): File =
+        try {
+            parentBuild.settings.rootDir.resolve("gradle")
+        } catch (e: Throwable) {
+            settings.rootDir.resolve("..").resolve("gradle")
         }
-    }
 
     private fun enableCatalogAccessorsForAllProjects(target: Settings) {
         target.gradle.rootProject {
