@@ -11,7 +11,9 @@ object PluginMarkerUsage : NoConfigFixture {
     val taskRegisteredBySomePlugin = "verifyRelease"
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        with (spec) {
+        with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+
             libsVersionsToml {
                 """
                 [plugins]
@@ -46,21 +48,6 @@ object PluginMarkerUsage : NoConfigFixture {
                     
                     dependencies {
                         implementation(pluginMarker(libs.plugins.some.plugin))
-                    }
-                    """
-                }
-
-                settingsGradleKts {
-                    """
-                    pluginManagement {
-                        repositories {
-                            gradlePluginPortal()
-                            mavenLocal()
-                        }
-                    }
-                        
-                    plugins {
-                        id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                     }
                     """
                 }

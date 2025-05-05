@@ -9,7 +9,7 @@ object TopLevelBuild : NoConfigFixture {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         with(spec) {
-            spec.libsVersionsToml {
+            libsVersionsToml {
                 """
                 [plugins]
                 some-plugin = { id = "pl.allegro.tech.build.axion-release", version = "1.18.16" }
@@ -19,7 +19,7 @@ object TopLevelBuild : NoConfigFixture {
                 """
             }
 
-            spec.customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
                 """
                 plugins {
                     java
@@ -32,7 +32,7 @@ object TopLevelBuild : NoConfigFixture {
                 """
             }
 
-            spec.buildGradleKts {
+            buildGradleKts {
                 """
                 plugins {
                     `kotlin-dsl`
@@ -44,7 +44,7 @@ object TopLevelBuild : NoConfigFixture {
                 """
             }
 
-            spec.settingsGradleKts {
+            settingsGradleKts {
                 """
                 pluginManagement {
                     repositories {
@@ -54,7 +54,7 @@ object TopLevelBuild : NoConfigFixture {
                 }
                     
                 plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "${spec.projectVersion}"
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 
                 typesafeConventions { 

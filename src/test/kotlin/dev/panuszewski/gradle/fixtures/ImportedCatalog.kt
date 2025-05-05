@@ -10,7 +10,21 @@ object ImportedCatalog : NoConfigFixture {
     const val libraryFromCatalog = "io.micronaut:micronaut-core:4.8.11"
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        with (spec) {
+        with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+
+            installFixture(ConventionPlugin) {
+                pluginBody = """
+                    plugins {
+                        java
+                    }
+                    
+                    dependencies {
+                        implementation(mn.micronaut.core)
+                    }
+                    """
+            }
+
             settingsGradleKts {
                 append {
                     """
@@ -27,18 +41,6 @@ object ImportedCatalog : NoConfigFixture {
                     }
                     """
                 }
-            }
-
-            installFixture(ConventionPlugin) {
-                pluginBody = """
-                    plugins {
-                        java
-                    }
-                    
-                    dependencies {
-                        implementation(mn.micronaut.core)
-                    }
-                    """
             }
         }
     }

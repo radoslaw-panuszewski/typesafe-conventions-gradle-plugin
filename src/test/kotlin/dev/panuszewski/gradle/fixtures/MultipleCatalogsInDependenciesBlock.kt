@@ -11,6 +11,21 @@ object MultipleCatalogsInDependenciesBlock : NoConfigFixture {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+
+            installFixture(ConventionPlugin) {
+                pluginBody = """
+                    plugins {
+                        java
+                    }
+                    
+                    dependencies {
+                        implementation(libs.some.library)
+                        implementation(tools.another.library)
+                    }
+                    """
+            }
+
             libsVersionsToml {
                 """
                 [libraries]
@@ -37,19 +52,6 @@ object MultipleCatalogsInDependenciesBlock : NoConfigFixture {
                     }
                     """
                 }
-            }
-
-            installFixture(ConventionPlugin) {
-                pluginBody = """
-                    plugins {
-                        java
-                    }
-                    
-                    dependencies {
-                        implementation(libs.some.library)
-                        implementation(tools.another.library)
-                    }
-                    """
             }
         }
     }

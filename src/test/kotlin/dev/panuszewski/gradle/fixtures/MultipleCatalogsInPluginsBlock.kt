@@ -15,7 +15,18 @@ object MultipleCatalogsInPluginsBlock : NoConfigFixture {
     const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        with (spec) {
+        with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+
+            installFixture(ConventionPlugin) {
+                pluginBody = """
+                    plugins {
+                        alias(libs.plugins.some.plugin)
+                        alias(tools.plugins.another.plugin)
+                    }
+                    """
+            }
+
             libsVersionsToml {
                 """
                 [plugins]
@@ -42,15 +53,6 @@ object MultipleCatalogsInPluginsBlock : NoConfigFixture {
                     }
                     """
                 }
-            }
-
-            installFixture(ConventionPlugin) {
-                pluginBody = """
-                    plugins {
-                        alias(libs.plugins.some.plugin)
-                        alias(tools.plugins.another.plugin)
-                    }
-                    """
             }
         }
     }

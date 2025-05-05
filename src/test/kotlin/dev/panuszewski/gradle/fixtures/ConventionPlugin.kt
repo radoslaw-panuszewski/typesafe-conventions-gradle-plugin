@@ -13,7 +13,7 @@ import dev.panuszewski.gradle.framework.GradleSpec
 object ConventionPlugin : Fixture<Config> {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Config) {
-        with (spec) {
+        with(spec) {
             buildGradleKts {
                 """
                 plugins {
@@ -39,21 +39,6 @@ object ConventionPlugin : Fixture<Config> {
                     
                     repositories {
                         gradlePluginPortal()
-                    }
-                    """
-                }
-
-                settingsGradleKts {
-                    """
-                    pluginManagement {
-                        repositories {
-                            gradlePluginPortal()
-                            mavenLocal()
-                        }
-                    }
-                        
-                    plugins {
-                        id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                     }
                     """
                 }

@@ -10,12 +10,7 @@ object LibsInDependenciesBlock : NoConfigFixture {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         with(spec) {
-            libsVersionsToml {
-                """
-                [libraries]
-                some-library = "$someLibrary"
-                """
-            }
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
             installFixture(ConventionPlugin) {
                 pluginBody = """
@@ -27,6 +22,13 @@ object LibsInDependenciesBlock : NoConfigFixture {
                         implementation(libs.some.library)
                     }
                     """
+            }
+
+            libsVersionsToml {
+                """
+                [libraries]
+                some-library = "$someLibrary"
+                """
             }
         }
     }

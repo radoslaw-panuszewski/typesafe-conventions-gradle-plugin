@@ -10,6 +10,7 @@ object LibsInIncludedBuild : NoConfigFixture {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         with(spec) {
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
             libsVersionsToml {
                 """
@@ -39,21 +40,6 @@ object LibsInIncludedBuild : NoConfigFixture {
                     
                     dependencies {
                         implementation(libs.some.library)
-                    }
-                    """
-                }
-
-                settingsGradleKts {
-                    """
-                    pluginManagement {
-                        repositories {
-                            gradlePluginPortal()
-                            mavenLocal()
-                        }
-                    }
-                        
-                    plugins {
-                        id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                     }
                     """
                 }

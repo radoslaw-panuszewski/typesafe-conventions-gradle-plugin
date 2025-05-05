@@ -13,12 +13,7 @@ object LibsInPluginsBlock : NoConfigFixture {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
         with(spec) {
-            libsVersionsToml {
-                """
-                [plugins]
-                some-plugin = { id = "$pluginId", version = "$pluginVersion" }
-                """
-            }
+            installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
             installFixture(ConventionPlugin) {
                 pluginBody = """
@@ -26,6 +21,13 @@ object LibsInPluginsBlock : NoConfigFixture {
                         alias(libs.plugins.some.plugin)
                     }
                     """
+            }
+
+            libsVersionsToml {
+                """
+                [plugins]
+                some-plugin = { id = "$pluginId", version = "$pluginVersion" }
+                """
             }
         }
     }
