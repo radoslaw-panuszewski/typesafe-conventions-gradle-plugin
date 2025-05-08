@@ -14,15 +14,26 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
+import org.junit.jupiter.api.Assumptions
+import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.params.ParameterizedTest
 
 class ConventionPluginsSpec : GradleSpec() {
 
+    private lateinit var testInfo: TestInfo
+
+    @BeforeEach
+    fun setup(testInfo: TestInfo) {
+        this.testInfo = testInfo
+    }
+
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in convention plugin`() {
+    fun `should allow to use catalog accessors in convention plugin`(includedBuild: BuildConfigurator) {
         // given
         val fixture = installFixture(LibsInDependenciesBlock)
 
@@ -37,7 +48,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in plugins block of convention plugin`() {
+    fun `should allow to use catalog accessors in plugins block of convention plugin`(includedBuild: BuildConfigurator) {
         // given
         val fixture = installFixture(LibsInPluginsBlock)
 
@@ -217,7 +228,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should support multiple catalogs`() {
+    fun `should support multiple catalogs`(includedBuild: BuildConfigurator) {
         // given
         val fixture = installFixture(MultipleCatalogsInDependenciesBlock)
 
@@ -237,7 +248,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should support multiple catalogs in plugins block`() {
+    fun `should support multiple catalogs in plugins block`(includedBuild: BuildConfigurator) {
         // given
         val fixture = installFixture(MultipleCatalogsInPluginsBlock)
 
@@ -267,7 +278,10 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should support imported version catalogs`() {
+    fun `should support imported version catalogs`(includedBuild: BuildConfigurator) {
+        // this feature is not supported for early-evaluated builds
+        assumeFalse { testInfo.displayName.contains("plugin-management-build-logic") }
+
         // given
         val fixture = installFixture(ImportedCatalog)
 

@@ -88,14 +88,32 @@ class GradleBuild(
     }
 
     fun registerIncludedBuild(buildPath: String): GradleBuild {
-        val buildDir = rootDir.resolve(buildPath)
-        val buildName = buildDir.name
-
         settingsGradleKts.append {
             """
             includeBuild("$buildPath")    
             """
         }
+        return newGradleBuild(buildPath)
+    }
+
+    fun registerPluginManagementIncludedBuild(buildPath: String): GradleBuild {
+        settingsGradleKts.append {
+            """
+            pluginManagement {
+                includeBuild("$buildPath")
+            }
+            
+            plugins {
+                id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+            }
+            """
+        }
+        return newGradleBuild(buildPath)
+    }
+
+    private fun newGradleBuild(buildPath: String): GradleBuild {
+        val buildDir = rootDir.resolve(buildPath)
+        val buildName = buildDir.name
         return GradleBuild(buildName, buildDir, gradleVersion)
     }
 }

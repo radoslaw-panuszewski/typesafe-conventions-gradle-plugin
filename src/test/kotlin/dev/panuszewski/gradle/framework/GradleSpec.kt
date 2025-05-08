@@ -101,7 +101,16 @@ abstract class GradleSpec {
      * Register and configure included build
      */
     fun includedBuild(buildPath: String, configureBuild: GradleBuild.() -> Unit) {
-        val build = includedBuilds.computeIfAbsent(buildPath) { mainBuild.registerIncludedBuild(buildPath) }
+        val build = includedBuilds.computeIfAbsent(buildPath) {
+            mainBuild.registerIncludedBuild(buildPath)
+        }
+        build.configureBuild()
+    }
+
+    fun pluginManagementIncludedBuild(buildPath: String, configureBuild: GradleBuild.() -> Unit) {
+        val build = includedBuilds.computeIfAbsent(buildPath) {
+            mainBuild.registerPluginManagementIncludedBuild(buildPath)
+        }
         build.configureBuild()
     }
 
@@ -110,6 +119,10 @@ abstract class GradleSpec {
      */
     fun buildLogic(configureBuild: GradleBuild.() -> Unit) {
         includedBuild("build-logic", configureBuild)
+    }
+
+    fun pluginManagementBuildLogicWithAtLeastOneSettingsPlugin(configureBuild: GradleBuild.() -> Unit) {
+        pluginManagementIncludedBuild("build-logic", configureBuild)
     }
 
     /**
@@ -189,6 +202,7 @@ abstract class GradleSpec {
             Stream.of(
                 argumentSet("buildSrc", GradleSpec::buildSrc),
                 argumentSet("build-logic", GradleSpec::buildLogic),
+                argumentSet("plugin-management-build-logic", GradleSpec::pluginManagementBuildLogicWithAtLeastOneSettingsPlugin),
                 argumentSet("not-nested-build-logic", GradleSpec::notNestedBuildLogic),
             )
     }

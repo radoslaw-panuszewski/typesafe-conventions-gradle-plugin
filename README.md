@@ -86,6 +86,9 @@ typesafeConventions {
     // whether to allow plugin usage for a top-level build
     // set it to 'true' only if you know what you're doing!
     allowTopLevelBuild = false
+
+    // set it to true if you want to suppress the warning about pluginManagement { includeBuild(...) }
+    suppressPluginManagementIncludedBuildWarning
 }
 ```
 
@@ -265,9 +268,9 @@ buildSrc/settings.gradle.kts:
 
 ### 🔍 Details
 
-In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration - it works out-of-the-box.
+In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration — it works out-of-the-box.
 
-# Other config tips
+# Less common use cases
 
 ## Custom version catalogs 
 
@@ -290,6 +293,11 @@ dependencyResolutionManagement {
 
 ### Imported catalogs
 
+> [!WARNING]
+> This feature is not available for builds included within the `pluginManagement { ... }` block!
+> 
+> (see [known limitations](#known-limitations))
+
 Import the catalog in your `settings.gradle.kts`:
 ```kotlin
 dependencyResolutionManagement {
@@ -302,6 +310,31 @@ dependencyResolutionManagement {
 ```
 
 In the example above, we import the version catalog provided by Micronaut.
+
+#### Known limitations
+
+Gradle allows you to include builds in your `settings.gradle.kts` like this:
+```kotlin
+pluginManagement {
+    includeBuild("build-logic")
+}
+```
+
+This instructs the `build-logic` to evaluate before settings of the main build and thus allows you to write convention plugins to be applied in `settings.gradle.kts` of the main build. 
+
+Unfortunately, the above config makes it impossible for included build to inherit imported version catalogs of the main build (as those become available after the main build's settings are evaluated).
+
+In rare cases where you really need custom settings convention plugins, this is a limitation you must accept. The printed warning can be suppressed by:
+```kotlin
+typesafeConventions {
+    suppressPluginManagementIncludedBuildWarning = true
+}
+```
+
+Most of the time, though, it is perfectly OK to migrate your `build-logic` to a regular included build:
+```kotlin
+includeBuild("build-logic")
+```
 
 ## Multi-project setup (custom included build)
 

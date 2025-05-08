@@ -74,4 +74,18 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
      * @since 0.6.0
      */
     public val allowTopLevelBuild: Property<Boolean> = objects.property<Boolean>().convention(false)
+
+    /**
+     * (disabled by default)
+     *
+     * Set it to true if you want to suppress the warning about this:
+     * ```kotlin
+     * pluginManagement {
+     *     includeBuild("build-logic")
+     * }
+     * ```
+     *
+     * @since 0.7.1
+     */
+    public val suppressPluginManagementIncludedBuildWarning: Property<Boolean> = objects.property<Boolean>().convention(false)
 }
