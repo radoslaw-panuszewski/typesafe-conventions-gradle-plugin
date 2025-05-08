@@ -8,6 +8,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
+import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
@@ -17,8 +18,9 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.newInstance
 import java.io.File
 import javax.inject.Inject
+import kotlin.math.log
 
-@Suppress("unused") // used as plugin implementation class
+@Suppress("unused") // used as a plugin implementation class
 internal class TypesafeConventionsPlugin @Inject constructor(
     private val objects: ObjectFactory
 ) : Plugin<Any> {
@@ -54,14 +56,29 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         contributorsByName.values.forEach { it.contributeTo(settings.dependencyResolutionManagement.versionCatalogs) }
     }
 
-    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> {
-        val catalogBuilders = parentBuild.settings
-            .dependencyResolutionManagement
-            .dependenciesModelBuilders
-            .filterIsInstance<VersionCatalogBuilderInternal>()
+    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> =
+        try {
+            val catalogBuilders = parentBuild.settings
+                .dependencyResolutionManagement
+                .dependenciesModelBuilders
+                .filterIsInstance<VersionCatalogBuilderInternal>()
 
-        return catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
-    }
+                catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
+        } catch (e: IllegalStateException) {
+            settings.gradle.settingsEvaluated {
+                if (!settings.typesafeConventions.suppressPluginManagementIncludedBuildWarning.get()) {
+                    logger.warn(
+                        "WARNING: This build (${(settings as SettingsInternal).gradle.identityPath}) is being evaluated before the parent build. " +
+                            "If you import any external version catalogs or use VersionCatalogBuilder API, those catalogs won't be " +
+                            "available in this build. Consider moving includeBuild(...) outside the pluginManagement { ... } block " +
+                            "in settings.gradle.kts of the parent build. To suppress this warning, set " +
+                            "typesafeConventions.suppressPluginManagementIncludedBuildWarning = true. Read more at: " +
+                            "https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin?tab=readme-ov-file#known-limitations"
+                    )
+                }
+            }
+            emptyList()
+        }
 
     private fun discoverTomlFiles(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> {
         val parentGradleDir = resolveParentGradleDir(parentBuild, settings)
@@ -70,10 +87,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             .walk()
             .filter { it.name.endsWith(".versions.toml") }
             .toList()
-
-        if (tomlFiles.isEmpty()) {
-            logger.warn("No version catalog TOML files found in the parent build (looked in $parentGradleDir)")
-        }
 
         return tomlFiles.map { tomlFile -> objects.newInstance<TomlCatalogContributor>(tomlFile) }
     }
