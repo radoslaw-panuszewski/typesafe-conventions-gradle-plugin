@@ -268,9 +268,9 @@ buildSrc/settings.gradle.kts:
 
 ### 🔍 Details
 
-In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration - it works out-of-the-box.
+In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration — it works out-of-the-box.
 
-# Other config tips
+# Less common use cases
 
 ## Custom version catalogs 
 
@@ -296,7 +296,7 @@ dependencyResolutionManagement {
 > [!WARNING]
 > This feature is not available for builds included within the `pluginManagement { ... }` block!
 > 
-> (see [Known limitations](https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/blob/plugin-management-included-builds/README.md#known-limitations))
+> (see [known limitations](#known-limitations))
 
 Import the catalog in your `settings.gradle.kts`:
 ```kotlin
