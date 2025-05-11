@@ -28,6 +28,19 @@ gradlePlugin {
     }
 }
 
+publishing {
+    repositories {
+        maven {
+            name = "mavenCentralSnapshots"
+            url = uri("https://central.sonatype.com/repository/maven-snapshots")
+            credentials {
+                username = System.getenv("MAVEN_CENTRAL_USERNAME")
+                password = System.getenv("MAVEN_CENTRAL_PASSWORD")
+            }
+        }
+    }
+}
+
 tasks {
     named("publishPlugins") {
         notCompatibleWithConfigurationCache("Uses Task.project at execution time")

@@ -6,7 +6,7 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object EmbeddedKotlinUsage : NoConfigFixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         with(spec) {
             installFixture(TypesafeConventionsAppliedToIncludedBuild)
 

@@ -11,7 +11,7 @@ object LibsInPluginsBlock : NoConfigFixture {
     const val pluginVersion = "1.18.16"
     const val taskRegisteredByPlugin = "verifyRelease"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         with(spec) {
             installFixture(TypesafeConventionsAppliedToIncludedBuild)
 

@@ -1,7 +1,7 @@
 plugins {
     `kotlin-dsl`
     `testing-convention`
-    `plugin-publishing-convention`
+    `publishing-convention`
 }
 
 kotlin {
