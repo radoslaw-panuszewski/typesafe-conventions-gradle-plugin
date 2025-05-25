@@ -1,5 +1,6 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
@@ -10,11 +11,11 @@ import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.BuildConfigurator
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Assumptions.assumeFalse
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
@@ -292,5 +293,25 @@ class ConventionPluginsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain fixture.libraryFromCatalog
         result.output shouldNotContain "${fixture.libraryFromCatalog} FAILED"
+    }
+
+    @ParameterizedTest
+    @AllIncludedBuildTypes
+    fun `should ignore commented code when adding auto plugin dependencies`(includedBuild: BuildConfigurator) {
+        // given
+        val fixture = installFixture(CommentedPluginUsage)
+
+        // when
+        val commentedPluginResult = runGradle(":buildSrc:dependencyInsight", "--dependency", fixture.commentedPluginMarker)
+        val uncommentedPluginResult = runGradle(":buildSrc:dependencyInsight", "--dependency", fixture.uncommentedPluginMarker)
+
+        // then
+        commentedPluginResult.buildOutcome shouldBe BUILD_SUCCESSFUL
+        commentedPluginResult.output shouldContain "No dependencies matching given input were found"
+
+        // and
+        uncommentedPluginResult.buildOutcome shouldBe BUILD_SUCCESSFUL
+        uncommentedPluginResult.output shouldContain fixture.uncommentedPluginMarker
+        uncommentedPluginResult.output shouldNotContain "${fixture.uncommentedPluginMarker} FAILED"
     }
 }

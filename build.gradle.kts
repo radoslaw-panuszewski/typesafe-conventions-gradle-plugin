@@ -1,7 +1,7 @@
 plugins {
     `kotlin-dsl`
     `testing-convention`
-    `plugin-publishing-convention`
+    `publishing-convention`
 }
 
 kotlin {
@@ -12,4 +12,11 @@ kotlin {
 dependencies {
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.junit.jupiter.params)
+}
+
+develocity {
+    buildScan {
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseAgree = "yes"
+    }
 }

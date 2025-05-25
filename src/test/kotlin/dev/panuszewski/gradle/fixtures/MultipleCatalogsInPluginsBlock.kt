@@ -14,7 +14,7 @@ object MultipleCatalogsInPluginsBlock : NoConfigFixture {
     const val anotherPluginVersion = "0.52.0"
     const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         with(spec) {
             installFixture(TypesafeConventionsAppliedToIncludedBuild)
 

@@ -10,6 +10,7 @@ import org.gradle.kotlin.dsl.add
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.io.Serializable
+import kotlin.text.RegexOption.*
 
 internal object PluginCatalogAccessorsSupport {
 
@@ -33,10 +34,17 @@ internal object PluginCatalogAccessorsSupport {
 
         return srcDir.walk()
             .filter { file -> file.name.endsWith(".gradle.kts") }
-            .flatMap { file -> file.readText().lines() }
+            .map(File::readText)
+            .map(::removeComments)
+            .flatMap(String::lines)
             .mapNotNull { line -> parsePluginDeclaration(line, model) }
             .toList()
     }
+
+    private fun removeComments(sourceCode: String): String =
+        sourceCode
+            .replace("""//.*""".toRegex(), "")
+            .replace("""/\*.*?\*/""".toRegex(DOT_MATCHES_ALL), "")
 
     private fun parsePluginDeclaration(line: String, catalogModel: DefaultVersionCatalog): PluginDeclaration? {
         val matchResult = PLUGIN_DECLARATION_BY_ALIAS.matchEntire(line)
@@ -75,7 +83,7 @@ internal object PluginCatalogAccessorsSupport {
 
     private fun patchPluginsBlocksAfterExtraction(project: Project, pluginDeclarations: List<PluginDeclaration>) {
         project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
-            // we add action to existing task instead of registering a dedicated task to allow caching
+            // we add action to an existing task instead of registering a dedicated task to allow caching
             // (otherwise the dedicated task would modify its own input and never be UP-TO-DATE)
             project.tasks.findByName("extractPrecompiledScriptPluginPlugins")?.apply {
                 // this input is only needed to invalidate this task on changes in libs.versions.toml

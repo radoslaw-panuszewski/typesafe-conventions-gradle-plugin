@@ -9,7 +9,7 @@ object MultipleCatalogsInDependenciesBlock : NoConfigFixture {
     const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
     const val anotherLibrary = "org.apache.commons:commons-collections4:4.4"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         with(spec) {
             installFixture(TypesafeConventionsAppliedToIncludedBuild)
 

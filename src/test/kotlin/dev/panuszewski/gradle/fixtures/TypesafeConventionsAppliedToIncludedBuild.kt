@@ -6,7 +6,7 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object TypesafeConventionsAppliedToIncludedBuild : NoConfigFixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
+    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         with(spec) {
             includedBuild {
                 settingsGradleKts {
