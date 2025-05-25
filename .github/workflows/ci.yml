@@ -52,7 +52,10 @@ jobs:
           cache-read-only: false
 
       - name: Publish snapshot to Maven Central
-        run: ./gradlew publish
+        run: ./gradlew publish currentVersion
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
 
   automerge-dependabot:
     runs-on: ubuntu-latest

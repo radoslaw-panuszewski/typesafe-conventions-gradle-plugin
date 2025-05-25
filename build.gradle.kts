@@ -13,3 +13,10 @@ dependencies {
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.junit.jupiter.params)
 }
+
+develocity {
+    buildScan {
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseAgree = "yes"
+    }
+}
