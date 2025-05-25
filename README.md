@@ -88,7 +88,7 @@ typesafeConventions {
     allowTopLevelBuild = false
 
     // set it to true if you want to suppress the warning about pluginManagement { includeBuild(...) }
-    suppressPluginManagementIncludedBuildWarning
+    suppressPluginManagementIncludedBuildWarning = false
 }
 ```
 

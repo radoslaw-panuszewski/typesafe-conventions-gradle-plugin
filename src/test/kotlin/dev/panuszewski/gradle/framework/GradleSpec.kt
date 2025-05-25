@@ -201,9 +201,9 @@ abstract class GradleSpec {
         fun allIncludedBuildTypes(): Stream<Arguments> =
             Stream.of(
                 argumentSet("buildSrc", GradleSpec::buildSrc),
-//                argumentSet("build-logic", GradleSpec::buildLogic),
-//                argumentSet("plugin-management-build-logic", GradleSpec::pluginManagementBuildLogicWithAtLeastOneSettingsPlugin),
-//                argumentSet("not-nested-build-logic", GradleSpec::notNestedBuildLogic),
+                argumentSet("build-logic", GradleSpec::buildLogic),
+                argumentSet("plugin-management-build-logic", GradleSpec::pluginManagementBuildLogicWithAtLeastOneSettingsPlugin),
+                argumentSet("not-nested-build-logic", GradleSpec::notNestedBuildLogic),
             )
     }
 
