@@ -2,8 +2,8 @@
 
 package dev.panuszewski.gradle.catalog
 
-import dev.panuszewski.gradle.util.typesafeConventions
 import dev.panuszewski.gradle.util.settings
+import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
@@ -30,7 +30,7 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
     private fun registerGeneratedSourceSet(project: Project) {
         project.configure<SourceSetContainer> {
             named("main") {
-                java.srcDir(GENERATED_SOURCES_DIR)
+                java.srcDir(project.layout.buildDirectory.dir(GENERATED_SOURCES_DIR_RELATIVE))
             }
         }
     }
@@ -54,7 +54,6 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
     companion object {
         private val logger = Logging.getLogger(CatalogAccessorsPlugin::class.java)
         // TODO separated source sets for generated Java and Kotlin files
-        internal const val GENERATED_SOURCES_DIR = "build/generated-sources/typesafe-conventions/kotlin"
         internal const val GENERATED_SOURCES_DIR_RELATIVE = "generated-sources/typesafe-conventions/kotlin"
     }
 }
