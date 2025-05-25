@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
+import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
@@ -314,5 +315,18 @@ class ConventionPluginsSpec : GradleSpec() {
         uncommentedPluginResult.buildOutcome shouldBe BUILD_SUCCESSFUL
         uncommentedPluginResult.output shouldContain fixture.uncommentedPluginMarker
         uncommentedPluginResult.output shouldNotContain "${fixture.uncommentedPluginMarker} FAILED"
+    }
+
+    @ParameterizedTest
+    @AllIncludedBuildTypes
+    fun `should allow to change build directory path`(includedBuild: BuildConfigurator) {
+        // given
+        installFixture(CustomBuildDirPath)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
 }
