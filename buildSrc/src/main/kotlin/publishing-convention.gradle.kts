@@ -30,12 +30,14 @@ gradlePlugin {
 
 publishing {
     repositories {
-        maven {
-            name = "mavenCentralSnapshots"
-            url = uri("https://central.sonatype.com/repository/maven-snapshots")
-            credentials {
-                username = System.getenv("MAVEN_CENTRAL_USERNAME")
-                password = System.getenv("MAVEN_CENTRAL_PASSWORD")
+        if (version.toString().endsWith("-SNAPSHOT")) {
+            maven {
+                name = "mavenCentralSnapshots"
+                url = uri("https://central.sonatype.com/repository/maven-snapshots")
+                credentials {
+                    username = System.getenv("MAVEN_CENTRAL_USERNAME")
+                    password = System.getenv("MAVEN_CENTRAL_PASSWORD")
+                }
             }
         }
     }
@@ -43,6 +45,10 @@ publishing {
 
 tasks {
     named("publishPlugins") {
-        notCompatibleWithConfigurationCache("Uses Task.project at execution time")
+        notCompatibleWithConfigurationCache("uses Task.project at execution time")
+    }
+
+    named("publish") {
+        notCompatibleWithConfigurationCache("maven-publish is not yet compatible with CC")
     }
 }
