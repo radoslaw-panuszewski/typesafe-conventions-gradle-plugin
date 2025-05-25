@@ -302,8 +302,9 @@ class ConventionPluginsSpec : GradleSpec() {
         val fixture = installFixture(CommentedPluginUsage)
 
         // when
-        val commentedPluginResult = runGradle(":buildSrc:dependencyInsight", "--dependency", fixture.commentedPluginMarker)
-        val uncommentedPluginResult = runGradle(":buildSrc:dependencyInsight", "--dependency", fixture.uncommentedPluginMarker)
+        val buildName = includedBuilds.keys.first().substringAfterLast("/")
+        val commentedPluginResult = runGradle(":$buildName:dependencyInsight", "--dependency", fixture.commentedPluginMarker)
+        val uncommentedPluginResult = runGradle(":$buildName:dependencyInsight", "--dependency", fixture.uncommentedPluginMarker)
 
         // then
         commentedPluginResult.buildOutcome shouldBe BUILD_SUCCESSFUL
