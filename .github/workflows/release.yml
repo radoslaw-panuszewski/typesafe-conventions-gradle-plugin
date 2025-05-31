@@ -1,4 +1,4 @@
-name: Publish
+name: Publish release
 
 on:
   release:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
-    runs-on: [ ubuntu-latest ]
+  publish-release:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
