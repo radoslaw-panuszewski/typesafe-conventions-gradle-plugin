@@ -3,7 +3,7 @@
 rootProject.name = "buildSrc"
 
 plugins {
-    id("dev.panuszewski.typesafe-conventions") version "0.7.1"
+    id("dev.panuszewski.typesafe-conventions") version "0.7.3"
 }
 
 dependencyResolutionManagement {
