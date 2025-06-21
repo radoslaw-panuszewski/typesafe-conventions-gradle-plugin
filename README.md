@@ -332,8 +332,10 @@ typesafeConventions {
 ```
 
 Most of the time, though, it is perfectly OK to migrate your `build-logic` to a regular included build:
-```kotlin
-includeBuild("build-logic")
+```diff
+-pluginManagement {
+    includeBuild("build-logic")
+-}
 ```
 
 ## Multi-project setup (custom included build)
