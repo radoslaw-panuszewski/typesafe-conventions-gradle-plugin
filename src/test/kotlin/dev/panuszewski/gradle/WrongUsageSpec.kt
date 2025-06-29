@@ -1,6 +1,9 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
+import dev.panuszewski.gradle.fixtures.TopLevelBuild
+import dev.panuszewski.gradle.fixtures.TopLevelBuildAllowed
+import dev.panuszewski.gradle.fixtures.TopLevelBuildNotAllowed
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
@@ -45,30 +48,40 @@ class WrongUsageSpec : GradleSpec() {
     }
 
     @Test
-    fun `should not allow applying to top-level build`() {
+    fun `should not allow applying to top-level build by default`() {
         // given
-        settingsGradleKts {
-            """
-            pluginManagement {
-                repositories {
-                    gradlePluginPortal()
-                    mavenLocal()
-                }
-            }
-                
-            plugins {
-                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-            }
-            """
-        }
+        installFixture(TopLevelBuild)
 
         // when
-        val result = runGradle()
+        val result = runGradle("compileKotlin")
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
         result.output shouldContain """
-            The typesafe-conventions plugin is applied to a top-level build, but in most cases it should be applied to an included build or buildSrc. If you know what you're doing, allow top-level build in your settings.gradle.kts:
+            The typesafe-conventions plugin is applied to a top-level build, but in most cases it should be applied to an included build or buildSrc. 
+            If you know what you're doing, allow top-level build in your settings.gradle.kts:
+
+            typesafeConventions { 
+                allowTopLevelBuild = true 
+            }
+
+            Read more here: https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/blob/main/README.md#top-level-build
+        """.trimIndent()
+    }
+
+    @Test
+    fun `should not allow applying to top-level build when its explicitly disallowed`() {
+        // given
+        installFixture(TopLevelBuildNotAllowed)
+
+        // when
+        val result = runGradle("compileKotlin")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain """
+            The typesafe-conventions plugin is applied to a top-level build, but in most cases it should be applied to an included build or buildSrc. 
+            If you know what you're doing, allow top-level build in your settings.gradle.kts:
 
             typesafeConventions { 
                 allowTopLevelBuild = true 
@@ -84,27 +97,10 @@ class WrongUsageSpec : GradleSpec() {
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        settingsGradleKts {
-            """
-            pluginManagement {
-                repositories {
-                    gradlePluginPortal()
-                    mavenLocal()
-                }
-            }
-                
-            plugins {
-                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-            }
-            
-            typesafeConventions { 
-                allowTopLevelBuild = true 
-            }
-            """
-        }
+        installFixture(TopLevelBuildAllowed)
 
         // when
-        val result = runGradle()
+        val result = runGradle("compileKotlin")
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
@@ -136,6 +132,21 @@ class WrongUsageSpec : GradleSpec() {
             }
             """
         }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+    }
+
+    @Test
+    fun `should work verify top-level build lazily`() {
+        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
+        assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
+
+        // given
+        installFixture(TopLevelBuildNotAllowed)
 
         // when
         val result = runGradle()

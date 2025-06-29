@@ -56,10 +56,6 @@ object TopLevelBuild : NoConfigFixture {
                 plugins {
                     id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
-                
-                typesafeConventions { 
-                    allowTopLevelBuild = true 
-                }
                 """
             }
         }

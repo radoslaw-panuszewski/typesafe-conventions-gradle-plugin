@@ -1,5 +1,8 @@
 package dev.panuszewski.gradle.framework
 
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.shouldBe
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -164,7 +167,7 @@ abstract class GradleSpec {
                 .withArguments(args)
                 .apply(customizer)
                 .build()
-                .let { SuccessOrFailureBuildResult(it, BuildOutcome.BUILD_SUCCESSFUL) }
+                .let { SuccessOrFailureBuildResult(it, BUILD_SUCCESSFUL) }
         } catch (e: UnexpectedBuildFailure) {
             SuccessOrFailureBuildResult(e.buildResult, BuildOutcome.BUILD_FAILED)
         }
@@ -228,4 +231,8 @@ val BuildResult.executedTasks: List<String>
 
 fun GradleRunner.doNotForwardOutput() {
     forwardStdOutput(StringWriter())
+}
+
+fun shouldAllBuildsSucceed(vararg buildResults: SuccessOrFailureBuildResult) {
+    buildResults.shouldForAll { it.buildOutcome shouldBe BUILD_SUCCESSFUL }
 }

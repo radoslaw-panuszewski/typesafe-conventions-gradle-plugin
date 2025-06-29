@@ -8,6 +8,8 @@ import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
+import dev.panuszewski.gradle.fixtures.TopLevelBuildAllowed
+import dev.panuszewski.gradle.fixtures.TopLevelBuildNotAllowed
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
@@ -269,7 +271,7 @@ class ConventionPluginsSpec : GradleSpec() {
         assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
 
         // given
-        installFixture(TopLevelBuild)
+        installFixture(TopLevelBuildAllowed)
 
         // when
         val result = runGradle("assemble")

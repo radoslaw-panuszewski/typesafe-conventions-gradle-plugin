@@ -2,6 +2,7 @@
 
 package dev.panuszewski.gradle.catalog
 
+import dev.panuszewski.gradle.KOTLIN_GRADLE_PLUGIN_ID
 import dev.panuszewski.gradle.util.settings
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
@@ -14,7 +15,7 @@ import org.gradle.kotlin.dsl.configure
 internal class CatalogAccessorsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.plugins.withId("org.jetbrains.kotlin.jvm") {
+        project.plugins.withId(KOTLIN_GRADLE_PLUGIN_ID) {
             registerGeneratedSourceSet(project)
 
             val versionCatalogs = declaredVersionCatalogs(project)

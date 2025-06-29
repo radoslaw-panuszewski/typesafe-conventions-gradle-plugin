@@ -1,9 +1,13 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.catalog.BuilderCatalogContributor
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin
+import dev.panuszewski.gradle.catalog.CatalogContributor
+import dev.panuszewski.gradle.catalog.TomlCatalogContributor
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import dev.panuszewski.gradle.util.typesafeConventions
+import dev.panuszewski.gradle.verification.LazyVerificationPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
@@ -18,7 +22,6 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.newInstance
 import java.io.File
 import javax.inject.Inject
-import kotlin.math.log
 
 @Suppress("unused") // used as a plugin implementation class
 internal class TypesafeConventionsPlugin @Inject constructor(
@@ -35,10 +38,8 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
         if (parentBuild != null) {
             inheritCatalogsFromParentBuild(settings, parentBuild)
-        } else {
-            failIfTopLevelBuildIsNotAllowed(settings)
         }
-        enableCatalogAccessorsForAllProjects(settings)
+        applySubPluginsForAllProjects(settings)
     }
 
     private fun registerExtension(settings: Settings) {
@@ -63,7 +64,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
                 .dependenciesModelBuilders
                 .filterIsInstance<VersionCatalogBuilderInternal>()
 
-                catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
+            catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
         } catch (e: IllegalStateException) {
             settings.gradle.settingsEvaluated {
                 if (!settings.typesafeConventions.suppressPluginManagementIncludedBuildWarning.get()) {
@@ -98,9 +99,10 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             settings.rootDir.resolve("..").resolve("gradle")
         }
 
-    private fun enableCatalogAccessorsForAllProjects(target: Settings) {
-        target.gradle.rootProject {
+    private fun applySubPluginsForAllProjects(settings: Settings) {
+        settings.gradle.rootProject {
             allprojects {
+                apply<LazyVerificationPlugin>()
                 apply<CatalogAccessorsPlugin>()
             }
         }
@@ -124,24 +126,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
                 "but currently ${currentGradleVersion()} is used."
         )
-    }
-
-    private fun failIfTopLevelBuildIsNotAllowed(settings: Settings) {
-        settings.gradle.settingsEvaluated {
-            if (!typesafeConventions.allowTopLevelBuild.get()) {
-                error(
-                    """
-                    The typesafe-conventions plugin is applied to a top-level build, but in most cases it should be applied to an included build or buildSrc. If you know what you're doing, allow top-level build in your settings.gradle.kts:
-        
-                    typesafeConventions { 
-                        allowTopLevelBuild = true 
-                    }
-        
-                    Read more here: https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/blob/main/README.md#top-level-build
-                    """.trimIndent()
-                )
-            }
-        }
     }
 
     companion object {
