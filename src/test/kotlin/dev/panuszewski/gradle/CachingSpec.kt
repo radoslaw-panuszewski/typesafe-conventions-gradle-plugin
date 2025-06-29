@@ -2,8 +2,13 @@ package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
+import dev.panuszewski.gradle.framework.BuildOutcome
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.shouldAllBuildsSucceed
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class CachingSpec : GradleSpec() {
@@ -18,6 +23,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:generateEntrypointForLibs")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:generateEntrypointForLibs"
         secondResult.output.lines() shouldContain "> Task :buildSrc:generateEntrypointForLibs UP-TO-DATE"
     }
@@ -33,6 +39,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:generateEntrypointForLibs")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:generateEntrypointForLibs"
         secondResult.output.lines() shouldContain "> Task :buildSrc:generateEntrypointForLibs FROM-CACHE"
     }
@@ -47,6 +54,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:generateLibrariesForLibs")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:generateLibrariesForLibs"
         secondResult.output.lines() shouldContain "> Task :buildSrc:generateLibrariesForLibs UP-TO-DATE"
     }
@@ -62,6 +70,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:generateLibrariesForLibs")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:generateLibrariesForLibs"
         secondResult.output.lines() shouldContain "> Task :buildSrc:generateLibrariesForLibs FROM-CACHE"
     }
@@ -84,6 +93,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:generateLibrariesForLibs")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:generateLibrariesForLibs"
         secondResult.output.lines() shouldContain "> Task :buildSrc:generateLibrariesForLibs"
     }
@@ -98,6 +108,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
         secondResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE"
     }
@@ -113,6 +124,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
         secondResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins FROM-CACHE"
     }
@@ -137,6 +149,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
         secondResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
     }
@@ -163,6 +176,7 @@ class CachingSpec : GradleSpec() {
         val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
 
         // then
+        shouldAllBuildsSucceed(firstResult, secondResult)
         firstResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
         secondResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE"
     }

@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle
+package dev.panuszewski.gradle.catalog
 
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
 import org.gradle.api.initialization.resolve.MutableVersionCatalogContainer

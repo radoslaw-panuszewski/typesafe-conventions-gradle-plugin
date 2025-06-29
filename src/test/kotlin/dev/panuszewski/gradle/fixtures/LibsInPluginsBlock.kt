@@ -1,3 +1,5 @@
+@file:Suppress("ConstPropertyName")
+
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.framework.GradleSpec

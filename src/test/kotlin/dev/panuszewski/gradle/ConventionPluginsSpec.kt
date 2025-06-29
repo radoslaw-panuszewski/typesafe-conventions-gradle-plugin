@@ -8,11 +8,11 @@ import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
-import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
+import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.framework.BuildConfigurator
-import io.kotest.assertions.withClue
+import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
@@ -65,59 +65,9 @@ class ConventionPluginsSpec : GradleSpec() {
     @ParameterizedTest
     @AllIncludedBuildTypes
     fun `should respect disabling accessors in plugins block`(includedBuild: BuildConfigurator) {
-        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
-        assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
-
         // given
         installFixture(LibsInPluginsBlock)
-
-        // and
-        includedBuild {
-            settingsGradleKts {
-                append {
-                    """
-                    typesafeConventions {
-                        accessorsInPluginsBlock = false
-                    }
-                    """
-                }
-            }
-        }
-
-        // when
-        val result = runGradle("help")
-
-        // then
-        result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Unresolved reference: libs"
-    }
-
-    @ParameterizedTest
-    @AllIncludedBuildTypes
-    fun `should respect disabling accessors in plugins block in old Gradle`(includedBuild: BuildConfigurator) {
-        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
-        assumeTrue(gradleVersion < GradleVersion.version("8.8"))
-
-        // given
-        installFixture(LibsInPluginsBlock)
-
-        // and
-        includedBuild {
-            settingsGradleKts {
-                prepend {
-                    """
-                    import dev.panuszewski.gradle.TypesafeConventionsExtension
-                    """
-                }
-                append {
-                    """
-                    configure<TypesafeConventionsExtension> {
-                        accessorsInPluginsBlock = false
-                    }    
-                    """
-                }
-            }
-        }
+        installFixture(TypesafeConventionsConfig) { accessorsInPluginsBlock = false }
 
         // when
         val result = runGradle("help")
@@ -130,59 +80,9 @@ class ConventionPluginsSpec : GradleSpec() {
     @ParameterizedTest
     @AllIncludedBuildTypes
     fun `should respect disabling auto plugin dependencies`(includedBuild: BuildConfigurator) {
-        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
-        assumeTrue(gradleVersion >= GradleVersion.version("8.8"))
-
         // given
         val fixture = installFixture(LibsInPluginsBlock)
-
-        // and
-        includedBuild {
-            settingsGradleKts {
-                append {
-                    """
-                    typesafeConventions {
-                        autoPluginDependencies = false
-                    }
-                    """
-                }
-            }
-        }
-
-        // when
-        val result = runGradle("help")
-
-        // then
-        result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Plugin [id: '${fixture.pluginId}'] was not found in any of the following sources"
-    }
-
-    @ParameterizedTest
-    @AllIncludedBuildTypes
-    fun `should respect disabling auto plugin dependencies in old Gradle`(includedBuild: BuildConfigurator) {
-        // Gradle < 8.8 does not support typesafe extensions in settings.gradle.kts
-        assumeTrue(gradleVersion < GradleVersion.version("8.8"))
-
-        // given
-        val fixture = installFixture(LibsInPluginsBlock)
-
-        // and
-        includedBuild {
-            settingsGradleKts {
-                prepend {
-                    """
-                    import dev.panuszewski.gradle.TypesafeConventionsExtension
-                    """
-                }
-                append {
-                    """
-                    configure<TypesafeConventionsExtension> {
-                        autoPluginDependencies = false
-                    }
-                    """
-                }
-            }
-        }
+        installFixture(TypesafeConventionsConfig) { autoPluginDependencies = false }
 
         // when
         val result = runGradle("help")
@@ -270,6 +170,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // given
         installFixture(TopLevelBuild)
+        installFixture(TypesafeConventionsConfig) { allowTopLevelBuild = true }
 
         // when
         val result = runGradle("assemble")

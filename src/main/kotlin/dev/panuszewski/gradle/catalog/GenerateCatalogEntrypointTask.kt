@@ -13,7 +13,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-// TODO tests for caching and invalidating on input changes
 @CacheableTask
 internal abstract class GenerateCatalogEntrypointTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
