@@ -10,20 +10,22 @@ import java.lang.reflect.Method
 
 class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
 
-    private val installedFixtures = mutableListOf<Fixture<*>>()
+    private val mutableInstalledFixtures = mutableListOf<Fixture<*>>()
     private lateinit var spec: GradleSpec
     private lateinit var includedBuild: BuildConfigurator
 
+    val installedFixtures: List<Fixture<*>> = mutableInstalledFixtures
+
     fun <C : Any> installFixture(fixture: Fixture<C>, config: C) {
-        if(installedFixtures.contains(fixture)) {
+        if(mutableInstalledFixtures.contains(fixture)) {
             error("Fixture ${fixture.javaClass.simpleName} already installed!")
         }
-        installedFixtures.add(fixture)
+        mutableInstalledFixtures.add(fixture)
         fixture.install(spec, includedBuild, config)
     }
 
     override fun beforeEach(context: ExtensionContext) {
-        installedFixtures.clear()
+        mutableInstalledFixtures.clear()
         spec = context.requiredTestInstance as? GradleSpec
             ?: error("The ${javaClass.simpleName} extension can only be applied to subclasses of BaseGradleSpec")
     }

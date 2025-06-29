@@ -155,4 +155,14 @@ class AppendableFile(
         val separator = if (previousContent.isNotBlank()) "\n\n" else ""
         file.writeText(previousContent + separator + content().trimIndent().trimStart())
     }
+
+    fun appendLine(content: () -> String) {
+        append(content)
+        append { "\n" }
+    }
+
+    fun prependLine(content: () -> String) {
+        prepend(content)
+        prepend { "\n" }
+    }
 }

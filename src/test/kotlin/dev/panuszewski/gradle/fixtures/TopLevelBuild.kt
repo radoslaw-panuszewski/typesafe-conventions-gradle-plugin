@@ -1,14 +1,16 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildConfigurator
-import dev.panuszewski.gradle.framework.Fixture
+import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.NoConfigFixture
+import dev.panuszewski.gradle.util.gradleVersion
 
 object TopLevelBuild : NoConfigFixture {
 
     override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
         with(spec) {
+            installFixture(TypesafeConventionsAppliedToTopLevelBuild)
+
             libsVersionsToml {
                 """
                 [plugins]
@@ -40,21 +42,6 @@ object TopLevelBuild : NoConfigFixture {
                 
                 repositories {
                     gradlePluginPortal()
-                }
-                """
-            }
-
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
                 }
                 """
             }
