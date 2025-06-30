@@ -6,22 +6,20 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object TypesafeConventionsAppliedToTopLevelBuild : NoConfigFixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
-        with(spec) {
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
+    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+        settingsGradleKts {
+            """
+            pluginManagement {
+                repositories {
+                    gradlePluginPortal()
+                    mavenLocal()
                 }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
             }
+                
+            plugins {
+                id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
+            }
+            """
         }
     }
 }

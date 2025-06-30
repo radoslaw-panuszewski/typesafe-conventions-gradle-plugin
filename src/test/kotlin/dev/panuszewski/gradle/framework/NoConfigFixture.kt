@@ -4,9 +4,9 @@ interface NoConfigFixture : Fixture<Unit> {
 
     override fun defaultConfig() = Unit
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Unit) {
-        install(spec, includedBuild)
+    override fun GradleSpec.install(includedBuild: BuildConfigurator, config: Unit) {
+        install(includedBuild)
     }
 
-    fun install(spec: GradleSpec, includedBuild: BuildConfigurator)
+    fun GradleSpec.install(includedBuild: BuildConfigurator)
 }

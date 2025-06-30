@@ -7,22 +7,16 @@ import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleBuild
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.util.gradleVersion
-import org.gradle.api.provider.Property
-import org.gradle.kotlin.dsl.property
-import kotlin.DeprecationLevel.WARNING
-import kotlin.reflect.full.memberProperties
 
 object TypesafeConventionsConfig : Fixture<Config> {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator, config: Config) {
-        val installedFixtures = spec.fixtures.installedFixtures
-
+    override fun GradleSpec.install(includedBuild: BuildConfigurator, config: Config) {
         when {
-            installedFixtures.contains(TypesafeConventionsAppliedToIncludedBuild) -> {
-                spec.includedBuild { applyConfiguration(config) }
+            fixtures.installedFixtures.contains(TypesafeConventionsAppliedToIncludedBuild) -> {
+                includedBuild { applyConfiguration(config) }
             }
-            installedFixtures.contains(TypesafeConventionsAppliedToTopLevelBuild) -> {
-                spec.mainBuild.applyConfiguration(config)
+            fixtures.installedFixtures.contains(TypesafeConventionsAppliedToTopLevelBuild) -> {
+                mainBuild.applyConfiguration(config)
             }
             else -> {
                 error("Can't install TypesafeConventionsConfig since typesafe-conventions plugin is not applied")

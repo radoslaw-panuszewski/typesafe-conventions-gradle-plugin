@@ -6,22 +6,20 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object EmbeddedKotlinUsage : NoConfigFixture {
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
-        with(spec) {
-            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-            includedBuild {
-                buildGradleKts {
-                    """
-                    plugins {
-                        embeddedKotlin("jvm")
-                    } 
-                    
-                    repositories {
-                        mavenCentral()
-                    }
-                    """
+        includedBuild {
+            buildGradleKts {
+                """
+                plugins {
+                    embeddedKotlin("jvm")
+                } 
+                
+                repositories {
+                    mavenCentral()
                 }
+                """
             }
         }
     }

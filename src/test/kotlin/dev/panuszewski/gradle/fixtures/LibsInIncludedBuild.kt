@@ -8,41 +8,39 @@ object LibsInIncludedBuild : NoConfigFixture {
 
     const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
-        with(spec) {
-            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-            libsVersionsToml {
-                """
-                [libraries]
-                some-library = "$someLibrary"
-                """
+        libsVersionsToml {
+            """
+            [libraries]
+            some-library = "$someLibrary"
+            """
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                java
             }
+            """
+        }
 
+        includedBuild {
             buildGradleKts {
                 """
                 plugins {
-                    java
+                    `kotlin-dsl`
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                
+                dependencies {
+                    implementation(libs.some.library)
                 }
                 """
-            }
-
-            includedBuild {
-                buildGradleKts {
-                    """
-                    plugins {
-                        `kotlin-dsl`
-                    } 
-                    
-                    repositories {
-                        mavenCentral()
-                    }
-                    
-                    dependencies {
-                        implementation(libs.some.library)
-                    }
-                    """
-                }
             }
         }
     }

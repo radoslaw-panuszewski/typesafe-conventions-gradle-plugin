@@ -14,32 +14,30 @@ object CommentedPluginUsage : NoConfigFixture {
     const val uncommentedPluginMarker = "$uncommentedPluginId:$uncommentedPluginId.gradle.plugin"
     const val uncommentedPluginVersion = "0.52.0"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
-        with(spec) {
-            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-            libsVersionsToml {
-                """
-                [plugins]
-                commented-plugin = { id = "$commentedPluginId", version = "$commentedPluginVersion" }
-                uncommented-plugin = { id = "$uncommentedPluginId", version = "$uncommentedPluginVersion" }
-                """
-            }
+        libsVersionsToml {
+            """
+            [plugins]
+            commented-plugin = { id = "$commentedPluginId", version = "$commentedPluginVersion" }
+            uncommented-plugin = { id = "$uncommentedPluginId", version = "$uncommentedPluginVersion" }
+            """
+        }
 
-            installFixture(ConventionPlugin) {
-                pluginBody = """
-                    plugins {
-                        // alias(libs.plugins.commented.plugin)
-                        /* 
-                          alias(libs.plugins.commented.plugin) 
-                        */
-                        alias(libs.plugins.uncommented.plugin)
-                        /**
-                         * alias(libs.plugins.commented.plugin)
-                         */
-                    }
-                    """
-            }
+        installFixture(ConventionPlugin) {
+            pluginBody = """
+                plugins {
+                    // alias(libs.plugins.commented.plugin)
+                    /* 
+                      alias(libs.plugins.commented.plugin) 
+                    */
+                    alias(libs.plugins.uncommented.plugin)
+                    /**
+                     * alias(libs.plugins.commented.plugin)
+                     */
+                }
+                """
         }
     }
 }

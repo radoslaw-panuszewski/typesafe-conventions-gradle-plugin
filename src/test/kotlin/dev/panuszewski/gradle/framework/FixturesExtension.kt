@@ -21,7 +21,9 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
             error("Fixture ${fixture.javaClass.simpleName} already installed!")
         }
         mutableInstalledFixtures.add(fixture)
-        fixture.install(spec, includedBuild, config)
+        with(fixture) {
+            spec.install(includedBuild, config)
+        }
     }
 
     override fun beforeEach(context: ExtensionContext) {

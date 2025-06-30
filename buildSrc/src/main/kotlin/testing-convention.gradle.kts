@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
+    java
     `jvm-test-suite`
     alias(libs.plugins.test.logger)
 }
@@ -21,7 +22,7 @@ testing {
 }
 
 tasks {
-    named<Test>("test") {
+    test {
         dependsOn("publishToMavenLocal")
 
         environment["PROJECT_VERSION"] = project.version

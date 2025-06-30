@@ -10,55 +10,53 @@ object PluginMarkerUsage : NoConfigFixture {
     val somePluginVersion = "1.18.16"
     val taskRegisteredBySomePlugin = "verifyRelease"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
-        with(spec) {
-            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-            libsVersionsToml {
-                """
-                [plugins]
-                some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
-                """
+        libsVersionsToml {
+            """
+            [plugins]
+            some-plugin = { id = "$somePlugin", version = "$somePluginVersion" }
+            """
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                id("some-convention")
             }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
 
+        includedBuild {
             buildGradleKts {
                 """
+                import dev.panuszewski.gradle.pluginMarker
+                    
                 plugins {
-                    id("some-convention")
-                }
+                    `kotlin-dsl`
+                } 
                 
                 repositories {
                     mavenCentral()
                 }
+                
+                dependencies {
+                    implementation(pluginMarker(libs.plugins.some.plugin))
+                }
                 """
             }
 
-            includedBuild {
-                buildGradleKts {
-                    """
-                    import dev.panuszewski.gradle.pluginMarker
-                        
-                    plugins {
-                        `kotlin-dsl`
-                    } 
-                    
-                    repositories {
-                        mavenCentral()
-                    }
-                    
-                    dependencies {
-                        implementation(pluginMarker(libs.plugins.some.plugin))
-                    }
-                    """
+            customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
+                """
+                plugins {
+                    id("$somePlugin")
                 }
-
-                customProjectFile("src/main/kotlin/some-convention.gradle.kts") {
-                    """
-                    plugins {
-                        id("$somePlugin")
-                    }
-                    """
-                }
+                """
             }
         }
     }

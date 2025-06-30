@@ -14,45 +14,43 @@ object MultipleCatalogsInPluginsBlock : NoConfigFixture {
     const val anotherPluginVersion = "0.52.0"
     const val taskRegisteredByAnotherPlugin = "dependencyUpdates"
 
-    override fun install(spec: GradleSpec, includedBuild: BuildConfigurator) {
-        with(spec) {
-            installFixture(TypesafeConventionsAppliedToIncludedBuild)
+    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-            installFixture(ConventionPlugin) {
-                pluginBody = """
-                    plugins {
-                        alias(libs.plugins.some.plugin)
-                        alias(tools.plugins.another.plugin)
-                    }
-                    """
-            }
+        installFixture(ConventionPlugin) {
+            pluginBody = """
+                plugins {
+                    alias(libs.plugins.some.plugin)
+                    alias(tools.plugins.another.plugin)
+                }
+                """
+        }
 
-            libsVersionsToml {
-                """
-                [plugins]
-                some-plugin = { id = "$somePluginId", version = "$somePluginVersion" }
-                """
-            }
+        libsVersionsToml {
+            """
+            [plugins]
+            some-plugin = { id = "$somePluginId", version = "$somePluginVersion" }
+            """
+        }
 
-            customProjectFile("gradle/tools.versions.toml") {
-                """
-                [plugins]
-                another-plugin = { id = "$anotherPluginId", version = "$anotherPluginVersion" }
-                """
-            }
+        customProjectFile("gradle/tools.versions.toml") {
+            """
+            [plugins]
+            another-plugin = { id = "$anotherPluginId", version = "$anotherPluginVersion" }
+            """
+        }
 
-            settingsGradleKts {
-                append {
-                    """
-                    dependencyResolutionManagement {
-                        versionCatalogs {
-                            create("tools") {
-                                from(files("gradle/tools.versions.toml"))
-                            }
+        settingsGradleKts {
+            append {
+                """
+                dependencyResolutionManagement {
+                    versionCatalogs {
+                        create("tools") {
+                            from(files("gradle/tools.versions.toml"))
                         }
                     }
-                    """
                 }
+                """
             }
         }
     }
