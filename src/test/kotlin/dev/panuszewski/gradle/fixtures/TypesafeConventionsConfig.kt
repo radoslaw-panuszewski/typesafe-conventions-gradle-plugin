@@ -10,7 +10,7 @@ import dev.panuszewski.gradle.util.gradleVersion
 
 object TypesafeConventionsConfig : Fixture<Config> {
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator, config: Config) {
+    override fun GradleSpec.install(config: Config) {
         when {
             fixtures.installedFixtures.contains(TypesafeConventionsAppliedToIncludedBuild) -> {
                 includedBuild { applyConfiguration(config) }

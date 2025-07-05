@@ -12,7 +12,7 @@ import dev.panuszewski.gradle.framework.GradleSpec
  */
 object ConventionPlugin : Fixture<Config> {
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator, config: Config) {
+    override fun GradleSpec.install(config: Config) {
         buildGradleKts {
             """
             plugins {

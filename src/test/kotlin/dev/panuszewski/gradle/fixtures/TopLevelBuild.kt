@@ -7,7 +7,7 @@ import dev.panuszewski.gradle.util.gradleVersion
 
 object TopLevelBuild : NoConfigFixture {
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToTopLevelBuild)
 
         libsVersionsToml {

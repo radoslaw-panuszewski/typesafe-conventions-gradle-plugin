@@ -12,6 +12,7 @@ import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
 import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -35,8 +36,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in convention plugin`(includedBuild: BuildConfigurator) {
+    fun `should allow to use catalog accessors in convention plugin`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(LibsInDependenciesBlock)
 
         // when
@@ -50,8 +52,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in plugins block of convention plugin`(includedBuild: BuildConfigurator) {
+    fun `should allow to use catalog accessors in plugins block of convention plugin`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(LibsInPluginsBlock)
 
         // when
@@ -64,8 +67,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should respect disabling accessors in plugins block`(includedBuild: BuildConfigurator) {
+    fun `should respect disabling accessors in plugins block`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         installFixture(LibsInPluginsBlock)
         installFixture(TypesafeConventionsConfig) { accessorsInPluginsBlock = false }
 
@@ -79,8 +83,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should respect disabling auto plugin dependencies`(includedBuild: BuildConfigurator) {
+    fun `should respect disabling auto plugin dependencies`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(LibsInPluginsBlock)
         installFixture(TypesafeConventionsConfig) { autoPluginDependencies = false }
 
@@ -94,8 +99,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to override auto plugin dependency`(includedBuild: BuildConfigurator) {
+    fun `should allow to override auto plugin dependency`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(LibsInPluginsBlock)
 
         // and
@@ -130,8 +136,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should support multiple catalogs`(includedBuild: BuildConfigurator) {
+    fun `should support multiple catalogs`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(MultipleCatalogsInDependenciesBlock)
 
         // when
@@ -150,8 +157,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should support multiple catalogs in plugins block`(includedBuild: BuildConfigurator) {
+    fun `should support multiple catalogs in plugins block`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(MultipleCatalogsInPluginsBlock)
 
         // when
@@ -179,10 +187,12 @@ class ConventionPluginsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
 
+    // TODO Maybe fixtures could be parameters?
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should support imported version catalogs`(includedBuild: BuildConfigurator) {
+    fun `should support imported version catalogs`(includedBuild: Fixture<*>) {
         // this feature is not supported for early-evaluated builds
+        installFixture(includedBuild)
         assumeFalse { testInfo.displayName.contains("plugin-management-build-logic") }
 
         // given
@@ -199,8 +209,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should ignore commented code when adding auto plugin dependencies`(includedBuild: BuildConfigurator) {
+    fun `should ignore commented code when adding auto plugin dependencies`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(CommentedPluginUsage)
 
         // when
@@ -220,8 +231,9 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to change build directory path`(includedBuild: BuildConfigurator) {
+    fun `should allow to change build directory path`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         installFixture(CustomBuildDirPath)
 
         // when

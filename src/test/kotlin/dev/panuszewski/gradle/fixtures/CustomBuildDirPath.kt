@@ -6,7 +6,7 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object CustomBuildDirPath : NoConfigFixture {
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(LibsInDependenciesBlock)
 
         includedBuild {

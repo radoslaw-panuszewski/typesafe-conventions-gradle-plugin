@@ -12,7 +12,6 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
 
     private val mutableInstalledFixtures = mutableListOf<Fixture<*>>()
     private lateinit var spec: GradleSpec
-    private lateinit var includedBuild: BuildConfigurator
 
     val installedFixtures: List<Fixture<*>> = mutableInstalledFixtures
 
@@ -22,7 +21,7 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
         }
         mutableInstalledFixtures.add(fixture)
         with(fixture) {
-            spec.install(includedBuild, config)
+            spec.install(config)
         }
     }
 
@@ -30,30 +29,5 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
         mutableInstalledFixtures.clear()
         spec = context.requiredTestInstance as? GradleSpec
             ?: error("The ${javaClass.simpleName} extension can only be applied to subclasses of BaseGradleSpec")
-    }
-
-    override fun interceptTestMethod(
-        invocation: Invocation<Void>,
-        invocationContext: ReflectiveInvocationContext<Method>,
-        extensionContext: ExtensionContext
-    ) {
-        captureIncludedBuild(invocationContext)
-        invocation.proceed()
-    }
-
-    override fun interceptTestTemplateMethod(
-        invocation: Invocation<Void>,
-        invocationContext: ReflectiveInvocationContext<Method>,
-        extensionContext: ExtensionContext
-    ) {
-        captureIncludedBuild(invocationContext)
-        invocation.proceed()
-    }
-
-    private fun captureIncludedBuild(invocationContext: ReflectiveInvocationContext<Method>) {
-        includedBuild = invocationContext.arguments
-            .filterIsInstance<BuildConfigurator>()
-            .firstOrNull()
-            ?: GradleSpec::buildSrc
     }
 }

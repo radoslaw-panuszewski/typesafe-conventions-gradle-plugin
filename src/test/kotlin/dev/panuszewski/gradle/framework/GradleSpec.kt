@@ -1,5 +1,9 @@
 package dev.panuszewski.gradle.framework
 
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
+import dev.panuszewski.gradle.fixtures.includedbuild.NotNestedBuildLogic
+import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe
@@ -14,6 +18,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.StringWriter
 import java.nio.file.Paths
 import java.util.stream.Stream
@@ -100,46 +105,11 @@ abstract class GradleSpec {
         mainBuild.customProjectFile(path, configurator)
     }
 
-    /**
-     * Register and configure included build
-     */
-    fun includedBuild(buildPath: String, configureBuild: GradleBuild.() -> Unit) {
-        val build = includedBuilds.computeIfAbsent(buildPath) {
-            mainBuild.registerIncludedBuild(buildPath)
+    fun includedBuild(configureBuild: GradleBuild.() -> Unit) {
+        require(includedBuilds.size == 1) {
+            "Required exactly 1 included build to be registered. Did you forgot to install a fixture like BuildSrc?"
         }
-        build.configureBuild()
-    }
-
-    fun pluginManagementIncludedBuild(buildPath: String, configureBuild: GradleBuild.() -> Unit) {
-        val build = includedBuilds.computeIfAbsent(buildPath) {
-            mainBuild.registerPluginManagementIncludedBuild(buildPath)
-        }
-        build.configureBuild()
-    }
-
-    /**
-     * Register and configure build-logic included build
-     */
-    fun buildLogic(configureBuild: GradleBuild.() -> Unit) {
-        includedBuild("build-logic", configureBuild)
-    }
-
-    fun pluginManagementBuildLogicWithAtLeastOneSettingsPlugin(configureBuild: GradleBuild.() -> Unit) {
-        pluginManagementIncludedBuild("build-logic", configureBuild)
-    }
-
-    /**
-     * Register and configure buildSrc
-     */
-    fun buildSrc(configureBuild: GradleBuild.() -> Unit) {
-        val build = includedBuilds.computeIfAbsent("buildSrc") {
-            GradleBuild("buildSrc", mainBuild.rootDir.resolve("buildSrc"), gradleVersion)
-        }
-        build.configureBuild()
-    }
-
-    fun notNestedBuildLogic(configureBuild: GradleBuild.() -> Unit) {
-        includedBuild("../build-logic-for-${mainBuild.rootDir.name}", configureBuild)
+        includedBuilds.values.first().configureBuild()
     }
 
     /**
@@ -203,10 +173,10 @@ abstract class GradleSpec {
         @JvmStatic
         fun allIncludedBuildTypes(): Stream<Arguments> =
             Stream.of(
-                argumentSet("buildSrc", GradleSpec::buildSrc),
-                argumentSet("build-logic", GradleSpec::buildLogic),
-                argumentSet("plugin-management-build-logic", GradleSpec::pluginManagementBuildLogicWithAtLeastOneSettingsPlugin),
-                argumentSet("not-nested-build-logic", GradleSpec::notNestedBuildLogic),
+                argumentSet("buildSrc", BuildSrc),
+                argumentSet("build-logic", BuildLogic),
+                argumentSet("plugin-management-build-logic", PluginManagementBuildLogic),
+                argumentSet("not-nested-build-logic", NotNestedBuildLogic),
             )
     }
 

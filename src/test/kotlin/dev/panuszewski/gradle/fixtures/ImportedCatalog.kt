@@ -9,7 +9,7 @@ object ImportedCatalog : NoConfigFixture {
     const val catalogCoordinates = "io.micronaut.platform:micronaut-platform:4.8.2"
     const val libraryFromCatalog = "io.micronaut:micronaut-core:4.8.11"
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
         installFixture(ConventionPlugin) {

@@ -6,7 +6,7 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object TypesafeConventionsAppliedToTopLevelBuild : NoConfigFixture {
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         settingsGradleKts {
             """
             pluginManagement {

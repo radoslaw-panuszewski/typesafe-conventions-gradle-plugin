@@ -8,7 +8,7 @@ object LibsInDependenciesBlock : NoConfigFixture {
 
     const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
         installFixture(ConventionPlugin) {
