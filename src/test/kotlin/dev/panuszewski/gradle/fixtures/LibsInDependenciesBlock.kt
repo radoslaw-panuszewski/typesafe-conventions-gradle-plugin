@@ -1,14 +1,13 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.framework.GradleSpec
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object LibsInDependenciesBlock : NoConfigFixture {
 
     const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
         installFixture(ConventionPlugin) {

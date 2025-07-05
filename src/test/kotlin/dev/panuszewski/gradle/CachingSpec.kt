@@ -2,13 +2,10 @@ package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
-import dev.panuszewski.gradle.framework.BuildOutcome
-import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.shouldAllBuildsSucceed
-import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class CachingSpec : GradleSpec() {
@@ -16,6 +13,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should generateEntrypointForLibs be UP-TO-DATE`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInDependenciesBlock)
 
         // when
@@ -31,6 +29,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should generateEntrypointForLibs be FROM-CACHE`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInDependenciesBlock)
 
         // when
@@ -47,6 +46,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be UP-TO-DATE`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInDependenciesBlock)
 
         // when
@@ -62,6 +62,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be FROM-CACHE`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInDependenciesBlock)
 
         // when
@@ -78,6 +79,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should invalidate generateLibrariesForLibs when version catalog changes`() {
         // given
+        installFixture(BuildSrc)
         val fixture = installFixture(LibsInDependenciesBlock)
 
         // when
@@ -101,6 +103,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be UP-TO-DATE`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInPluginsBlock)
 
         // when
@@ -116,6 +119,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be FROM-CACHE`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInPluginsBlock)
 
         // when
@@ -132,6 +136,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should invalidate extractPrecompiledScriptPluginPlugins when plugins in version catalog changes`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInPluginsBlock)
 
         // when
@@ -157,6 +162,7 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should not invalidate extractPrecompiledScriptPluginPlugins when libraries in version catalog changes`() {
         // given
+        installFixture(BuildSrc)
         installFixture(LibsInPluginsBlock)
 
         // when

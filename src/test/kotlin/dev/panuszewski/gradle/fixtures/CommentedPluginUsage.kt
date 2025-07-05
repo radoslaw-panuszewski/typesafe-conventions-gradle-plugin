@@ -1,6 +1,5 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.NoConfigFixture
 
@@ -14,7 +13,7 @@ object CommentedPluginUsage : NoConfigFixture {
     const val uncommentedPluginMarker = "$uncommentedPluginId:$uncommentedPluginId.gradle.plugin"
     const val uncommentedPluginVersion = "0.52.0"
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
         libsVersionsToml {

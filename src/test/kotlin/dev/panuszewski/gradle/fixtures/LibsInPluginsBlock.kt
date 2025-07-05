@@ -3,7 +3,6 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.framework.GradleSpec
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object LibsInPluginsBlock : NoConfigFixture {
@@ -13,7 +12,7 @@ object LibsInPluginsBlock : NoConfigFixture {
     const val pluginVersion = "1.18.16"
     const val taskRegisteredByPlugin = "verifyRelease"
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
         installFixture(ConventionPlugin) {

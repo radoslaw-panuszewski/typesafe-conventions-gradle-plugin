@@ -3,9 +3,9 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.fixtures.EmbeddedKotlinUsage
 import dev.panuszewski.gradle.fixtures.LibsInIncludedBuild
 import dev.panuszewski.gradle.fixtures.PluginMarkerUsage
-import dev.panuszewski.gradle.framework.BuildConfigurator
-import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.Fixture
+import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.params.ParameterizedTest
@@ -14,8 +14,9 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: BuildConfigurator) {
+    fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         installFixture(LibsInIncludedBuild)
 
         // and
@@ -36,8 +37,9 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should allow to use catalog accessors in included build`(includedBuild: BuildConfigurator) {
+    fun `should allow to use catalog accessors in included build`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         installFixture(LibsInIncludedBuild)
 
         // when
@@ -49,8 +51,9 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should provide pluginMarker helper method`(includedBuild: BuildConfigurator) {
+    fun `should provide pluginMarker helper method`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(PluginMarkerUsage)
 
         // when
@@ -63,8 +66,9 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should the pluginMarker method support rich versions`(includedBuild: BuildConfigurator) {
+    fun `should the pluginMarker method support rich versions`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         val fixture = installFixture(PluginMarkerUsage)
 
         // and
@@ -85,8 +89,9 @@ class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
     @AllIncludedBuildTypes
-    fun `should not mess up with kotlin dependency in included build`(includedBuild: BuildConfigurator) {
+    fun `should not mess up with kotlin dependency in included build`(includedBuild: Fixture<*>) {
         // given
+        installFixture(includedBuild)
         installFixture(EmbeddedKotlinUsage)
 
         // when

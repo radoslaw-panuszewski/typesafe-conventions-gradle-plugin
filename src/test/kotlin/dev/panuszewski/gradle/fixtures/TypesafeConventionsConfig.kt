@@ -2,7 +2,6 @@ package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig.Config
 import dev.panuszewski.gradle.framework.AppendableFile
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleBuild
 import dev.panuszewski.gradle.framework.GradleSpec
@@ -10,7 +9,7 @@ import dev.panuszewski.gradle.util.gradleVersion
 
 object TypesafeConventionsConfig : Fixture<Config> {
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator, config: Config) {
+    override fun GradleSpec.install(config: Config) {
         when {
             fixtures.installedFixtures.contains(TypesafeConventionsAppliedToIncludedBuild) -> {
                 includedBuild { applyConfiguration(config) }

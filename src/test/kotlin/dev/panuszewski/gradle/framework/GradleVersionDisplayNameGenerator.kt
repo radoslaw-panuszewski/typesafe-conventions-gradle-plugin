@@ -9,12 +9,6 @@ class GradleVersionDisplayNameGenerator : DisplayNameGenerator.Standard() {
         val prefix = "[${GradleVersions.GRADLE_VERSION_TO_TEST.version.replaceDotWithWithSimilarSymbol()}]"
         return "$prefix ${super.generateDisplayNameForClass(testClass)}"
     }
-
-    override fun generateDisplayNameForNestedClass(nestedClass: Class<*>): String =
-        super.generateDisplayNameForNestedClass(nestedClass)
-
-    override fun generateDisplayNameForMethod(testClass: Class<*>, testMethod: Method): String =
-        super.generateDisplayNameForMethod(testClass, testMethod)
 }
 
 /**

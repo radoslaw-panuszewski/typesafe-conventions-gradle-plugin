@@ -42,6 +42,7 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
             .dependenciesModelBuilders
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
+    @Suppress("DEPRECATION")
     private fun generateAccessors(project: Project, versionCatalogs: List<VersionCatalogBuilderInternal>) {
         for (catalog in versionCatalogs) {
             LibraryCatalogAccessorsSupport.apply(project, catalog)

@@ -1,6 +1,5 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.NoConfigFixture
 
@@ -10,7 +9,7 @@ object PluginMarkerUsage : NoConfigFixture {
     val somePluginVersion = "1.18.16"
     val taskRegisteredBySomePlugin = "verifyRelease"
 
-    override fun GradleSpec.install(includedBuild: BuildConfigurator) {
+    override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
         libsVersionsToml {

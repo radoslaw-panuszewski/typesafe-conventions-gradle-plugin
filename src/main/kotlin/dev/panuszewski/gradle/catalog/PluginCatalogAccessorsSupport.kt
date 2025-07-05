@@ -10,7 +10,7 @@ import org.gradle.kotlin.dsl.add
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.io.Serializable
-import kotlin.text.RegexOption.*
+import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object PluginCatalogAccessorsSupport {
 

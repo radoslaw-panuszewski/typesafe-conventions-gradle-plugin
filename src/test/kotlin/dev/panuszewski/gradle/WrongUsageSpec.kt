@@ -3,6 +3,7 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.GradleSpec
@@ -122,8 +123,10 @@ class WrongUsageSpec : GradleSpec() {
 
         // given
         gradleVersion = gradleVersion("8.3")
+        installFixture(BuildSrc)
 
-        buildSrc {
+        // and
+        includedBuild {
             settingsGradleKts {
                 """
                 pluginManagement {
