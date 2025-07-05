@@ -3,10 +3,9 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.fixtures.EmbeddedKotlinUsage
 import dev.panuszewski.gradle.fixtures.LibsInIncludedBuild
 import dev.panuszewski.gradle.fixtures.PluginMarkerUsage
-import dev.panuszewski.gradle.framework.BuildConfigurator
-import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.Fixture
+import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.params.ParameterizedTest

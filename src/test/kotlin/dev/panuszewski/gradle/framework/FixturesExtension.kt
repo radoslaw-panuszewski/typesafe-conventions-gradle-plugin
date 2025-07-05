@@ -4,9 +4,6 @@ import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.InvocationInterceptor
-import org.junit.jupiter.api.extension.InvocationInterceptor.Invocation
-import org.junit.jupiter.api.extension.ReflectiveInvocationContext
-import java.lang.reflect.Method
 
 class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
 

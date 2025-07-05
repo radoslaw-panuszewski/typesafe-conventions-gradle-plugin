@@ -3,7 +3,6 @@ package dev.panuszewski.gradle.util
 import dev.panuszewski.gradle.TypesafeConventionsExtension
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
-import org.gradle.api.initialization.dsl.VersionCatalogBuilder
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.SettingsInternal
 import org.gradle.kotlin.dsl.getByType

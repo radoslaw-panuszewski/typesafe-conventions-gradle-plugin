@@ -3,13 +3,9 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
-import dev.panuszewski.gradle.framework.BuildOutcome
-import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.shouldAllBuildsSucceed
-import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class CachingSpec : GradleSpec() {

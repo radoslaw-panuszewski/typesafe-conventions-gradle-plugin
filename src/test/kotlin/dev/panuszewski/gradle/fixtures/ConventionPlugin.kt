@@ -1,7 +1,6 @@
 package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.fixtures.ConventionPlugin.Config
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 

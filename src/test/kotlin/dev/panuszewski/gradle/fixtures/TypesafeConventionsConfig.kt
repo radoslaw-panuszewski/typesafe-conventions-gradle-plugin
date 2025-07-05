@@ -2,7 +2,6 @@ package dev.panuszewski.gradle.fixtures
 
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig.Config
 import dev.panuszewski.gradle.framework.AppendableFile
-import dev.panuszewski.gradle.framework.BuildConfigurator
 import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleBuild
 import dev.panuszewski.gradle.framework.GradleSpec
