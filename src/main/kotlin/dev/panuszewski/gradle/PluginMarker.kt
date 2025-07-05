@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package dev.panuszewski.gradle
 
 import org.gradle.api.Project
