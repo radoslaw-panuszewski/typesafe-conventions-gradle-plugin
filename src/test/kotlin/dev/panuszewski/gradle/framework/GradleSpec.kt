@@ -174,7 +174,6 @@ abstract class GradleSpec {
             Stream.of(
                 argumentSet("buildSrc", BuildSrc),
                 argumentSet("build-logic", BuildLogic),
-                argumentSet("plugin-management-build-logic", PluginManagementBuildLogic),
                 argumentSet("not-nested-build-logic", NotNestedBuildLogic),
             )
     }
@@ -182,7 +181,7 @@ abstract class GradleSpec {
     @MethodSource("allIncludedBuildTypes")
     @Target(FUNCTION)
     @Retention(RUNTIME)
-    annotation class AllIncludedBuildTypes
+    annotation class SupportedIncludedBuilds
 }
 
 class SuccessOrFailureBuildResult(
