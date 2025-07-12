@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
+import dev.panuszewski.gradle.fixtures.EarlyEvaluatedIncludedBuild
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
@@ -105,13 +106,51 @@ class WrongUsageSpec : GradleSpec() {
     }
 
     @Test
-    fun `should work verify top-level build lazily`() {
+    fun `should verify top-level build lazily`() {
         // given
         installFixture(TopLevelBuild)
         installFixture(TypesafeConventionsConfig) { allowTopLevelBuild = false }
 
         // when
-        val result = runGradle()
+        val result = runGradle("clean")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+    }
+
+    @Test
+    fun `should not allow applying to early-evaluated included build`() {
+        // given
+        installFixture(EarlyEvaluatedIncludedBuild)
+
+        // when
+        val result = runGradle(":build-logic:compileKotlin")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain """
+            The typesafe-conventions plugin is applied to an early-evaluated included build!
+            This kind of builds are not supported, because they are not aware of the build hierarchy.
+            
+            To fix this issue, replace this code in your settings.gradle.kts:
+            
+            pluginManagement {
+                includeBuild("build-logic")
+            }
+            
+            with this:
+            
+            includeBuild("build-logic")
+        """.trimIndent()
+    }
+
+    @Test
+    fun `should verify early-evaluated included build lazily`() {
+        // given
+        installFixture(EarlyEvaluatedIncludedBuild)
+
+        // when
+        val result = runGradle(":build-logic:clean")
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL

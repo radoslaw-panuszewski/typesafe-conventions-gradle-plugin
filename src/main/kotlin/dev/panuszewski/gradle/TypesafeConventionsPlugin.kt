@@ -33,9 +33,30 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
         val settings = target as? Settings ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
+        settings.apply<LazyVerificationPlugin>()
 
-        val parentBuild = settings.gradle.parent as? GradleInternal
+        val currentBuild = settings.gradle as GradleInternal
+        val parentBuild = currentBuild.parent
 
+        if (currentBuild.identityPath.path.endsWith(":buildSrc")) {
+            // buildSrc does not participate in hierarchy flattening
+            configure(settings, parentBuild)
+        }
+        if (parentBuild != null) {
+            // build hierarchy is flattened by Gradle
+            val rootBuild = parentBuild
+
+            rootBuild.projectsLoaded {
+                val buildHierarchy = BuildHierarchy(rootBuild)
+                val directParentBuild = buildHierarchy.directParentOf(currentBuild)
+                configure(settings, directParentBuild)
+            }
+        } else {
+            configure(settings, null)
+        }
+    }
+
+    private fun configure(settings: Settings, parentBuild: GradleInternal?) {
         if (parentBuild != null) {
             inheritCatalogsFromParentBuild(settings, parentBuild)
         }
@@ -47,7 +68,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     }
 
     private fun inheritCatalogsFromParentBuild(settings: Settings, parentBuild: GradleInternal) {
-        val builders = discoverBuilders(settings, parentBuild)
+        val builders = discoverBuilders(parentBuild)
         val tomlFiles = discoverTomlFiles(settings, parentBuild)
 
         val contributorsByName = builders.associateBy(CatalogContributor::catalogName).toMutableMap()
@@ -57,7 +78,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         contributorsByName.values.forEach { it.contributeTo(settings.dependencyResolutionManagement.versionCatalogs) }
     }
 
-    private fun discoverBuilders(settings: Settings, parentBuild: GradleInternal): List<CatalogContributor> =
+    private fun discoverBuilders(parentBuild: GradleInternal): List<CatalogContributor> =
         try {
             val catalogBuilders = parentBuild.settings
                 .dependencyResolutionManagement
@@ -66,18 +87,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
             catalogBuilders.map { builder -> objects.newInstance<BuilderCatalogContributor>(builder) }
         } catch (e: IllegalStateException) {
-            settings.gradle.settingsEvaluated {
-                if (!settings.typesafeConventions.suppressPluginManagementIncludedBuildWarning.get()) {
-                    logger.warn(
-                        "WARNING: This build (${(settings as SettingsInternal).gradle.identityPath}) is being evaluated before the parent build. " +
-                            "If you import any external version catalogs or use VersionCatalogBuilder API, those catalogs won't be " +
-                            "available in this build. Consider moving includeBuild(...) outside the pluginManagement { ... } block " +
-                            "in settings.gradle.kts of the parent build. To suppress this warning, set " +
-                            "typesafeConventions.suppressPluginManagementIncludedBuildWarning = true. Read more at: " +
-                            "https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin?tab=readme-ov-file#known-limitations"
-                    )
-                }
-            }
             emptyList()
         }
 
@@ -102,10 +111,17 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     private fun applySubPluginsForAllProjects(settings: Settings) {
         settings.gradle.rootProject {
             allprojects {
-                apply<LazyVerificationPlugin>()
                 apply<CatalogAccessorsPlugin>()
             }
         }
+    }
+
+    // TODO use GradlePluginApiVersion attribute instead
+    private fun mustUseMinimalGradleVersion(): Nothing {
+        error(
+            "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
+                "but currently ${currentGradleVersion()} is used."
+        )
     }
 
     private fun mustBeAppliedToSettings(target: Any): Nothing {
@@ -117,14 +133,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         error(
             "The typesafe-conventions plugin must be applied to settings.gradle.kts, " +
                 "but attempted to apply it to $buildFileKind"
-        )
-    }
-
-    // TODO use GradlePluginApiVersion attribute instead
-    private fun mustUseMinimalGradleVersion(): Nothing {
-        error(
-            "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
-                "but currently ${currentGradleVersion()} is used."
         )
     }
 

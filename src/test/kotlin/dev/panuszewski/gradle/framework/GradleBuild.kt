@@ -86,6 +86,17 @@ class GradleBuild(
             .let(::AppendableFile)
             .acceptConfigurator(configurator)
     }
+
+    fun registerIncludedBuild(buildPath: String): GradleBuild {
+        settingsGradleKts.append {
+            """
+            includeBuild("$buildPath")    
+            """
+        }
+        val buildDir = rootDir.resolve(buildPath)
+        val buildName = buildDir.name
+        return GradleBuild(buildName, buildDir, gradleVersion)
+    }
 }
 
 class AppendableFile(
