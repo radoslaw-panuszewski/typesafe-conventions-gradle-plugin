@@ -14,10 +14,11 @@ import org.junit.jupiter.params.ParameterizedTest
 
 class IncludedBuildSpec : GradleSpec() {
 
-    @Test
-    fun `should allow to use catalog accessors in included build when running task from subproject`() {
+    @ParameterizedTest
+    @SupportedIncludedBuilds
+    fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: Fixture<*>) {
         // given
-        installFixture(PluginManagementBuildLogic)
+        installFixture(includedBuild)
         installFixture(LibsInIncludedBuild)
 
         // and

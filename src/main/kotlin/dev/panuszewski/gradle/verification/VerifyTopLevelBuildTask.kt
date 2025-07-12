@@ -19,6 +19,7 @@ internal abstract class VerifyTopLevelBuildTask : DefaultTask() {
         if (topLevelBuild.get() && !allowTopLevelBuild.get()) {
             error(
                 """
+                
                 The typesafe-conventions plugin is applied to a top-level build, but in most cases it should be applied to an included build or buildSrc. 
                 If you know what you're doing, allow top-level build in your settings.gradle.kts:
     

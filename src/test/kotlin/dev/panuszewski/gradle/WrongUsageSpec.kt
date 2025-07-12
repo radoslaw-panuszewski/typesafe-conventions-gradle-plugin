@@ -1,11 +1,10 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.MINIMAL_GRADLE_VERSION
+import dev.panuszewski.gradle.fixtures.EarlyEvaluatedIncludedBuild
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
-import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
-import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.GradleSpec
@@ -107,26 +106,25 @@ class WrongUsageSpec : GradleSpec() {
     }
 
     @Test
-    fun `should work verify top-level build lazily`() {
+    fun `should verify top-level build lazily`() {
         // given
         installFixture(TopLevelBuild)
         installFixture(TypesafeConventionsConfig) { allowTopLevelBuild = false }
 
         // when
-        val result = runGradle()
+        val result = runGradle("clean")
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
 
     @Test
-    fun `should fail on early evaluated included build`() {
+    fun `should not allow applying to early-evaluated included build`() {
         // given
-        installFixture(PluginManagementBuildLogic)
-        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+        installFixture(EarlyEvaluatedIncludedBuild)
 
         // when
-        val result = runGradle()
+        val result = runGradle(":build-logic:compileKotlin")
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
@@ -134,7 +132,7 @@ class WrongUsageSpec : GradleSpec() {
             The typesafe-conventions plugin is applied to an early-evaluated included build!
             This kind of builds are not supported, because they are not aware of the build hierarchy.
             
-            To fix this issue, replace this code in settings.gradle.kts:
+            To fix this issue, replace this code in your settings.gradle.kts:
             
             pluginManagement {
                 includeBuild("build-logic")
@@ -144,6 +142,18 @@ class WrongUsageSpec : GradleSpec() {
             
             includeBuild("build-logic")
         """.trimIndent()
+    }
+
+    @Test
+    fun `should verify early-evaluated included build lazily`() {
+        // given
+        installFixture(EarlyEvaluatedIncludedBuild)
+
+        // when
+        val result = runGradle(":build-logic:clean")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
     }
 
     @Test

@@ -33,6 +33,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
         val settings = target as? Settings ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
+        settings.apply<LazyVerificationPlugin>()
 
         val currentBuild = settings.gradle as GradleInternal
         val parentBuild = currentBuild.parent
@@ -42,8 +43,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             configure(settings, parentBuild)
         }
         if (parentBuild != null) {
-            failOnEarlyEvaluatedIncludedBuild(settings, parentBuild)
-
             // build hierarchy is flattened by Gradle
             val rootBuild = parentBuild
 
@@ -112,7 +111,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     private fun applySubPluginsForAllProjects(settings: Settings) {
         settings.gradle.rootProject {
             allprojects {
-                apply<LazyVerificationPlugin>()
                 apply<CatalogAccessorsPlugin>()
             }
         }
@@ -136,31 +134,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             "The typesafe-conventions plugin must be applied to settings.gradle.kts, " +
                 "but attempted to apply it to $buildFileKind"
         )
-    }
-
-    private fun failOnEarlyEvaluatedIncludedBuild(settings: Settings, parentBuild: GradleInternal) {
-        try {
-            parentBuild.settings
-        } catch (e: IllegalStateException) {
-            settings.gradle.settingsEvaluated {
-                error(
-                    """
-                    The typesafe-conventions plugin is applied to an early-evaluated included build!
-                    This kind of builds are not supported, because they are not aware of the build hierarchy.
-                    
-                    To fix this issue, replace this code in settings.gradle.kts:
-                    
-                    pluginManagement {
-                        includeBuild("${settings.rootProject.name}")
-                    }
-                    
-                    with this:
-                    
-                    includeBuild("${settings.rootProject.name}")
-                    """.trimIndent()
-                )
-            }
-        }
     }
 
     companion object {
