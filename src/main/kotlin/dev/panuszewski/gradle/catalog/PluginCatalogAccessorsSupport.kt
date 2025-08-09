@@ -14,7 +14,6 @@ import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object PluginCatalogAccessorsSupport {
 
-    private const val MAIN_KOTLIN_SRC_DIR = "src/main/kotlin"
     private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(.+\.plugins\.(.+)\).*""".toRegex()
 
     fun apply(project: Project, catalog: VersionCatalogBuilderInternal) {
@@ -30,9 +29,9 @@ internal object PluginCatalogAccessorsSupport {
 
     private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogBuilderInternal): List<PluginDeclaration> {
         val model = catalog.build()
-        val srcDir = project.layout.projectDirectory.file(MAIN_KOTLIN_SRC_DIR).asFile
 
-        return srcDir.walk()
+        return project.typesafeConventions.scriptSourceDirectories.get()
+            .flatMap(project::fileTree)
             .filter { file -> file.name.endsWith(".gradle.kts") }
             .map(File::readText)
             .map(::removeComments)
