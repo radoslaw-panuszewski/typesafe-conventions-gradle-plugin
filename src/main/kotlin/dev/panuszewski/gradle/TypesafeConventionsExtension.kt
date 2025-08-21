@@ -2,7 +2,9 @@ package dev.panuszewski.gradle
 
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.setProperty
 import kotlin.DeprecationLevel.WARNING
 
 public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
@@ -88,4 +90,13 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
      * @since 0.7.1
      */
     public val suppressPluginManagementIncludedBuildWarning: Property<Boolean> = objects.property<Boolean>().convention(false)
+
+    /**
+     * (`src/main/kotlin` by default)
+     *
+     * Directories (relative to the project's root folder) to scan for script plugins.
+     *
+     * @since 0.8.0
+     */
+    public val scriptSourceDirectories: SetProperty<String> = objects.setProperty<String>().convention(setOf("src/main/kotlin"))
 }
