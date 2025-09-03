@@ -2,11 +2,14 @@ package dev.panuszewski.gradle.catalog
 
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
 import dev.panuszewski.gradle.util.capitalized
+import dev.panuszewski.gradle.util.kotlin
+import dev.panuszewski.gradle.util.sourceSets
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Project
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.add
+import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.io.Serializable
@@ -14,25 +17,25 @@ import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object PluginCatalogAccessorsSupport {
 
-    private const val MAIN_KOTLIN_SRC_DIR = "src/main/kotlin"
     private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(.+\.plugins\.(.+)\).*""".toRegex()
 
     fun apply(project: Project, catalog: VersionCatalogBuilderInternal) {
-        val pluginDeclarations = collectPluginDeclarations(project, catalog)
+        project.afterEvaluate {
+            val pluginDeclarations = collectPluginDeclarations(project, catalog)
 
-        writeCatalogEntrypointBeforeCompilation(project, catalog)
-        patchPluginsBlocksAfterExtraction(project, pluginDeclarations)
+            writeCatalogEntrypointBeforeCompilation(project, catalog)
+            patchPluginsBlocksAfterExtraction(project, pluginDeclarations)
 
-        if (project.typesafeConventions.autoPluginDependencies.get()) {
-            addPluginMarkerDependencies(project, pluginDeclarations)
+            if (project.typesafeConventions.autoPluginDependencies.get()) {
+                addPluginMarkerDependencies(project, pluginDeclarations)
+            }
         }
     }
 
     private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogBuilderInternal): List<PluginDeclaration> {
         val model = catalog.build()
-        val srcDir = project.layout.projectDirectory.file(MAIN_KOTLIN_SRC_DIR).asFile
 
-        return srcDir.walk()
+        return project.sourceSets["main"].kotlin.asFileTree
             .filter { file -> file.name.endsWith(".gradle.kts") }
             .map(File::readText)
             .map(::removeComments)
