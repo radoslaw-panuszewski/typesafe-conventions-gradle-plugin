@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
+import dev.panuszewski.gradle.fixtures.ConventionPlugin
 import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
@@ -9,7 +10,9 @@ import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
+import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
@@ -258,5 +261,41 @@ class ConventionPluginsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain fixture.someLibrary
         result.output shouldNotContain "${fixture.someLibrary} FAILED"
+    }
+
+    @Test
+    fun `should allow to apply one convention plugin to another`() {
+        // given
+        installFixture(BuildLogic)
+        val fixture = installFixture(LibsInPluginsBlock)
+
+        includedBuild {
+            customProjectFile("src/main/kotlin/another-convention.gradle.kts") {
+                """
+                plugins {
+                    id("some-convention")
+                }
+                """
+            }
+        }
+
+        buildGradleKts {
+            """
+            plugins {
+                id("another-convention")
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain fixture.taskRegisteredByPlugin
     }
 }
