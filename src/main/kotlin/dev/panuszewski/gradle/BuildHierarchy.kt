@@ -1,24 +1,30 @@
 package dev.panuszewski.gradle
 
 import org.gradle.api.internal.GradleInternal
-import org.gradle.api.invocation.Gradle
+import org.gradle.util.Path
 
 internal class BuildHierarchy(rootBuild: GradleInternal) {
 
-    private val directBuildParents: Map<GradleInternal, GradleInternal>
+    private val directBuildParents: Map<Path, GradleInternal>
 
     init {
         directBuildParents = directBuildParentsOf(rootBuild)
     }
 
-    fun directParentOf(gradle: Gradle): GradleInternal? = directBuildParents[gradle]
+    fun directParentOf(gradle: GradleInternal): GradleInternal? = directBuildParents[gradle.identityPath]
 
-    private fun directBuildParentsOf(parentBuild: GradleInternal): Map<GradleInternal, GradleInternal> = buildMap {
-        parentBuild.includedBuilds()
-            .map { it.target.mutableModel }
-            .forEach { includedBuild ->
-                put(includedBuild, parentBuild)
-                putAll(directBuildParentsOf(includedBuild))
+    private fun directBuildParentsOf(rootProject: GradleInternal): Map<Path, GradleInternal> {
+        return buildMap {
+            putDirectParentsOf(rootProject)
+        }
+    }
+
+    private fun MutableMap<Path, GradleInternal>.putDirectParentsOf(currentProject: GradleInternal) {
+        for (childBuild in currentProject.includedBuilds()) {
+            val childProject = childBuild.target.mutableModel
+            if (putIfAbsent(childProject.identityPath, currentProject) == null) {
+                putDirectParentsOf(childProject)
             }
+        }
     }
 }
