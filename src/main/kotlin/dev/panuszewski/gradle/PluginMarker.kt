@@ -18,7 +18,7 @@ public fun Project.pluginMarker(provider: Provider<PluginDependency>): Dependenc
     )
 }
 
-private fun Project.dependencyWithRichVersion(group: String, name: String, versionConstraint: VersionConstraint) =
+internal fun Project.dependencyWithRichVersion(group: String, name: String, versionConstraint: VersionConstraint) =
     dependencies.create("$group:$name") {
         version {
             versionConstraint.strictVersion.takeIf(String::isNotBlank)?.let(::strictly)

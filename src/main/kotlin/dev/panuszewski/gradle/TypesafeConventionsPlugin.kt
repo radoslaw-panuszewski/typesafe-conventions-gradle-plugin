@@ -4,6 +4,7 @@ import dev.panuszewski.gradle.catalog.BuilderCatalogContributor
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin
 import dev.panuszewski.gradle.catalog.CatalogContributor
 import dev.panuszewski.gradle.catalog.TomlCatalogContributor
+import dev.panuszewski.gradle.util.BuildHierarchy
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import dev.panuszewski.gradle.util.typesafeConventions
