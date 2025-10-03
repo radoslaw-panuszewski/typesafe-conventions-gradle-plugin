@@ -50,7 +50,7 @@ Apply `typesafe-conventions` in `buildSrc/settings.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("dev.panuszewski.typesafe-conventions") version "0.8.0"
+    id("dev.panuszewski.typesafe-conventions") version "0.8.1"
 }
 ```
 
@@ -86,9 +86,6 @@ typesafeConventions {
     // whether to allow plugin usage for a top-level build
     // set it to 'true' only if you know what you're doing!
     allowTopLevelBuild = false
-
-    // set it to true if you want to suppress the warning about pluginManagement { includeBuild(...) }
-    suppressPluginManagementIncludedBuildWarning = false
 }
 ```
 
@@ -322,14 +319,9 @@ pluginManagement {
 
 This instructs the `build-logic` to evaluate before settings of the main build and thus allows you to write convention plugins to be applied in `settings.gradle.kts` of the main build. 
 
-Unfortunately, the above config makes it impossible for included build to inherit imported version catalogs of the main build (as those become available after the main build's settings are evaluated).
+Unfortunately, the above config makes it impossible for the included build to inherit imported version catalogs of the main build (as those become available after the main build's settings are evaluated). Additionally, it's impossible to rebuild the original build hierarchy for early evaluated builds before they were flattened by Gradle.
 
-In rare cases where you really need custom settings convention plugins, this is a limitation you must accept. The printed warning can be suppressed by:
-```kotlin
-typesafeConventions {
-    suppressPluginManagementIncludedBuildWarning = true
-}
-```
+In a rare case when you need to provide a settings convention plugin, please extract it to a separate included build and refrain from using typesafe-conventions in that build.
 
 Most of the time, though, it is perfectly OK to migrate your `build-logic` to a regular included build:
 ```diff
