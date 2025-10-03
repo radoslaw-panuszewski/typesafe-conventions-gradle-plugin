@@ -80,7 +80,11 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Unresolved reference: libs"
+        if (gradleVersion >= GradleVersion.version("9.0.0")) {
+            result.output shouldContain "Unresolved reference 'libs'"
+        } else {
+            result.output shouldContain "Unresolved reference: libs"
+        }
     }
 
     @ParameterizedTest
