@@ -4,16 +4,13 @@ import dev.panuszewski.gradle.catalog.BuilderCatalogContributor
 import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin
 import dev.panuszewski.gradle.catalog.CatalogContributor
 import dev.panuszewski.gradle.catalog.TomlCatalogContributor
-import dev.panuszewski.gradle.util.BuildHierarchy
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
-import dev.panuszewski.gradle.util.typesafeConventions
 import dev.panuszewski.gradle.verification.LazyVerificationPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
-import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
@@ -142,4 +139,3 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         internal const val MINIMAL_GRADLE_VERSION = "8.7"
     }
 }
-

@@ -1,13 +1,17 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
+import dev.panuszewski.gradle.fixtures.ConventionPlugin
 import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock.pluginId
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock.pluginVersion
 import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.OverriddenPluginVersion
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
 import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
@@ -102,28 +106,7 @@ class ConventionPluginsSpec : GradleSpec() {
     fun `should allow to override auto plugin dependency`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
-        val fixture = installFixture(LibsInPluginsBlock)
-
-        // and
-        val overriddenPluginVersion = "1.18.15"
-
-        // and
-        includedBuild {
-            buildGradleKts {
-                prepend {
-                    """
-                    import dev.panuszewski.gradle.TypesafeConventionsExtension    
-                    """
-                }
-                append {
-                    """
-                    dependencies {
-                        implementation("${fixture.pluginMarker}:$overriddenPluginVersion")
-                    }
-                    """
-                }
-            }
-        }
+        val fixture = installFixture(OverriddenPluginVersion)
 
         // when
         val buildName = includedBuilds.keys.first().substringAfterLast("/")
@@ -131,7 +114,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain "dependencyInsight${System.lineSeparator()}${fixture.pluginMarker}:$overriddenPluginVersion"
+        result.output shouldContain "dependencyInsight${System.lineSeparator()}${fixture.pluginMarker}:${fixture.overriddenPluginVersion}"
     }
 
     @ParameterizedTest
@@ -258,5 +241,50 @@ class ConventionPluginsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain fixture.someLibrary
         result.output shouldNotContain "${fixture.someLibrary} FAILED"
+    }
+
+    @ParameterizedTest
+    @SupportedIncludedBuilds
+    fun `should not fail when rich plugin version is specified`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        val fixture = installFixture(LibsInPluginsBlock)
+
+        libsVersionsToml {
+            """
+            [plugins]
+            some-plugin = { id = "${fixture.pluginId}", version.prefer = "${fixture.pluginVersion}" }
+            """
+        }
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain fixture.taskRegisteredByPlugin
+    }
+
+    @ParameterizedTest
+    @SupportedIncludedBuilds
+    fun `should turn all rich plugin versions into prefer constraint to allow dependency overriding`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        val fixture = installFixture(OverriddenPluginVersion)
+
+        libsVersionsToml {
+            """
+            [plugins]
+            some-plugin = { id = "${fixture.pluginId}", version.strictly = "${fixture.pluginVersion}" }
+            """
+        }
+
+        // when
+        val buildName = includedBuilds.keys.first().substringAfterLast("/")
+        val result = runGradle(":$buildName:dependencyInsight", "--dependency", fixture.pluginMarker)
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "dependencyInsight${System.lineSeparator()}${fixture.pluginMarker}:${fixture.overriddenPluginVersion}"
     }
 }
