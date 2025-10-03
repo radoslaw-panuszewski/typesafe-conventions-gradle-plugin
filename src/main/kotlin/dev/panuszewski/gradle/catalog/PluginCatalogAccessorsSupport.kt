@@ -4,6 +4,7 @@ import dev.panuszewski.gradle.catalog.CatalogAccessorsPlugin.Companion.GENERATED
 import dev.panuszewski.gradle.util.capitalized
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.add
@@ -59,7 +60,7 @@ internal object PluginCatalogAccessorsSupport {
                 return PluginDeclaration(
                     pluginAlias = alias,
                     pluginId = pluginModel.id,
-                    pluginVersion = pluginModel.version.toString(),
+                    pluginVersion = pluginModel.version,
                     catalogName = catalogModel.name,
                 )
             }
@@ -111,7 +112,7 @@ internal object PluginCatalogAccessorsSupport {
     private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: List<PluginDeclaration>) {
         pluginDeclarations.forEach {
             project.dependencies.add("implementation", it.pluginMarkerWithoutVersion) {
-                version { prefer(it.pluginVersion) }
+                version { prefer(it.pluginVersionFromStrongestConstraint) }
             }
         }
     }
@@ -120,10 +121,16 @@ internal object PluginCatalogAccessorsSupport {
 private data class PluginDeclaration(
     val pluginAlias: String,
     val pluginId: String,
-    val pluginVersion: String,
-    val catalogName: String
+    val pluginVersion: VersionConstraint,
+    private val catalogName: String
 ) : Serializable {
     val declarationByAlias = "alias($catalogName.plugins.$pluginAlias)"
     val declarationById = "id(\"${pluginId}\")"
-    val pluginMarkerWithoutVersion = "${pluginId}:${pluginId}.gradle.plugin"
+
+    val pluginMarkerWithoutVersion = "$pluginId:$pluginId.gradle.plugin"
+
+    val pluginVersionFromStrongestConstraint = pluginVersion.strictVersion.takeIf(String::isNotBlank)
+        ?: pluginVersion.requiredVersion.takeIf(String::isNotBlank)
+        ?: pluginVersion.preferredVersion.takeIf(String::isNotBlank)
+        ?: ""
 }
