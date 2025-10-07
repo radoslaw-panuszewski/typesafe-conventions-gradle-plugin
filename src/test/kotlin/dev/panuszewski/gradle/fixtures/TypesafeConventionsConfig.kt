@@ -42,7 +42,6 @@ object TypesafeConventionsConfig : Fixture<Config> {
         config.accessorsInPluginsBlock?.let { appendLine { "accessorsInPluginsBlock = $it" } }
         config.autoPluginDependencies?.let { appendLine { "autoPluginDependencies = $it" } }
         config.allowTopLevelBuild?.let { appendLine { "allowTopLevelBuild = $it" } }
-        config.suppressPluginManagementIncludedBuildWarning?.let { appendLine { "suppressPluginManagementIncludedBuildWarning = $it" } }
     }
 
     override fun defaultConfig() = Config()
@@ -51,6 +50,5 @@ object TypesafeConventionsConfig : Fixture<Config> {
         var accessorsInPluginsBlock: Boolean? = null
         var autoPluginDependencies: Boolean? = null
         var allowTopLevelBuild: Boolean? = null
-        var suppressPluginManagementIncludedBuildWarning: Boolean? = null
     }
 }
