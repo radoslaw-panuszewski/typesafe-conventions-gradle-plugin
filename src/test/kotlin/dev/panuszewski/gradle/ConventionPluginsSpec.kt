@@ -5,6 +5,7 @@ import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlockInCustomLocation
 import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
@@ -258,5 +259,40 @@ class ConventionPluginsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain fixture.someLibrary
         result.output shouldNotContain "${fixture.someLibrary} FAILED"
+    }
+
+    @ParameterizedTest
+    @SupportedIncludedBuilds
+    fun `should discover convention plugins in custom source directory under main source set`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        val fixture = installFixture(LibsInPluginsBlockInCustomLocation) {
+            sourceSet = "main"
+            sourceDirectory = "custom"
+        }
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain fixture.taskRegisteredByPlugin
+    }
+
+    @ParameterizedTest
+    @SupportedIncludedBuilds
+    fun `should not discover convention plugins under non-main source set`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(LibsInPluginsBlockInCustomLocation) {
+            sourceSet = "test"
+            sourceDirectory = "custom"
+        }
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
     }
 }
