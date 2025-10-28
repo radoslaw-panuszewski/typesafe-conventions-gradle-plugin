@@ -1,14 +1,15 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.fixtures.CyclicBuildHierarchy
 import dev.panuszewski.gradle.fixtures.EmbeddedKotlinUsage
 import dev.panuszewski.gradle.fixtures.LibsInIncludedBuild
 import dev.panuszewski.gradle.fixtures.PluginMarkerUsage
-import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 
@@ -98,6 +99,18 @@ class IncludedBuildSpec : GradleSpec() {
 
         // when
         val result = runGradle("help")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+    }
+
+    @Test
+    fun `cyclic includes should be possible`() {
+        // given
+        installFixture(CyclicBuildHierarchy)
+
+        // when
+        val result = runGradle("dependencies")
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL

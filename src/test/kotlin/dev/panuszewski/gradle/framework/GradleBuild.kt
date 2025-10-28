@@ -87,12 +87,16 @@ class GradleBuild(
             .acceptConfigurator(configurator)
     }
 
-    fun registerIncludedBuild(buildPath: String): GradleBuild {
+    fun includeBuild(buildPath: String) {
         settingsGradleKts.append {
             """
             includeBuild("$buildPath")    
             """
         }
+    }
+
+    fun registerIncludedBuild(buildPath: String): GradleBuild {
+        includeBuild(buildPath)
         val buildDir = rootDir.resolve(buildPath)
         val buildName = buildDir.name
         return GradleBuild(buildName, buildDir, gradleVersion)
