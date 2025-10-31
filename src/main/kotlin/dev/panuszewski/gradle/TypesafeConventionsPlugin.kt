@@ -6,6 +6,7 @@ import dev.panuszewski.gradle.catalog.CatalogContributor
 import dev.panuszewski.gradle.catalog.TomlCatalogContributor
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
+import dev.panuszewski.gradle.util.pathString
 import dev.panuszewski.gradle.verification.LazyVerificationPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -36,7 +37,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         val currentBuild = settings.gradle as GradleInternal
         val parentBuild = currentBuild.parent
 
-        if (currentBuild.identityPath.path.endsWith(":buildSrc")) {
+        if (currentBuild.identityPath.pathString.endsWith(":buildSrc")) {
             // buildSrc does not participate in hierarchy flattening
             configure(settings, parentBuild)
         }

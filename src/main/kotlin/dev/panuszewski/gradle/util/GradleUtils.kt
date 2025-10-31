@@ -10,6 +10,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.util.GradleVersion
+import org.gradle.util.Path
 
 internal fun gradleVersion(version: String): GradleVersion =
     GradleVersion.version(version)
@@ -19,6 +20,14 @@ internal fun currentGradleVersion(): GradleVersion =
 
 internal fun gradleVersionAtLeast(version: String): Boolean =
     currentGradleVersion() >= gradleVersion(version)
+
+/**
+ * The [Path.getPath] is deprecated since Gradle 9.2.0,
+ * but the new method [Path.asString] is not available in Gradle 8.7
+ */
+@Suppress("DEPRECATION")
+internal val Path.pathString: String
+    get() = path
 
 internal val Project.settings: SettingsInternal
     get() = (project.gradle as GradleInternal).settings
