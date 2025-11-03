@@ -1,9 +1,9 @@
 @file:Suppress("UnstableApiUsage")
 
-package dev.panuszewski.gradle.versioncatalog
+package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
-import dev.panuszewski.gradle.versioncatalog.VersionCatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
+import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
 import org.gradle.api.Project
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.register

@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.versioncatalog
+package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
 import dev.panuszewski.gradle.util.readResourceAsString

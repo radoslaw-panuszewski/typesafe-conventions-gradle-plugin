@@ -5,7 +5,7 @@ import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
-import dev.panuszewski.gradle.versioncatalog.VersionCatalogAccessorsPlugin
+import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
@@ -18,7 +18,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.newInstance
 import javax.inject.Inject
 
-@Suppress("unused") // used as a plugin implementation class
+@Suppress("unused")
 internal class TypesafeConventionsPlugin @Inject constructor(
     private val objects: ObjectFactory
 ) : Plugin<Any> {

@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package dev.panuszewski.gradle.versioncatalog
+package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_GRADLE_PLUGIN_ID
 import dev.panuszewski.gradle.util.settings

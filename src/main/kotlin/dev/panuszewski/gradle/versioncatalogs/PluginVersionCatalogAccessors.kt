@@ -1,10 +1,10 @@
-package dev.panuszewski.gradle.versioncatalog
+package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
 import dev.panuszewski.gradle.util.kotlin
 import dev.panuszewski.gradle.util.sourceSets
 import dev.panuszewski.gradle.util.typesafeConventions
-import dev.panuszewski.gradle.versioncatalog.VersionCatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
+import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
