@@ -1,0 +1,10 @@
+style:
+  MaxLineLength:
+    active: false
+  SerialVersionUIDInSerializableClass:
+    active: false
+
+complexity:
+  LongMethod:
+    excludes: [ '**/fixtures/**' ]
+

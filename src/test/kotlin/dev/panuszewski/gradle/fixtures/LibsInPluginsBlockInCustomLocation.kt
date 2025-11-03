@@ -36,6 +36,6 @@ object LibsInPluginsBlockInCustomLocation : Fixture<Config> {
 
     data class Config(
         var sourceSet: String? = null,
-        var sourceDirectory: String? = null
+        var sourceDirectory: String? = null,
     )
 }

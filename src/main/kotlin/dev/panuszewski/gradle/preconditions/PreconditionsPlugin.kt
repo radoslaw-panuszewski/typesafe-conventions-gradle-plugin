@@ -46,17 +46,15 @@ internal class PreconditionsPlugin : Plugin<Settings> {
         }
     }
 
-    private fun Project.registerVerifyTopLevelBuildTask(): TaskProvider<*> {
-        return tasks.register<VerifyTopLevelBuildTask>("verifyTopLevelBuild") {
+    private fun Project.registerVerifyTopLevelBuildTask(): TaskProvider<*> =
+        tasks.register<VerifyTopLevelBuildTask>("verifyTopLevelBuild") {
             topLevelBuild.set(gradle.parent == null)
             allowTopLevelBuild.set(typesafeConventions.allowTopLevelBuild)
         }
-    }
 
-    private fun Project.registerVerifyEarlyEvaluatedBuildTask(isEarlyEvaluatedBuild: Boolean): TaskProvider<*> {
-        return tasks.register<VerifyEarlyEvaluatedBuildTask>("verifyEarlyEvaluatedBuild") {
+    private fun Project.registerVerifyEarlyEvaluatedBuildTask(isEarlyEvaluatedBuild: Boolean): TaskProvider<*> =
+        tasks.register<VerifyEarlyEvaluatedBuildTask>("verifyEarlyEvaluatedBuild") {
             earlyEvaluatedBuild.set(isEarlyEvaluatedBuild)
             buildName.set(rootProject.name)
         }
-    }
 }

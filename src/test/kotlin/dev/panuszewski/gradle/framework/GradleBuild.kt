@@ -6,7 +6,7 @@ import java.io.File
 class GradleBuild(
     val rootProjectName: String,
     val rootDir: File,
-    val gradleVersion: GradleVersion
+    val gradleVersion: GradleVersion,
 ) {
     private val buildGradleKts: AppendableFile
     private val settingsGradleKts: AppendableFile
@@ -105,7 +105,7 @@ class GradleBuild(
 
 class AppendableFile(
     private val file: File,
-    private val tailContent: String? = null
+    private val tailContent: String? = null,
 ) {
     init {
         appendTailContent()

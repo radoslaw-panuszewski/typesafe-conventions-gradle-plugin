@@ -13,7 +13,7 @@ class FixturesExtension : Extension, BeforeEachCallback, InvocationInterceptor {
     val installedFixtures: List<Fixture<*>> = mutableInstalledFixtures
 
     fun <C : Any> installFixture(fixture: Fixture<C>, config: C) {
-        if(mutableInstalledFixtures.contains(fixture)) {
+        if (mutableInstalledFixtures.contains(fixture)) {
             error("Fixture ${fixture.javaClass.simpleName} already installed!")
         }
         mutableInstalledFixtures.add(fixture)

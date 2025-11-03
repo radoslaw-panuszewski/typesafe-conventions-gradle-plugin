@@ -3,7 +3,6 @@ package dev.panuszewski.gradle.framework
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.fixtures.includedbuild.NotNestedBuildLogic
-import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.StringWriter
 import java.nio.file.Paths
 import java.util.stream.Stream
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -116,7 +114,7 @@ abstract class GradleSpec {
      */
     protected fun runGradle(
         vararg arguments: String,
-        customizer: GradleRunner.() -> Unit = {}
+        customizer: GradleRunner.() -> Unit = {},
     ): SuccessOrFailureBuildResult =
         try {
             val args = buildList {
@@ -174,7 +172,7 @@ abstract class GradleSpec {
             Stream.of(
                 argumentSet("buildSrc", BuildSrc),
                 argumentSet("build-logic", BuildLogic),
-                argumentSet("not-nested-build-logic", NotNestedBuildLogic),
+                argumentSet("not-nested-build-logic", NotNestedBuildLogic)
             )
     }
 
@@ -186,19 +184,12 @@ abstract class GradleSpec {
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,
-    val buildOutcome: BuildOutcome
+    val buildOutcome: BuildOutcome,
 ) : BuildResult by delegate
 
 enum class BuildOutcome {
     BUILD_SUCCESSFUL,
-    BUILD_FAILED
-}
-
-val BuildResult.executedTasks: List<String>
-    get() = tasks.map { it.path }
-
-fun GradleRunner.doNotForwardOutput() {
-    forwardStdOutput(StringWriter())
+    BUILD_FAILED,
 }
 
 fun shouldAllBuildsSucceed(vararg buildResults: SuccessOrFailureBuildResult) {
