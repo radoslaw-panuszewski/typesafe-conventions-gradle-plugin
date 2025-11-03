@@ -7,7 +7,7 @@ import org.gradle.kotlin.dsl.newInstance
 import javax.inject.Inject
 
 internal abstract class ParentBuildResolver @Inject constructor(
-    private val objects: ObjectFactory
+    private val objects: ObjectFactory,
 ) {
     /**
      * Gradle flattens the hierarchy of composite builds, so the root build is a parent

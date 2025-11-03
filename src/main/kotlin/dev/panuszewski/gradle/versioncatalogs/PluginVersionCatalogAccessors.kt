@@ -62,7 +62,7 @@ private fun parsePluginDeclaration(line: String, catalogModel: DefaultVersionCat
                 pluginAlias = alias,
                 pluginId = pluginModel.id,
                 pluginVersion = pluginModel.version,
-                catalogName = catalogModel.name,
+                catalogName = catalogModel.name
             )
         }
     }
@@ -122,7 +122,7 @@ private data class PluginDeclaration(
     val pluginAlias: String,
     val pluginId: String,
     val pluginVersion: VersionConstraint,
-    private val catalogName: String
+    private val catalogName: String,
 ) : Serializable {
     val declarationByAlias = "alias($catalogName.plugins.$pluginAlias)"
     val declarationById = "id(\"${pluginId}\")"

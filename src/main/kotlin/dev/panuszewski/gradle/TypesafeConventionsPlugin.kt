@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @Suppress("unused")
 internal class TypesafeConventionsPlugin @Inject constructor(
-    private val objects: ObjectFactory
+    private val objects: ObjectFactory,
 ) : Plugin<Any> {
 
     override fun apply(target: Any) {

@@ -14,7 +14,7 @@ internal interface ImportableVersionCatalog {
 
 internal open class TomlVersionCatalog @Inject constructor(
     private val tomlFile: File,
-    private val objects: ObjectFactory
+    private val objects: ObjectFactory,
 ) : ImportableVersionCatalog {
 
     override val name = tomlFile.name.substringBefore(".versions.toml")
@@ -27,7 +27,7 @@ internal open class TomlVersionCatalog @Inject constructor(
 }
 
 internal open class BuilderVersionCatalog @Inject constructor(
-    private val builder: VersionCatalogBuilder
+    private val builder: VersionCatalogBuilder,
 ) : ImportableVersionCatalog {
 
     override val name = builder.name

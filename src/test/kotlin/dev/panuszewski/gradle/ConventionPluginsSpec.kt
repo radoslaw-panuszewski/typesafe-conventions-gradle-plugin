@@ -299,7 +299,7 @@ class ConventionPluginsSpec : GradleSpec() {
             sourceSet = "main"
             sourceDirectory = "custom"
         }
-          
+
         // when
         val result = runGradle("tasks")
 

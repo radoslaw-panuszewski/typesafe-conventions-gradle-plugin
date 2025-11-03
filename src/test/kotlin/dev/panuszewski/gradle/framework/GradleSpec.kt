@@ -116,7 +116,7 @@ abstract class GradleSpec {
      */
     protected fun runGradle(
         vararg arguments: String,
-        customizer: GradleRunner.() -> Unit = {}
+        customizer: GradleRunner.() -> Unit = {},
     ): SuccessOrFailureBuildResult =
         try {
             val args = buildList {
@@ -174,7 +174,7 @@ abstract class GradleSpec {
             Stream.of(
                 argumentSet("buildSrc", BuildSrc),
                 argumentSet("build-logic", BuildLogic),
-                argumentSet("not-nested-build-logic", NotNestedBuildLogic),
+                argumentSet("not-nested-build-logic", NotNestedBuildLogic)
             )
     }
 
@@ -186,12 +186,12 @@ abstract class GradleSpec {
 
 class SuccessOrFailureBuildResult(
     private val delegate: BuildResult,
-    val buildOutcome: BuildOutcome
+    val buildOutcome: BuildOutcome,
 ) : BuildResult by delegate
 
 enum class BuildOutcome {
     BUILD_SUCCESSFUL,
-    BUILD_FAILED
+    BUILD_FAILED,
 }
 
 val BuildResult.executedTasks: List<String>
