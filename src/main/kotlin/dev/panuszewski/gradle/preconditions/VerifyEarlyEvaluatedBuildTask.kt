@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.verification
+package dev.panuszewski.gradle.preconditions
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property

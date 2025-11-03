@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package dev.panuszewski.gradle.catalog
+package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
 import org.gradle.api.DefaultTask
@@ -18,7 +18,7 @@ import java.io.StringWriter
 import javax.inject.Inject
 
 @CacheableTask
-internal abstract class GenerateCatalogAccessorsTask : DefaultTask() {
+internal abstract class GenerateVersionCatalogAccessorsTask : DefaultTask() {
 
     @Input
     val catalogModel: Property<DefaultVersionCatalog> = project.objects.property()

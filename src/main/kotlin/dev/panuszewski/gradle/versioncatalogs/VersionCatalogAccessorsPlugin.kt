@@ -1,8 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
-package dev.panuszewski.gradle.catalog
+package dev.panuszewski.gradle.versioncatalogs
 
-import dev.panuszewski.gradle.KOTLIN_GRADLE_PLUGIN_ID
+import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_GRADLE_PLUGIN_ID
 import dev.panuszewski.gradle.util.settings
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
@@ -12,7 +12,7 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.configure
 
-internal class CatalogAccessorsPlugin : Plugin<Project> {
+internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         project.plugins.withId(KOTLIN_GRADLE_PLUGIN_ID) {
@@ -42,19 +42,19 @@ internal class CatalogAccessorsPlugin : Plugin<Project> {
             .dependenciesModelBuilders
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
-    @Suppress("DEPRECATION")
     private fun generateAccessors(project: Project, versionCatalogs: List<VersionCatalogBuilderInternal>) {
         for (catalog in versionCatalogs) {
-            LibraryCatalogAccessorsSupport.apply(project, catalog)
+            configureLibraryVersionCatalogAccessors(project, catalog)
 
+            @Suppress("DEPRECATION")
             if (project.typesafeConventions.accessorsInPluginsBlock.get()) {
-                PluginCatalogAccessorsSupport.apply(project, catalog)
+                configurePluginVersionCatalogAccessors(project, catalog)
             }
         }
     }
 
     companion object {
-        private val logger = Logging.getLogger(CatalogAccessorsPlugin::class.java)
+        private val logger = Logging.getLogger(VersionCatalogAccessorsPlugin::class.java)
         // TODO separated source sets for generated Java and Kotlin files
         internal const val GENERATED_SOURCES_DIR_RELATIVE = "generated-sources/typesafe-conventions/kotlin"
     }
