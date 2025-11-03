@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.catalog
+package dev.panuszewski.gradle.versioncatalog
 
 import dev.panuszewski.gradle.util.capitalized
 import dev.panuszewski.gradle.util.readResourceAsString
@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 @CacheableTask
-internal abstract class GenerateCatalogEntrypointTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
+internal abstract class GenerateVersionCatalogEntrypointTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
     @Input
     val catalogName: Property<String> = objects.property<String>()

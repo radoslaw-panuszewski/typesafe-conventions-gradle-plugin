@@ -1,4 +1,4 @@
-package dev.panuszewski.gradle.verification
+package dev.panuszewski.gradle.preconditions
 
 import dev.panuszewski.gradle.KOTLIN_GRADLE_PLUGIN_ID
 import dev.panuszewski.gradle.util.typesafeConventions
@@ -15,7 +15,7 @@ import org.gradle.kotlin.dsl.register
  * For example, we don't want to verify top level build eagerly since some tools (like Android Studio)
  * sometimes execute tasks (like clean) on the included build in isolation, so without a parent.
  */
-internal class LazyVerificationPlugin : Plugin<Settings> {
+internal class PreconditionsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
         val isEarlyEvaluatedBuild = settings.detectEarlyEvaluatedBuild()

@@ -21,6 +21,9 @@ internal fun currentGradleVersion(): GradleVersion =
 internal fun gradleVersionAtLeast(version: String): Boolean =
     currentGradleVersion() >= gradleVersion(version)
 
+internal fun GradleInternal.root(): GradleInternal =
+    parent?.root() ?: this
+
 /**
  * The [Path.getPath] is deprecated since Gradle 9.2.0,
  * but the new method [Path.asString] is not available in Gradle 8.7
