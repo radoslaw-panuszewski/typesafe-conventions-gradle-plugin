@@ -2,6 +2,7 @@ plugins {
     `kotlin-dsl`
     `testing-convention`
     `publishing-convention`
+    alias(libs.plugins.kotlinter)
 }
 
 kotlin {
