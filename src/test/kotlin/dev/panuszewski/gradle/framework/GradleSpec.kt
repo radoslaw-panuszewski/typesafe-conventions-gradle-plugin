@@ -3,7 +3,6 @@ package dev.panuszewski.gradle.framework
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.fixtures.includedbuild.NotNestedBuildLogic
-import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe

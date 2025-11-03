@@ -1,7 +1,6 @@
 package dev.panuszewski.gradle.framework
 
 import org.junit.jupiter.api.DisplayNameGenerator
-import java.lang.reflect.Method
 
 class GradleVersionDisplayNameGenerator : DisplayNameGenerator.Standard() {
 
