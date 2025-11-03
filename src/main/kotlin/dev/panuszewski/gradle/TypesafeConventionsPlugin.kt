@@ -1,7 +1,7 @@
 package dev.panuszewski.gradle
 
-import dev.panuszewski.gradle.buildstructure.Build
-import dev.panuszewski.gradle.buildstructure.BuildFactory
+import dev.panuszewski.gradle.parentbuild.ParentBuild
+import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
@@ -30,11 +30,11 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         registerExtension(settings)
         applyPreconditionsPlugin(settings)
 
-        val buildFactory = objects.newInstance<BuildFactory>(settings)
-
-        buildFactory.createBuildWhenReady(settings.gradle, settings) { build ->
-            maybeInheritVersionCatalogsFromParentBuild(build)
-            applyVersionCatalogAccessorsPlugin(build)
+        resolveParentBuild(settings) { parentBuild ->
+            if (parentBuild != null) {
+                importVersionCatalogsFromParentBuild(parentBuild, settings)
+            }
+            applyVersionCatalogAccessorsPlugin(settings)
         }
     }
 
@@ -46,12 +46,17 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         settings.apply<PreconditionsPlugin>()
     }
 
-    private fun maybeInheritVersionCatalogsFromParentBuild(build: Build) {
-        build.parent?.versionCatalogs?.forEach { it.contributeTo(build.settings) }
+    private fun resolveParentBuild(settings: SettingsInternal, consumer: (ParentBuild?) -> Unit) {
+        val resolver = objects.newInstance<ParentBuildResolver>()
+        resolver.resolveParentBuild(settings.gradle, consumer)
     }
 
-    private fun applyVersionCatalogAccessorsPlugin(build: Build) {
-        build.gradle.rootProject {
+    private fun importVersionCatalogsFromParentBuild(parentBuild: ParentBuild, settings: Settings) {
+        parentBuild.versionCatalogs.forEach { it.importTo(settings) }
+    }
+
+    private fun applyVersionCatalogAccessorsPlugin(settings: Settings) {
+        settings.gradle.rootProject {
             allprojects {
                 apply<VersionCatalogAccessorsPlugin>()
             }
@@ -80,5 +85,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
         internal const val MINIMAL_GRADLE_VERSION = "8.7"
+        internal const val KOTLIN_GRADLE_PLUGIN_ID = "org.jetbrains.kotlin.jvm"
     }
 }

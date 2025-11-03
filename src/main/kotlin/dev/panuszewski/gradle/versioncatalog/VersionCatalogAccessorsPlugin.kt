@@ -2,7 +2,7 @@
 
 package dev.panuszewski.gradle.versioncatalog
 
-import dev.panuszewski.gradle.KOTLIN_GRADLE_PLUGIN_ID
+import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_GRADLE_PLUGIN_ID
 import dev.panuszewski.gradle.util.settings
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin

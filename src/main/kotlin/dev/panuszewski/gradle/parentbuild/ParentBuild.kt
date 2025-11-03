@@ -1,21 +1,20 @@
-package dev.panuszewski.gradle.buildstructure
+package dev.panuszewski.gradle.parentbuild
 
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.model.ObjectFactory
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.newInstance
+import javax.inject.Inject
 
-internal class Build(
+internal abstract class ParentBuild @Inject constructor(
     val gradle: GradleInternal,
-    val settings: SettingsInternal = gradle.settings,
-    private val parentProvider: () -> Build?,
     private val objects: ObjectFactory,
 ) {
-    val parent: Build? by lazy { parentProvider.invoke() }
-    val versionCatalogs: List<VersionCatalog> by lazy { discoverVersionCatalogs() }
+    val settings: SettingsInternal get() = gradle.settings
+    val versionCatalogs: List<ImportableVersionCatalog> by lazy { discoverVersionCatalogs() }
 
-    private fun discoverVersionCatalogs(): List<VersionCatalog> {
+    private fun discoverVersionCatalogs(): List<ImportableVersionCatalog> {
         val builders = discoverBuilders()
         val tomlFiles = discoverTomlFiles()
 
@@ -30,7 +29,7 @@ internal class Build(
         return versionCatalogsByName.values.toList()
     }
 
-    private fun discoverBuilders(): List<VersionCatalog> =
+    private fun discoverBuilders(): List<ImportableVersionCatalog> =
         try {
             val catalogBuilders = settings
                 .dependencyResolutionManagement
@@ -42,7 +41,7 @@ internal class Build(
             emptyList()
         }
 
-    private fun discoverTomlFiles(): List<VersionCatalog> {
+    private fun discoverTomlFiles(): List<ImportableVersionCatalog> {
         val gradleDir = settings.rootDir.resolve("gradle")
 
         val tomlFiles = gradleDir
