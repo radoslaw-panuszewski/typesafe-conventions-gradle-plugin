@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import org.junit.jupiter.params.provider.MethodSource
-import java.io.StringWriter
 import java.nio.file.Paths
 import java.util.stream.Stream
 import kotlin.annotation.AnnotationRetention.RUNTIME
@@ -191,13 +190,6 @@ class SuccessOrFailureBuildResult(
 enum class BuildOutcome {
     BUILD_SUCCESSFUL,
     BUILD_FAILED,
-}
-
-val BuildResult.executedTasks: List<String>
-    get() = tasks.map { it.path }
-
-fun GradleRunner.doNotForwardOutput() {
-    forwardStdOutput(StringWriter())
 }
 
 fun shouldAllBuildsSucceed(vararg buildResults: SuccessOrFailureBuildResult) {

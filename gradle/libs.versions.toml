@@ -5,12 +5,14 @@ kotest = "6.0.4"
 junit-jupiter = "6.0.1"
 test-logger = "4.0.0"
 kotlinter = "5.2.0"
+detekt = "2.0.0-alpha.1"
 
 [plugins]
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 axion-release = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion-release" }
 test-logger = { id = "com.adarshr.test-logger", version.ref = "test-logger" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 
 [libraries]
 kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }

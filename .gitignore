@@ -1,5 +1,6 @@
 .gradle
 .kotlin
-.idea
+.idea/*
+!.idea/inspectionProfiles
 build
 .test-projects

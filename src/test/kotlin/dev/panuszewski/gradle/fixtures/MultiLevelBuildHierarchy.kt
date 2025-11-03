@@ -5,7 +5,7 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object MultiLevelBuildHierarchy : NoConfigFixture {
 
-    val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
+    const val someLibrary = "org.apache.commons:commons-lang3:3.17.0"
 
     override fun GradleSpec.install() {
         val secondaryBuild = mainBuild.registerIncludedBuild("secondary-build")

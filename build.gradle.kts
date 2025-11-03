@@ -3,6 +3,7 @@ plugins {
     `testing-convention`
     `publishing-convention`
     alias(libs.plugins.kotlinter)
+    alias(libs.plugins.detekt)
 }
 
 kotlin {
@@ -11,6 +12,11 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Werror")
     }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.from(files("detekt.yml"))
 }
 
 dependencies {

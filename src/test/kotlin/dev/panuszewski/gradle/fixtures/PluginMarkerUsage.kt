@@ -5,9 +5,9 @@ import dev.panuszewski.gradle.framework.NoConfigFixture
 
 object PluginMarkerUsage : NoConfigFixture {
 
-    val somePlugin = "pl.allegro.tech.build.axion-release"
-    val somePluginVersion = "1.18.16"
-    val taskRegisteredBySomePlugin = "verifyRelease"
+    const val somePlugin = "pl.allegro.tech.build.axion-release"
+    const val somePluginVersion = "1.18.16"
+    const val taskRegisteredBySomePlugin = "verifyRelease"
 
     override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
