@@ -1,5 +1,5 @@
 [versions]
-axion-release = "1.21.0"
+axion-release = "1.21.1"
 plugin-publish = "2.0.0"
 kotest = "6.0.5"
 junit-jupiter = "6.0.1"
