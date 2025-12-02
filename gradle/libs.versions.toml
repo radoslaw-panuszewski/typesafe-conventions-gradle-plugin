@@ -1,7 +1,7 @@
 [versions]
 axion-release = "1.21.1"
 plugin-publish = "2.0.0"
-kotest = "6.0.5"
+kotest = "6.0.7"
 junit-jupiter = "6.0.1"
 test-logger = "4.0.0"
 kotlinter = "5.3.0"
