@@ -4,7 +4,7 @@ plugin-publish = "2.0.0"
 kotest = "6.1.0"
 junit-jupiter = "6.0.2"
 test-logger = "4.0.0"
-kotlinter = "5.3.0"
+kotlinter = "5.4.0"
 detekt = "2.0.0-alpha.1"
 
 [plugins]
