@@ -5,7 +5,7 @@ kotest = "6.1.1"
 junit-jupiter = "6.0.2"
 test-logger = "4.0.0"
 kotlinter = "5.4.0"
-detekt = "2.0.0-alpha.1"
+detekt = "2.0.0-alpha.2"
 
 [plugins]
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
