@@ -374,4 +374,64 @@ class ConventionPluginsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
     }
+
+    @Test
+    fun `should generate typesafe accessor for convention plugin and use it from another convention plugin`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+
+        buildGradleKts {
+            """
+            plugins {
+                alias(convention.plugins.someConvention)
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
+
+        includedBuild {
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                }
+                
+                repositories {
+                    gradlePluginPortal()
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/convention/someConvention.gradle.kts") {
+                """
+                package convention
+                    
+                import convention
+                
+                plugins {
+                    alias(convention.plugins.anotherConvention)
+                }    
+                """
+            }
+
+            customProjectFile("src/main/kotlin/convention/anotherConvention.gradle.kts") {
+                """
+                package convention
+                
+                println("Hello from anotherConvention")
+                """
+            }
+        }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from anotherConvention"
+    }
 }
