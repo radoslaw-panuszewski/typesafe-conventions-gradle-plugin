@@ -115,11 +115,13 @@ private fun patchPluginsBlock(pluginsBlockFile: File, pluginDeclarations: List<P
 }
 
 private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: List<PluginDeclaration>) {
-    pluginDeclarations.forEach {
-        project.dependencies.add("implementation", it.pluginMarkerWithoutVersion) {
-            version { prefer(it.pluginVersionFromStrongestConstraint) }
+    pluginDeclarations
+        .filter { it.pluginVersionFromStrongestConstraint != EMPTY_VERSION }
+        .forEach {
+            project.dependencies.add("implementation", it.pluginMarkerWithoutVersion) {
+                version { prefer(it.pluginVersionFromStrongestConstraint) }
+            }
         }
-    }
 }
 
 private data class PluginDeclaration(
@@ -136,5 +138,7 @@ private data class PluginDeclaration(
     val pluginVersionFromStrongestConstraint = pluginVersion.strictVersion.takeIf(String::isNotBlank)
         ?: pluginVersion.requiredVersion.takeIf(String::isNotBlank)
         ?: pluginVersion.preferredVersion.takeIf(String::isNotBlank)
-        ?: ""
+        ?: EMPTY_VERSION
 }
+
+private const val EMPTY_VERSION = ""
