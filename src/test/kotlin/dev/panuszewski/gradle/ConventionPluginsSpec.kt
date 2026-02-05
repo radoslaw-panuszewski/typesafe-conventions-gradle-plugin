@@ -11,7 +11,9 @@ import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.OverriddenPluginVersion
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
+import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
@@ -323,5 +325,53 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
+    }
+
+    @Test
+    fun `should generate typesafe accessor for convention plugin and use it from parent build`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+
+        buildGradleKts {
+            """
+            plugins {
+                alias(convention.plugins.someConvention)
+            }
+            
+            repositories {
+                mavenCentral()
+            }
+            """
+        }
+
+        includedBuild {
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                }
+                
+                repositories {
+                    gradlePluginPortal()
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/convention/someConvention.gradle.kts") {
+                """
+                package convention
+                    
+                println("Hello from someConvention")    
+                """
+            }
+        }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
     }
 }
