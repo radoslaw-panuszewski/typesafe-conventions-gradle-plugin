@@ -1,5 +1,6 @@
 package dev.panuszewski.gradle.conventioncatalogs
 
+import dev.panuszewski.gradle.preconditions.isEarlyEvaluatedIncludedBuild
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
@@ -8,6 +9,10 @@ import java.io.File
 internal class ConventionCatalogsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
+        if (settings.isEarlyEvaluatedIncludedBuild()) {
+            return // It will fail lazily in execution phase
+        }
+
         val conventionPluginScripts = collectConventionPluginScripts(settings)
 
         val conventionsByCatalog = groupConventionsByCatalog(conventionPluginScripts)

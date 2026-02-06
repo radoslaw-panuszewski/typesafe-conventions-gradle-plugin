@@ -4,6 +4,7 @@ import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogsPlugin
 import dev.panuszewski.gradle.parentbuild.ParentBuild
 import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
+import dev.panuszewski.gradle.preconditions.isEarlyEvaluatedIncludedBuild
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin
