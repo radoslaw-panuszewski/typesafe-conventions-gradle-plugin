@@ -7,4 +7,7 @@ style:
 complexity:
   LongMethod:
     excludes: [ '**/fixtures/**' ]
+  TooManyFunctions:
+    active: false
+    excludes: [ '**/src/test/**' ]
 

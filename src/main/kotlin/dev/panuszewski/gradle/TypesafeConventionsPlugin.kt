@@ -1,5 +1,6 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogsPlugin
 import dev.panuszewski.gradle.parentbuild.ParentBuild
 import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
@@ -28,7 +29,8 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
         val settings = target as? SettingsInternal ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
-        applyPreconditionsPlugin(settings)
+        settings.apply<PreconditionsPlugin>()
+        settings.apply<ConventionCatalogsPlugin>()
 
         resolveParentBuild(settings) { parentBuild ->
             if (parentBuild != null) {
@@ -40,10 +42,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
     private fun registerExtension(settings: Settings) {
         settings.extensions.create<TypesafeConventionsExtension>("typesafeConventions")
-    }
-
-    private fun applyPreconditionsPlugin(settings: Settings) {
-        settings.apply<PreconditionsPlugin>()
     }
 
     private fun resolveParentBuild(settings: SettingsInternal, consumer: (ParentBuild?) -> Unit) {
@@ -84,7 +82,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
-        internal const val MINIMAL_GRADLE_VERSION = "8.7"
+        internal const val MINIMAL_GRADLE_VERSION = "8.8"
         internal const val KOTLIN_GRADLE_PLUGIN_ID = "org.jetbrains.kotlin.jvm"
     }
 }
