@@ -23,6 +23,7 @@ ktlint_standard_multiline-if-else = disabled
 ktlint_standard_discouraged-comment-location = disabled
 ktlint_standard_argument-list-wrapping = disabled
 ktlint_standard_no-unused-imports = enabled
+ktlint_standard_filename = disabled
 
 [{*.kt,*.kts}]
 ij_continuation_indent_size = 4
