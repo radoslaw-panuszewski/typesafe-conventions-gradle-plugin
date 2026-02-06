@@ -192,6 +192,14 @@ enum class BuildOutcome {
     BUILD_FAILED,
 }
 
+fun SuccessOrFailureBuildResult.shouldSucceed() {
+    this.buildOutcome shouldBe BUILD_SUCCESSFUL
+}
+
+fun SuccessOrFailureBuildResult.shouldFail() {
+    this.buildOutcome shouldBe BuildOutcome.BUILD_FAILED
+}
+
 fun shouldAllBuildsSucceed(vararg buildResults: SuccessOrFailureBuildResult) {
     buildResults.shouldForAll { it.buildOutcome shouldBe BUILD_SUCCESSFUL }
 }
