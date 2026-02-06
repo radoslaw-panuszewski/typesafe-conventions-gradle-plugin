@@ -168,6 +168,40 @@ class CachingSpec : GradleSpec() {
     }
 
     @Test
+    fun `should invalidate extractPrecompiledScriptPluginPlugins for multiple catalogs`() {
+        // given
+        installFixture(BuildSrc)
+        installFixture(LibsInPluginsBlock)
+
+        customProjectFile("gradle/custom.versions.toml") {
+            """
+            [plugins]
+            another-plugin = { id = "org.example.custom-plugin", version = "1.0.0" }
+            """
+        }
+
+        // when
+        val firstResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
+
+        // and then plugins in libs.versions.toml are changed
+        libsVersionsToml {
+            """
+            [plugins]
+            some-plugin = { id = "com.github.ben-manes.versions", version = "0.52.0" }
+            """
+        }
+
+        // when
+        val secondResult = runGradle(":buildSrc:extractPrecompiledScriptPluginPlugins")
+
+        // then
+        firstResult.shouldSucceed()
+        secondResult.shouldSucceed()
+        firstResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
+        secondResult.output.lines() shouldContain "> Task :buildSrc:extractPrecompiledScriptPluginPlugins"
+    }
+
+    @Test
     fun `should not invalidate extractPrecompiledScriptPluginPlugins when libraries in version catalog changes`() {
         // given
         installFixture(BuildSrc)
