@@ -42,14 +42,12 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
             .dependenciesModelBuilders
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
-    private fun generateAccessors(project: Project, versionCatalogs: List<VersionCatalogBuilderInternal>) {
-        for (catalog in versionCatalogs) {
-            configureLibraryVersionCatalogAccessors(project, catalog)
+    private fun generateAccessors(project: Project, catalogs: List<VersionCatalogBuilderInternal>) {
+        configureLibraryVersionCatalogAccessors(project, catalogs)
 
-            @Suppress("DEPRECATION")
-            if (project.typesafeConventions.accessorsInPluginsBlock.get()) {
-                configurePluginVersionCatalogAccessors(project, catalog)
-            }
+        @Suppress("DEPRECATION")
+        if (project.typesafeConventions.accessorsInPluginsBlock.get()) {
+            configurePluginVersionCatalogAccessors(project, catalogs)
         }
     }
 
