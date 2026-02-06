@@ -336,7 +336,7 @@ class ConventionPluginsSpec : GradleSpec() {
         buildGradleKts {
             """
             plugins {
-                alias(convention.plugins.someConvention)
+                alias(conventions.plugins.someConvention)
             }
             
             repositories {
@@ -358,9 +358,9 @@ class ConventionPluginsSpec : GradleSpec() {
                 """
             }
 
-            customProjectFile("src/main/kotlin/convention/someConvention.gradle.kts") {
+            customProjectFile("src/main/kotlin/conventions/someConvention.gradle.kts") {
                 """
-                package convention
+                package conventions
                     
                 println("Hello from someConvention")    
                 """
@@ -384,7 +384,7 @@ class ConventionPluginsSpec : GradleSpec() {
         buildGradleKts {
             """
             plugins {
-                alias(convention.plugins.someConvention)
+                alias(conventions.plugins.someConvention)
             }
             
             repositories {
@@ -406,21 +406,21 @@ class ConventionPluginsSpec : GradleSpec() {
                 """
             }
 
-            customProjectFile("src/main/kotlin/convention/someConvention.gradle.kts") {
+            customProjectFile("src/main/kotlin/conventions/someConvention.gradle.kts") {
                 """
-                package convention
+                package conventions
                     
-                import convention
+                import conventions
                 
                 plugins {
-                    alias(convention.plugins.anotherConvention)
+                    alias(conventions.plugins.anotherConvention)
                 }    
                 """
             }
 
-            customProjectFile("src/main/kotlin/convention/anotherConvention.gradle.kts") {
+            customProjectFile("src/main/kotlin/conventions/anotherConvention.gradle.kts") {
                 """
-                package convention
+                package conventions
                 
                 println("Hello from anotherConvention")
                 """
