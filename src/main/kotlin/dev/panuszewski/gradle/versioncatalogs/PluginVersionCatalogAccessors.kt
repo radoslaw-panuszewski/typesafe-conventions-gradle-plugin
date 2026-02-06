@@ -18,11 +18,15 @@ import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 private val PLUGIN_DECLARATION_BY_ALIAS: Regex = """.*alias\(.+\.plugins\.(.+)\).*""".toRegex()
 
-internal fun configurePluginVersionCatalogAccessors(project: Project, catalog: VersionCatalogBuilderInternal) {
+internal fun configurePluginVersionCatalogAccessors(project: Project, catalogs: List<VersionCatalogBuilderInternal>) {
     project.afterEvaluate {
-        val pluginDeclarations = collectPluginDeclarations(project, catalog)
+        val pluginDeclarations = mutableListOf<PluginDeclaration>()
 
-        writeCatalogEntrypointBeforeCompilation(project, catalog)
+        for (catalog in catalogs) {
+            pluginDeclarations += collectPluginDeclarations(project, catalog)
+            writeCatalogEntrypointBeforeCompilation(project, catalog)
+        }
+
         patchPluginsBlocksAfterExtraction(project, pluginDeclarations)
 
         if (project.typesafeConventions.autoPluginDependencies.get()) {
