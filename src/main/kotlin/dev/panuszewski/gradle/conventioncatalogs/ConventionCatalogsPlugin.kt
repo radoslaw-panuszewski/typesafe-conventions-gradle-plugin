@@ -1,6 +1,5 @@
 package dev.panuszewski.gradle.conventioncatalogs
 
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
@@ -14,18 +13,18 @@ internal class ConventionCatalogsPlugin : Plugin<Settings> {
         val conventionsByCatalog = groupConventionsByCatalog(conventionPluginScripts)
 
         val parentSettings = (settings.gradle.parent?.gradle as? GradleInternal)?.settings
-        parentSettings
-            ?.dependencyResolutionManagement {
-                versionCatalogs {
-                    conventionsByCatalog.keys.forEach { catalog ->
-                        create(catalog, Action {
-                            conventionsByCatalog[catalog]?.forEach { conventionPlugin ->
-                                plugin(conventionPlugin.pluginName, conventionPlugin.pluginId).version("")
-                            }
-                        })
+
+        parentSettings?.dependencyResolutionManagement {
+            versionCatalogs {
+                conventionsByCatalog.keys.forEach { catalog ->
+                    create(catalog) {
+                        conventionsByCatalog[catalog]?.forEach { conventionPlugin ->
+                            plugin(conventionPlugin.pluginName, conventionPlugin.pluginId).version("")
+                        }
                     }
                 }
             }
+        }
     }
 
     private fun collectConventionPluginScripts(settings: Settings): Set<File> =
