@@ -7,6 +7,7 @@ import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlockInCustomLocation
 import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
+import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy.someLibrary
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.OverriddenPluginVersion
@@ -363,6 +364,96 @@ class ConventionPluginsSpec : GradleSpec() {
                 package conventions
                     
                 println("Hello from someConvention")    
+                """
+            }
+        }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+
+    @Test
+    fun `should generate typesafe accessor for convention plugin and use it from parent build in multi-level hierarchy`() {
+        // given
+        val secondaryBuild = mainBuild.registerIncludedBuild("secondary-build")
+        val buildLogic = secondaryBuild.registerIncludedBuild("build-logic")
+
+        with(mainBuild) {
+            buildGradleKts {
+                """
+                plugins {
+                    java
+                }
+                """
+            }
+        }
+
+        with(secondaryBuild) {
+            libsVersionsToml {
+                """
+                [libraries]
+                some-library = "$someLibrary"    
+                """
+            }
+
+            buildGradleKts {
+                """
+                plugins {
+                    alias(conventions.plugins.someConvention)
+                }
+                
+                group = "com.example"
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+        }
+
+        with(buildLogic) {
+            settingsGradleKts {
+                """
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        mavenLocal()
+                    }
+                }
+                    
+                plugins {
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
+                }
+                """
+            }
+
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/someConvention.gradle.kts") {
+                """
+                plugins {
+                    java
+                }
+                
+                println("Hello from someConvention")
+                
+                dependencies {
+                    implementation(libs.some.library)
+                }    
                 """
             }
         }

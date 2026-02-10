@@ -30,10 +30,10 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         val settings = target as? SettingsInternal ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
         settings.apply<PreconditionsPlugin>()
-        settings.apply<ConventionCatalogsPlugin>()
 
         resolveParentBuild(settings) { parentBuild ->
             if (parentBuild != null) {
+                parentBuild.settings.apply<ConventionCatalogsPlugin>()
                 importVersionCatalogsFromParentBuild(parentBuild, settings)
             }
             applyVersionCatalogAccessorsPlugin(settings)

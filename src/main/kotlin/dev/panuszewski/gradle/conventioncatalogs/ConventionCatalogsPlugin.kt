@@ -3,7 +3,6 @@ package dev.panuszewski.gradle.conventioncatalogs
 import dev.panuszewski.gradle.preconditions.isEarlyEvaluatedIncludedBuild
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
-import org.gradle.api.internal.GradleInternal
 import java.io.File
 
 internal class ConventionCatalogsPlugin : Plugin<Settings> {
@@ -17,9 +16,7 @@ internal class ConventionCatalogsPlugin : Plugin<Settings> {
 
         val conventionsByCatalog = groupConventionsByCatalog(conventionPluginScripts)
 
-        val parentSettings = (settings.gradle.parent?.gradle as? GradleInternal)?.settings
-
-        parentSettings?.dependencyResolutionManagement {
+        settings.dependencyResolutionManagement {
             versionCatalogs {
                 conventionsByCatalog.keys.forEach { catalog ->
                     create(catalog) {
