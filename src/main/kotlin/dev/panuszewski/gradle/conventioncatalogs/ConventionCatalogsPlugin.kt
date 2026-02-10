@@ -47,7 +47,7 @@ internal class ConventionCatalogsPlugin : Plugin<Settings> {
         val packageRegex = """^\s*package\s+([\w.]+)""".toRegex(RegexOption.MULTILINE)
         val packageName = packageRegex.find(content)?.groupValues?.get(1)
         val pluginName = file.name.removeSuffix(".gradle.kts")
-        val pluginId = packageName?.let { "$it.$pluginName" } ?: "conventions.$pluginName"
+        val pluginId = packageName?.let { "$it.$pluginName" } ?: pluginName
         return ConventionPlugin(pluginName, pluginId, packageName)
     }
 }
