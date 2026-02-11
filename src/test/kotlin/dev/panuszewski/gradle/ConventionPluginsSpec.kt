@@ -3,6 +3,7 @@ package dev.panuszewski.gradle
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
 import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
@@ -369,53 +370,7 @@ class ConventionPluginsSpec : GradleSpec() {
     @Test
     fun `should not add convention catalog to root build in multi-level hierarchy`() {
         // given
-        val secondaryBuild = mainBuild.registerIncludedBuild("secondary-build")
-        val buildLogic = secondaryBuild.registerIncludedBuild("build-logic")
-
-        with(mainBuild) {
-            buildGradleKts {
-                """
-                plugins {
-                    alias(conventions.plugins.someConvention)
-                }
-                """
-            }
-        }
-
-        with(buildLogic) {
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
-            }
-
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                } 
-                
-                repositories {
-                    mavenCentral()
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/someConvention.gradle.kts") {
-                """
-                println("Hello from someConvention")
-                """
-            }
-        }
+        installFixture(ConventionCatalogUsedInRootBuildThatIsNotDirectParent)
 
         // when
         val result = runGradle()
