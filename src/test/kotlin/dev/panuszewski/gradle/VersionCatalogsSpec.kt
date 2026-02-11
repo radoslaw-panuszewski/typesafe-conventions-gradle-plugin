@@ -1,10 +1,6 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
-import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
-import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
-import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
-import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
 import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
@@ -16,9 +12,7 @@ import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.MultipleConventionPlugins
 import dev.panuszewski.gradle.fixtures.OverriddenPluginVersion
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
-import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
-import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
@@ -31,19 +25,10 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Assumptions.assumeTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.params.ParameterizedTest
 
-class ConventionPluginsSpec : GradleSpec() {
-
-    private lateinit var testInfo: TestInfo
-
-    @BeforeEach
-    fun setup(testInfo: TestInfo) {
-        this.testInfo = testInfo
-    }
+class VersionCatalogsSpec : GradleSpec() {
 
     @ParameterizedTest
     @SupportedIncludedBuilds
@@ -335,7 +320,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should order plugin marker dependencies for predictable build cache hashes`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -348,115 +333,5 @@ class ConventionPluginsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output should containInOrder(fixture.anotherPluginId, fixture.somePluginId)
-    }
-
-    @Test
-    fun `should generate typesafe accessor for convention plugin and use it from parent build`() {
-        // given
-        installFixture(BuildLogic)
-        installFixture(ConventionCatalogUsedInParentBuild)
-
-        // when
-        val result = runGradle()
-
-        // then
-        result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain "Hello from someConvention"
-    }
-
-    @Test
-    fun `should generate typesafe accessor for convention plugin and use it from parent build in multi-level hierarchy`() {
-        // given
-        installFixture(ConventionCatalogUsedInParentBuildThatIsNotRootBuild)
-
-        // when
-        val result = runGradle()
-
-        // then
-        result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain "Hello from someConvention"
-    }
-
-    /**
-     * It would be problematic in the following hierarchy:
-     * - build A includes B1 and B2
-     * - build B1 includes build-logic
-     * - build B2 includes build-logic
-     *
-     * (root build would receive convention catalog with conflicting declarations)
-     */
-    @Test
-    fun `should not add convention catalog to root build in multi-level hierarchy`() {
-        // given
-        installFixture(ConventionCatalogUsedInRootBuildThatIsNotDirectParent)
-
-        // when
-        val result = runGradle()
-
-        // then
-        result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Unresolved reference 'conventions'"
-    }
-
-    @Test
-    fun `should generate typesafe accessor for convention plugin and use it from another convention plugin`() {
-        // given
-        installFixture(BuildLogic)
-        installFixture(ConventionCatalogUsedFromConventionPlugin)
-
-        // when
-        val result = runGradle()
-
-        // then
-        result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain "Hello from anotherConvention"
-    }
-
-    @Test
-    fun `should allow custom name for convention catalog`() {
-        // given
-        installFixture(BuildLogic)
-        installFixture(TypesafeConventionsAppliedToIncludedBuild)
-
-        buildGradleKts {
-            """
-            plugins {
-                alias(myConventions.plugins.someConvention)
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                }
-                
-                repositories {
-                    gradlePluginPortal()
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/myConventions/someConvention.gradle.kts") {
-                """
-                package myConventions
-                    
-                println("Hello from someConvention")    
-                """
-            }
-        }
-
-        // when
-        val result = runGradle()
-
-        // then
-        result.buildOutcome shouldBe BUILD_SUCCESSFUL
-        result.output shouldContain "Hello from someConvention"
     }
 }
