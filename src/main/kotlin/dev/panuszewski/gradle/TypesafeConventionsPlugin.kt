@@ -33,7 +33,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         settings.apply<PreconditionsPlugin>()
 
         if (settings.gradle.identityPath.pathString.count { it == ':' } == 1) {
-            settings.gradle.root.settings.apply<ConventionCatalogsPlugin>()
+            settings.gradle.parent?.settings?.apply<ConventionCatalogsPlugin>()
         }
 
         resolveParentBuild(settings) { parentBuild ->
