@@ -16,6 +16,7 @@ import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
+import dev.panuszewski.gradle.framework.BuildOutcome
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.Fixture
@@ -464,6 +465,73 @@ class ConventionPluginsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
+    }
+
+    /**
+     * It would be problematic in the following hierarchy:
+     * - build A includes B1 and B2
+     * - build B1 includes build-logic
+     * - build B2 includes build-logic
+     *
+     * (root build would receive convention catalog with conflicting declarations)
+     */
+    @Test
+    fun `should not add convention catalog to root build in multi-level hierarchy`() {
+        // given
+        val secondaryBuild = mainBuild.registerIncludedBuild("secondary-build")
+        val buildLogic = secondaryBuild.registerIncludedBuild("build-logic")
+
+        with(mainBuild) {
+            buildGradleKts {
+                """
+                plugins {
+                    alias(conventions.plugins.someConvention)
+                }
+                """
+            }
+        }
+
+        with(buildLogic) {
+            settingsGradleKts {
+                """
+                pluginManagement {
+                    repositories {
+                        gradlePluginPortal()
+                        mavenLocal()
+                    }
+                }
+                    
+                plugins {
+                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
+                }
+                """
+            }
+
+            buildGradleKts {
+                """
+                plugins {
+                    `kotlin-dsl`
+                } 
+                
+                repositories {
+                    mavenCentral()
+                }
+                """
+            }
+
+            customProjectFile("src/main/kotlin/someConvention.gradle.kts") {
+                """
+                println("Hello from someConvention")
+                """
+            }
+        }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain "Unresolved reference 'conventions'"
     }
 
     @Test
