@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
@@ -10,7 +11,6 @@ import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlockInCustomLocation
 import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
-import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy.someLibrary
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.OverriddenPluginVersion
@@ -19,7 +19,6 @@ import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.PluginManagementBuildLogic
-import dev.panuszewski.gradle.framework.BuildOutcome
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.Fixture
@@ -384,53 +383,7 @@ class ConventionPluginsSpec : GradleSpec() {
     fun `should generate typesafe accessor for convention plugin and use it from another convention plugin`() {
         // given
         installFixture(BuildLogic)
-        installFixture(TypesafeConventionsAppliedToIncludedBuild)
-
-        buildGradleKts {
-            """
-            plugins {
-                alias(conventions.plugins.someConvention)
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                }
-                
-                repositories {
-                    gradlePluginPortal()
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/conventions/someConvention.gradle.kts") {
-                """
-                package conventions
-                    
-                import conventions
-                
-                plugins {
-                    alias(conventions.plugins.anotherConvention)
-                }    
-                """
-            }
-
-            customProjectFile("src/main/kotlin/conventions/anotherConvention.gradle.kts") {
-                """
-                package conventions
-                
-                println("Hello from anotherConvention")
-                """
-            }
-        }
+        installFixture(ConventionCatalogUsedFromConventionPlugin)
 
         // when
         val result = runGradle()
