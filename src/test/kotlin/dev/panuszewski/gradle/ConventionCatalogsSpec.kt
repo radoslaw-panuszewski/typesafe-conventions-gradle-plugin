@@ -4,6 +4,7 @@ import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
+import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
@@ -78,44 +79,10 @@ class ConventionCatalogsSpec : GradleSpec() {
     }
 
     @Test
-    fun `should allow custom name for convention catalog`() {
+    fun `should encode package name in convention plugin alias`() {
         // given
         installFixture(BuildLogic)
-        installFixture(TypesafeConventionsAppliedToIncludedBuild)
-
-        buildGradleKts {
-            """
-            plugins {
-                alias(myConventions.plugins.someConvention)
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                }
-                
-                repositories {
-                    gradlePluginPortal()
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/myConventions/someConvention.gradle.kts") {
-                """
-                package myConventions
-                    
-                println("Hello from someConvention")    
-                """
-            }
-        }
+        installFixture(PackageNameEncodedInConventionCatalog)
 
         // when
         val result = runGradle()
@@ -124,4 +91,52 @@ class ConventionCatalogsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
     }
+
+//    @Test
+//    fun `should allow custom name for convention catalog`() {
+//        // given
+//        installFixture(BuildLogic)
+//        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+//
+//        buildGradleKts {
+//            """
+//            plugins {
+//                alias(myConventions.plugins.someConvention)
+//            }
+//
+//            repositories {
+//                mavenCentral()
+//            }
+//            """
+//        }
+//
+//        includedBuild {
+//            buildGradleKts {
+//                """
+//                plugins {
+//                    `kotlin-dsl`
+//                }
+//
+//                repositories {
+//                    gradlePluginPortal()
+//                }
+//                """
+//            }
+//
+//            customProjectFile("src/main/kotlin/myConventions/someConvention.gradle.kts") {
+//                """
+//                package myConventions
+//
+//                println("Hello from someConvention")
+//                """
+//            }
+//        }
+//
+//        // when
+//        val result = runGradle()
+//
+//        // then
+//        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+//        result.output shouldContain "Hello from someConvention"
+//    }
 }

@@ -12,39 +12,32 @@ internal class ConventionCatalogsPlugin : Plugin<Settings> {
             return // It will fail lazily in execution phase
         }
 
-        val conventionPluginScripts = collectConventionPluginScripts(settings)
-
-        val conventionsByCatalog = groupConventionsByCatalog(conventionPluginScripts)
+        val conventionPlugins = collectConventionPlugins(settings)
 
         settings.dependencyResolutionManagement {
             versionCatalogs {
-                conventionsByCatalog.keys.forEach { catalog ->
-                    create(catalog) {
-                        conventionsByCatalog[catalog]?.forEach { conventionPlugin ->
-                            plugin(conventionPlugin.pluginName, conventionPlugin.pluginId).version("")
-                        }
+                create("conventions") {
+                    for (conventionPlugin in conventionPlugins) {
+                        plugin(conventionPlugin.pluginAlias, conventionPlugin.pluginId).version("")
                     }
                 }
             }
         }
     }
 
-    private fun collectConventionPluginScripts(settings: Settings): Set<File> =
+    private fun collectConventionPlugins(settings: Settings): List<ConventionPlugin> =
         settings.rootDir.walk()
             .filter { file -> file.path.contains("src") && file.name.endsWith(".gradle.kts") }
-            .toSet()
+            .map(::parseConventionPlugin)
+            .toList()
 
-    private fun groupConventionsByCatalog(scriptFiles: Set<File>): Map<String, List<ConventionPlugin>> =
-        scriptFiles
-            .map(::createConventionPlugin)
-            .groupBy { it.packageName ?: "conventions" }
-
-    private fun createConventionPlugin(file: File): ConventionPlugin {
+    private fun parseConventionPlugin(file: File): ConventionPlugin {
         val content = file.readText()
         val packageRegex = """^\s*package\s+([\w.]+)""".toRegex(RegexOption.MULTILINE)
         val packageName = packageRegex.find(content)?.groupValues?.get(1)
         val pluginName = file.name.removeSuffix(".gradle.kts")
         val pluginId = packageName?.let { "$it.$pluginName" } ?: pluginName
-        return ConventionPlugin(pluginName, pluginId, packageName)
+        val pluginAlias = pluginId.replace(".", "-")
+        return ConventionPlugin(pluginId, pluginAlias)
     }
 }

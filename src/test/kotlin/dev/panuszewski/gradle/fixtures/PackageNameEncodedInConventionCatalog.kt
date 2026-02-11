@@ -3,7 +3,7 @@ package dev.panuszewski.gradle.fixtures
 import dev.panuszewski.gradle.framework.GradleSpec
 import dev.panuszewski.gradle.framework.NoConfigFixture
 
-object ConventionCatalogUsedInParentBuild : NoConfigFixture {
+object PackageNameEncodedInConventionCatalog : NoConfigFixture {
 
     override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
@@ -12,7 +12,7 @@ object ConventionCatalogUsedInParentBuild : NoConfigFixture {
         buildGradleKts {
             """
             plugins {
-                alias(conventions.plugins.someConvention)
+                alias(conventions.plugins.com.example.someConvention)
             }
             
             repositories {
@@ -22,8 +22,10 @@ object ConventionCatalogUsedInParentBuild : NoConfigFixture {
         }
 
         includedBuild {
-            customProjectFile("src/main/kotlin/someConvention.gradle.kts") {
+            customProjectFile("src/main/kotlin/com/example/someConvention.gradle.kts") {
                 """
+                package com.example
+                    
                 println("Hello from someConvention")    
                 """
             }
