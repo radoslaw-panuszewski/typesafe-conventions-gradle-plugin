@@ -30,6 +30,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         val settings = target as? SettingsInternal ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
         settings.apply<PreconditionsPlugin>()
+        settings.gradle.root.settings.apply<ConventionCatalogsPlugin>()
 
         resolveParentBuild(settings) { parentBuild ->
             if (parentBuild != null) {
