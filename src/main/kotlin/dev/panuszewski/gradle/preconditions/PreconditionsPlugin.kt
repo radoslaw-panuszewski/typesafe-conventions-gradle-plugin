@@ -1,6 +1,6 @@
 package dev.panuszewski.gradle.preconditions
 
-import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_GRADLE_PLUGIN_ID
+import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -21,7 +21,7 @@ internal class PreconditionsPlugin : Plugin<Settings> {
 
         settings.gradle.rootProject {
             allprojects {
-                project.plugins.withId(KOTLIN_GRADLE_PLUGIN_ID) {
+                project.plugins.withId(KOTLIN_DSL_PLUGIN_ID) {
                     registerTasks(isEarlyEvaluatedBuild)
                 }
             }

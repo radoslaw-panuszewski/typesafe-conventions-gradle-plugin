@@ -88,6 +88,6 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
         internal const val MINIMAL_GRADLE_VERSION = "8.8"
-        internal const val KOTLIN_GRADLE_PLUGIN_ID = "org.jetbrains.kotlin.jvm"
+        internal const val KOTLIN_DSL_PLUGIN_ID = "org.gradle.kotlin.kotlin-dsl"
     }
 }
