@@ -103,10 +103,14 @@ abstract class GradleSpec {
     }
 
     fun includedBuild(configureBuild: GradleBuild.() -> Unit) {
+        singleIncludedBuild().configureBuild()
+    }
+
+    fun singleIncludedBuild(): GradleBuild {
         require(includedBuilds.size == 1) {
             "Required exactly 1 included build to be registered. Did you forgot to install a fixture like BuildSrc?"
         }
-        includedBuilds.values.first().configureBuild()
+        return includedBuilds.values.first()
     }
 
     /**

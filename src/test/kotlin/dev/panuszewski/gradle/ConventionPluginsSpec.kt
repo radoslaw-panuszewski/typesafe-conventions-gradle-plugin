@@ -2,6 +2,7 @@ package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
 import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
@@ -347,84 +348,7 @@ class ConventionPluginsSpec : GradleSpec() {
     @Test
     fun `should generate typesafe accessor for convention plugin and use it from parent build in multi-level hierarchy`() {
         // given
-        val secondaryBuild = mainBuild.registerIncludedBuild("secondary-build")
-        val buildLogic = secondaryBuild.registerIncludedBuild("build-logic")
-
-        with(mainBuild) {
-            buildGradleKts {
-                """
-                plugins {
-                    java
-                }
-                """
-            }
-        }
-
-        with(secondaryBuild) {
-            libsVersionsToml {
-                """
-                [libraries]
-                some-library = "$someLibrary"    
-                """
-            }
-
-            buildGradleKts {
-                """
-                plugins {
-                    alias(conventions.plugins.someConvention)
-                }
-                
-                group = "com.example"
-                
-                repositories {
-                    mavenCentral()
-                }
-                """
-            }
-        }
-
-        with(buildLogic) {
-            settingsGradleKts {
-                """
-                pluginManagement {
-                    repositories {
-                        gradlePluginPortal()
-                        mavenLocal()
-                    }
-                }
-                    
-                plugins {
-                    id("dev.panuszewski.typesafe-conventions") version "$projectVersion"
-                }
-                """
-            }
-
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                } 
-                
-                repositories {
-                    mavenCentral()
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/someConvention.gradle.kts") {
-                """
-                plugins {
-                    java
-                }
-                
-                println("Hello from someConvention")
-                
-                dependencies {
-                    implementation(libs.some.library)
-                }    
-                """
-            }
-        }
+        installFixture(ConventionCatalogUsedInParentBuildThatIsNotRootBuild)
 
         // when
         val result = runGradle()

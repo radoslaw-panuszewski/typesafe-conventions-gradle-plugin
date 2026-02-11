@@ -1,12 +1,16 @@
 package dev.panuszewski.gradle.fixtures
 
+import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild.Config
+import dev.panuszewski.gradle.framework.Fixture
+import dev.panuszewski.gradle.framework.GradleBuild
 import dev.panuszewski.gradle.framework.GradleSpec
-import dev.panuszewski.gradle.framework.NoConfigFixture
 
-object TypesafeConventionsAppliedToIncludedBuild : NoConfigFixture {
+object TypesafeConventionsAppliedToIncludedBuild : Fixture<Config> {
 
-    override fun GradleSpec.install() {
-        includedBuild {
+    override fun GradleSpec.install(config: Config) {
+        val build = config.build ?: singleIncludedBuild()
+
+        with(build) {
             settingsGradleKts {
                 """
                 pluginManagement {
@@ -22,5 +26,11 @@ object TypesafeConventionsAppliedToIncludedBuild : NoConfigFixture {
                 """
             }
         }
+    }
+
+    override fun defaultConfig() = Config()
+
+    class Config {
+        var build: GradleBuild? = null
     }
 }
