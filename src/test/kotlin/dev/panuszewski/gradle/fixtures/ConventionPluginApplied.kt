@@ -12,6 +12,8 @@ import dev.panuszewski.gradle.framework.GradleSpec
 object ConventionPluginApplied : Fixture<Config> {
 
     override fun GradleSpec.install(config: Config) {
+        installFixture(IncludedBuildConfiguredForHostingConventions)
+
         buildGradleKts {
             """
             plugins {
@@ -25,18 +27,6 @@ object ConventionPluginApplied : Fixture<Config> {
         }
 
         includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                } 
-                
-                repositories {
-                    gradlePluginPortal()
-                }
-                """
-            }
-
             customProjectFile("src/main/kotlin/${config.pluginName}.gradle.kts") {
                 config.pluginBody.trimIndent()
             }

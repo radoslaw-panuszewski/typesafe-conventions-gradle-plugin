@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.fixtures.CommentedPluginUsage
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
@@ -333,41 +334,7 @@ class ConventionPluginsSpec : GradleSpec() {
     fun `should generate typesafe accessor for convention plugin and use it from parent build`() {
         // given
         installFixture(BuildLogic)
-        installFixture(TypesafeConventionsAppliedToIncludedBuild)
-
-        buildGradleKts {
-            """
-            plugins {
-                alias(conventions.plugins.someConvention)
-            }
-            
-            repositories {
-                mavenCentral()
-            }
-            """
-        }
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                }
-                
-                repositories {
-                    gradlePluginPortal()
-                }
-                """
-            }
-
-            customProjectFile("src/main/kotlin/conventions/someConvention.gradle.kts") {
-                """
-                package conventions
-                    
-                println("Hello from someConvention")    
-                """
-            }
-        }
+        installFixture(ConventionCatalogUsedInParentBuild)
 
         // when
         val result = runGradle()
