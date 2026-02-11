@@ -4,6 +4,7 @@ import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogsPlugin
 import dev.panuszewski.gradle.parentbuild.ParentBuild
 import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
+import dev.panuszewski.gradle.preconditions.isEarlyEvaluatedIncludedBuild
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import dev.panuszewski.gradle.util.pathString
@@ -31,6 +32,11 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         val settings = target as? SettingsInternal ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
         settings.apply<PreconditionsPlugin>()
+
+        if (settings.isEarlyEvaluatedIncludedBuild()) {
+            // error will be thrown lazily in execution phase
+            return
+        }
 
         if (settings.gradle.identityPath.pathString.count { it == ':' } == 1) {
             settings.gradle.parent?.settings?.apply<ConventionCatalogsPlugin>()
