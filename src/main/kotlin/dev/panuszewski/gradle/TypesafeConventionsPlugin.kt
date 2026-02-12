@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle
 
-import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogsPlugin
+import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogPlugin
+import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogPlugin.Companion.CONVENTION_CATALOG_CONFIG_KEY
 import dev.panuszewski.gradle.parentbuild.ParentBuild
 import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
@@ -8,6 +9,7 @@ import dev.panuszewski.gradle.preconditions.isEarlyEvaluatedIncludedBuild
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
 import dev.panuszewski.gradle.util.pathString
+import dev.panuszewski.gradle.util.typesafeConventions
 import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,6 +20,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.newInstance
 import javax.inject.Inject
 
@@ -38,21 +41,30 @@ internal class TypesafeConventionsPlugin @Inject constructor(
             return
         }
 
-        if (settings.gradle.identityPath.pathString.count { it == ':' } == 1) {
-            settings.gradle.parent?.settings?.apply<ConventionCatalogsPlugin>()
-        }
-
-        resolveParentBuild(settings) { parentBuild ->
-            if (parentBuild != null) {
-                parentBuild.settings.apply<ConventionCatalogsPlugin>()
-                importVersionCatalogsFromParentBuild(parentBuild, settings)
+        settings.gradle.settingsEvaluated {
+            if (settings.gradle.identityPath.pathString.count { it == ':' } == 1) {
+                settings.gradle.parent?.let { flattenedParentBuild ->
+                    applyConventionCatalogPlugin(flattenedParentBuild.settings, settings.typesafeConventions)
+                }
             }
-            applyVersionCatalogAccessorsPlugin(settings)
+
+            resolveParentBuild(settings) { parentBuild ->
+                if (parentBuild != null) {
+                    applyConventionCatalogPlugin(parentBuild.settings, settings.typesafeConventions)
+                    importVersionCatalogsFromParentBuild(parentBuild, settings)
+                }
+                applyVersionCatalogAccessorsPlugin(settings)
+            }
         }
     }
 
     private fun registerExtension(settings: Settings) {
         settings.extensions.create<TypesafeConventionsExtension>("typesafeConventions")
+    }
+
+    private fun applyConventionCatalogPlugin(settings: Settings, extension: TypesafeConventionsExtension) {
+        settings.extra[CONVENTION_CATALOG_CONFIG_KEY] = extension.conventionCatalog
+        settings.apply<ConventionCatalogPlugin>()
     }
 
     private fun resolveParentBuild(settings: SettingsInternal, consumer: (ParentBuild?) -> Unit) {
