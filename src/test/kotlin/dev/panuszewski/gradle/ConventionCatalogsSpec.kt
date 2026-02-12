@@ -61,7 +61,7 @@ class ConventionCatalogsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Unresolved reference 'conventions'"
+        result shouldReportUnresolvedReference "conventions"
     }
 
     @Test
