@@ -1,8 +1,10 @@
 package dev.panuszewski.gradle
 
+import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
+import javax.inject.Inject
 import kotlin.DeprecationLevel.WARNING
 
 public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
@@ -74,4 +76,19 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
      * @since 0.6.0
      */
     public val allowTopLevelBuild: Property<Boolean> = objects.property<Boolean>().convention(false)
+
+    public val conventionCatalog: ConventionCatalogExtension = objects.newInstance(ConventionCatalogExtension::class.java)
+
+    public fun conventionCatalog(action: Action<ConventionCatalogExtension>) {
+        action.execute(conventionCatalog)
+    }
+}
+
+public abstract class ConventionCatalogExtension @Inject constructor(objects: ObjectFactory) {
+    /**
+     * (default = "conventions")
+     *
+     * Name of the version catalog that will contain convention plugins.
+     */
+    public val catalogName: Property<String> = objects.property<String>().convention("conventions")
 }
