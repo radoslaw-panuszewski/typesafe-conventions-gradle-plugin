@@ -4,8 +4,10 @@ import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.fixtures.includedbuild.NotNestedBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -184,6 +186,14 @@ abstract class GradleSpec {
     @Target(FUNCTION)
     @Retention(RUNTIME)
     annotation class SupportedIncludedBuilds
+
+    infix fun SuccessOrFailureBuildResult.shouldReportUnresolvedReference(reference: String) {
+        if (gradleVersion >= GradleVersion.version("9.0.0")) {
+            output shouldContain "Unresolved reference '$reference'"
+        } else {
+            output shouldContain "Unresolved reference: $reference"
+        }
+    }
 }
 
 class SuccessOrFailureBuildResult(

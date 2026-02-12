@@ -71,11 +71,7 @@ class VersionCatalogsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        if (gradleVersion >= GradleVersion.version("9.0.0")) {
-            result.output shouldContain "Unresolved reference 'libs'"
-        } else {
-            result.output shouldContain "Unresolved reference: libs"
-        }
+        result shouldReportUnresolvedReference "libs"
     }
 
     @ParameterizedTest
