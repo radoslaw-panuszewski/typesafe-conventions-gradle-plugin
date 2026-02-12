@@ -1,10 +1,15 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogPlugin
+import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogPlugin.Companion.CONVENTION_CATALOG_CONFIG_KEY
 import dev.panuszewski.gradle.parentbuild.ParentBuild
 import dev.panuszewski.gradle.parentbuild.ParentBuildResolver
 import dev.panuszewski.gradle.preconditions.PreconditionsPlugin
+import dev.panuszewski.gradle.preconditions.isEarlyEvaluatedIncludedBuild
 import dev.panuszewski.gradle.util.currentGradleVersion
 import dev.panuszewski.gradle.util.gradleVersionAtLeast
+import dev.panuszewski.gradle.util.pathString
+import dev.panuszewski.gradle.util.typesafeConventions
 import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -15,6 +20,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.newInstance
 import javax.inject.Inject
 
@@ -28,13 +34,27 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
         val settings = target as? SettingsInternal ?: mustBeAppliedToSettings(target)
         registerExtension(settings)
-        applyPreconditionsPlugin(settings)
+        settings.apply<PreconditionsPlugin>()
 
-        resolveParentBuild(settings) { parentBuild ->
-            if (parentBuild != null) {
-                importVersionCatalogsFromParentBuild(parentBuild, settings)
+        if (settings.isEarlyEvaluatedIncludedBuild()) {
+            // error will be thrown lazily in execution phase
+            return
+        }
+
+        settings.gradle.settingsEvaluated {
+            if (settings.gradle.identityPath.pathString.count { it == ':' } == 1) {
+                settings.gradle.parent?.let { flattenedParentBuild ->
+                    applyConventionCatalogPlugin(flattenedParentBuild.settings, settings.typesafeConventions)
+                }
             }
-            applyVersionCatalogAccessorsPlugin(settings)
+
+            resolveParentBuild(settings) { parentBuild ->
+                if (parentBuild != null) {
+                    applyConventionCatalogPlugin(parentBuild.settings, settings.typesafeConventions)
+                    importVersionCatalogsFromParentBuild(parentBuild, settings)
+                }
+                applyVersionCatalogAccessorsPlugin(settings)
+            }
         }
     }
 
@@ -42,8 +62,9 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         settings.extensions.create<TypesafeConventionsExtension>("typesafeConventions")
     }
 
-    private fun applyPreconditionsPlugin(settings: Settings) {
-        settings.apply<PreconditionsPlugin>()
+    private fun applyConventionCatalogPlugin(settings: Settings, extension: TypesafeConventionsExtension) {
+        settings.extra[CONVENTION_CATALOG_CONFIG_KEY] = extension.conventionCatalog
+        settings.apply<ConventionCatalogPlugin>()
     }
 
     private fun resolveParentBuild(settings: SettingsInternal, consumer: (ParentBuild?) -> Unit) {
@@ -84,7 +105,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
 
     companion object {
         private val logger = Logging.getLogger(TypesafeConventionsPlugin::class.java)
-        internal const val MINIMAL_GRADLE_VERSION = "8.7"
-        internal const val KOTLIN_GRADLE_PLUGIN_ID = "org.jetbrains.kotlin.jvm"
+        internal const val MINIMAL_GRADLE_VERSION = "8.8"
+        internal const val KOTLIN_DSL_PLUGIN_ID = "org.gradle.kotlin.kotlin-dsl"
     }
 }

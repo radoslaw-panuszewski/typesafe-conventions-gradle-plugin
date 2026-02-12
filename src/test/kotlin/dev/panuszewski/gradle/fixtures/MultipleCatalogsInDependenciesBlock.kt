@@ -11,7 +11,7 @@ object MultipleCatalogsInDependenciesBlock : NoConfigFixture {
     override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-        installFixture(ConventionPlugin) {
+        installFixture(ConventionPluginApplied) {
             pluginBody = """
                 plugins {
                     java

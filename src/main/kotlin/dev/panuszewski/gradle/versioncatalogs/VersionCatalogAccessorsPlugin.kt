@@ -2,7 +2,7 @@
 
 package dev.panuszewski.gradle.versioncatalogs
 
-import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_GRADLE_PLUGIN_ID
+import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
 import dev.panuszewski.gradle.util.settings
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
@@ -15,7 +15,7 @@ import org.gradle.kotlin.dsl.configure
 internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.plugins.withId(KOTLIN_GRADLE_PLUGIN_ID) {
+        project.plugins.withId(KOTLIN_DSL_PLUGIN_ID) {
             registerGeneratedSourceSet(project)
 
             val versionCatalogs = declaredVersionCatalogs(project)
@@ -42,14 +42,12 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
             .dependenciesModelBuilders
             .filterIsInstance<VersionCatalogBuilderInternal>()
 
-    private fun generateAccessors(project: Project, versionCatalogs: List<VersionCatalogBuilderInternal>) {
-        for (catalog in versionCatalogs) {
-            configureLibraryVersionCatalogAccessors(project, catalog)
+    private fun generateAccessors(project: Project, catalogs: List<VersionCatalogBuilderInternal>) {
+        configureLibraryVersionCatalogAccessors(project, catalogs)
 
-            @Suppress("DEPRECATION")
-            if (project.typesafeConventions.accessorsInPluginsBlock.get()) {
-                configurePluginVersionCatalogAccessors(project, catalog)
-            }
+        @Suppress("DEPRECATION")
+        if (project.typesafeConventions.accessorsInPluginsBlock.get()) {
+            configurePluginVersionCatalogAccessors(project, catalogs)
         }
     }
 

@@ -5,7 +5,7 @@ import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 
 /**
- * Similar to [ConventionPlugin], but with custom source directory for convention plugins
+ * Similar to [ConventionPluginApplied], but with custom source directory for convention plugins
  */
 object ConventionPluginInCustomLocation : Fixture<Config> {
 

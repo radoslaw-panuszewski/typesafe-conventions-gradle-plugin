@@ -24,7 +24,7 @@ object CommentedPluginUsage : NoConfigFixture {
             """
         }
 
-        installFixture(ConventionPlugin) {
+        installFixture(ConventionPluginApplied) {
             pluginBody = """
                 plugins {
                     // alias(libs.plugins.commented.plugin)

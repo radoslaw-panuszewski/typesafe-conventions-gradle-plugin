@@ -1,6 +1,6 @@
 package dev.panuszewski.gradle.fixtures
 
-import dev.panuszewski.gradle.fixtures.ConventionPlugin.Config
+import dev.panuszewski.gradle.fixtures.ConventionPluginApplied.Config
 import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 
@@ -9,9 +9,11 @@ import dev.panuszewski.gradle.framework.GradleSpec
  * - defined in included build
  * - applied in the root project of the main build
  */
-object ConventionPlugin : Fixture<Config> {
+object ConventionPluginApplied : Fixture<Config> {
 
     override fun GradleSpec.install(config: Config) {
+        installFixture(IncludedBuildConfiguredForHostingConventions)
+
         buildGradleKts {
             """
             plugins {
@@ -27,18 +29,6 @@ object ConventionPlugin : Fixture<Config> {
         includedBuild {
             customProjectFile("src/main/kotlin/${config.pluginName}.gradle.kts") {
                 config.pluginBody.trimIndent()
-            }
-
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`
-                } 
-                
-                repositories {
-                    gradlePluginPortal()
-                }
-                """
             }
         }
     }

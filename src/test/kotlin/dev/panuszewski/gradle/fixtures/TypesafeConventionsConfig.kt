@@ -9,6 +9,9 @@ import dev.panuszewski.gradle.util.gradleVersion
 
 object TypesafeConventionsConfig : Fixture<Config> {
 
+    private val INDENT = " ".repeat(4)
+    private val DOUBLE_INDENT = " ".repeat(8)
+
     override fun GradleSpec.install(config: Config) {
         when {
             fixtures.installedFixtures.contains(TypesafeConventionsAppliedToIncludedBuild) -> {
@@ -26,12 +29,14 @@ object TypesafeConventionsConfig : Fixture<Config> {
     private fun GradleBuild.applyConfiguration(config: Config) {
         settingsGradleKts {
             if (gradleVersion >= gradleVersion("8.8")) {
-                appendLine { "typesafeConventions {" }
+                append { "typesafeConventions {" }
+                appendLine()
                 appendEachProperty(config)
                 appendLine { "}" }
             } else {
-                prependLine { "import dev.panuszewski.gradle.TypesafeConventionsExtension" }
-                appendLine { "configure<TypesafeConventionsExtension> {" }
+                prepend { "import dev.panuszewski.gradle.TypesafeConventionsExtension" }
+                append { "configure<TypesafeConventionsExtension> {" }
+                appendLine()
                 appendEachProperty(config)
                 appendLine { "}" }
             }
@@ -39,9 +44,12 @@ object TypesafeConventionsConfig : Fixture<Config> {
     }
 
     private fun AppendableFile.appendEachProperty(config: Config) {
-        config.accessorsInPluginsBlock?.let { appendLine { "accessorsInPluginsBlock = $it" } }
-        config.autoPluginDependencies?.let { appendLine { "autoPluginDependencies = $it" } }
-        config.allowTopLevelBuild?.let { appendLine { "allowTopLevelBuild = $it" } }
+        config.accessorsInPluginsBlock?.let { appendLine { "${INDENT}accessorsInPluginsBlock = $it" } }
+        config.autoPluginDependencies?.let { appendLine { "${INDENT}autoPluginDependencies = $it" } }
+        config.allowTopLevelBuild?.let { appendLine { "${INDENT}allowTopLevelBuild = $it" } }
+        appendLine { "${INDENT}conventionCatalog {" }
+        config.conventionCatalogName?.let { appendLine { "${DOUBLE_INDENT}catalogName = \"$it\"" } }
+        appendLine { "$INDENT}" }
     }
 
     override fun defaultConfig() = Config()
@@ -50,5 +58,6 @@ object TypesafeConventionsConfig : Fixture<Config> {
         var accessorsInPluginsBlock: Boolean? = null
         var autoPluginDependencies: Boolean? = null
         var allowTopLevelBuild: Boolean? = null
+        var conventionCatalogName: String? = null
     }
 }

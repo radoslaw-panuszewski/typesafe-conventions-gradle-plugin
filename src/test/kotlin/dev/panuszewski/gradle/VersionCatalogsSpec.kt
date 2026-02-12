@@ -22,19 +22,10 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Assumptions.assumeTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.params.ParameterizedTest
 
-class ConventionPluginsSpec : GradleSpec() {
-
-    private lateinit var testInfo: TestInfo
-
-    @BeforeEach
-    fun setup(testInfo: TestInfo) {
-        this.testInfo = testInfo
-    }
+class VersionCatalogsSpec : GradleSpec() {
 
     @ParameterizedTest
     @SupportedIncludedBuilds
@@ -80,11 +71,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        if (gradleVersion >= GradleVersion.version("9.0.0")) {
-            result.output shouldContain "Unresolved reference 'libs'"
-        } else {
-            result.output shouldContain "Unresolved reference: libs"
-        }
+        result shouldReportUnresolvedReference "libs"
     }
 
     @ParameterizedTest

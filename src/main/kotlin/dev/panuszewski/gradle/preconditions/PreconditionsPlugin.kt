@@ -1,11 +1,10 @@
 package dev.panuszewski.gradle.preconditions
 
-import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_GRADLE_PLUGIN_ID
+import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
-import org.gradle.api.internal.GradleInternal
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.register
 
@@ -18,24 +17,16 @@ import org.gradle.kotlin.dsl.register
 internal class PreconditionsPlugin : Plugin<Settings> {
 
     override fun apply(settings: Settings) {
-        val isEarlyEvaluatedBuild = settings.detectEarlyEvaluatedBuild()
+        val isEarlyEvaluatedBuild = settings.isEarlyEvaluatedIncludedBuild()
 
         settings.gradle.rootProject {
             allprojects {
-                project.plugins.withId(KOTLIN_GRADLE_PLUGIN_ID) {
+                project.plugins.withId(KOTLIN_DSL_PLUGIN_ID) {
                     registerTasks(isEarlyEvaluatedBuild)
                 }
             }
         }
     }
-
-    private fun Settings.detectEarlyEvaluatedBuild(): Boolean =
-        try {
-            (gradle.parent as? GradleInternal)?.settings
-            false
-        } catch (_: IllegalStateException) {
-            true
-        }
 
     private fun Project.registerTasks(isEarlyEvaluatedBuild: Boolean) {
         val validateTopLevelBuild = registerVerifyTopLevelBuildTask()
