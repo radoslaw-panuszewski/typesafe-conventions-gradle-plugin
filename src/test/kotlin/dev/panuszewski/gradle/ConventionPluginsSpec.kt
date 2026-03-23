@@ -9,6 +9,7 @@ import dev.panuszewski.gradle.fixtures.LibsInPluginsBlockInCustomLocation
 import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.MultipleConventionPlugins
 import dev.panuszewski.gradle.fixtures.OverriddenPluginVersion
 import dev.panuszewski.gradle.fixtures.TopLevelBuild
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsConfig
@@ -17,7 +18,9 @@ import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.containInOrder
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
@@ -323,5 +326,21 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
+    }
+
+    @ParameterizedTest
+    @SupportedIncludedBuilds
+    fun `should order plugin marker dependencies by alias`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        val fixture = installFixture(MultipleConventionPlugins)
+
+        // when
+        val buildName = includedBuilds.keys.first().substringAfterLast("/")
+        val result = runGradle(":$buildName:dependencies", "--configuration", "implementation")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output should containInOrder(fixture.anotherPluginId, fixture.somePluginId)
     }
 }

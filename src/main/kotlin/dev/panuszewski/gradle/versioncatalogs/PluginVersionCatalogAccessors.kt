@@ -31,7 +31,7 @@ internal fun configurePluginVersionCatalogAccessors(project: Project, catalog: V
     }
 }
 
-private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogBuilderInternal): List<PluginDeclaration> {
+private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogBuilderInternal): Collection<PluginDeclaration> {
     val model = catalog.build()
 
     return project.sourceSets["main"].kotlin.asFileTree
@@ -40,7 +40,7 @@ private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogB
         .map(::removeComments)
         .flatMap(String::lines)
         .mapNotNull { line -> parsePluginDeclaration(line, model) }
-        .toList()
+        .toSortedSet(compareBy { it.pluginAlias })
 }
 
 private fun removeComments(sourceCode: String): String =
@@ -83,7 +83,7 @@ private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: V
     }
 }
 
-private fun patchPluginsBlocksAfterExtraction(project: Project, pluginDeclarations: List<PluginDeclaration>) {
+private fun patchPluginsBlocksAfterExtraction(project: Project, pluginDeclarations: Collection<PluginDeclaration>) {
     project.plugins.withId("org.gradle.kotlin.kotlin-dsl") {
         // we add action to an existing task instead of registering a dedicated task to allow caching
         // (otherwise the dedicated task would modify its own input and never be UP-TO-DATE)
@@ -100,7 +100,7 @@ private fun patchPluginsBlocksAfterExtraction(project: Project, pluginDeclaratio
     }
 }
 
-private fun patchPluginsBlock(pluginsBlockFile: File, pluginDeclarations: List<PluginDeclaration>) {
+private fun patchPluginsBlock(pluginsBlockFile: File, pluginDeclarations: Collection<PluginDeclaration>) {
     var content = pluginsBlockFile.readText()
 
     pluginDeclarations.forEach {
@@ -110,7 +110,7 @@ private fun patchPluginsBlock(pluginsBlockFile: File, pluginDeclarations: List<P
     pluginsBlockFile.writeText(content)
 }
 
-private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: List<PluginDeclaration>) {
+private fun addPluginMarkerDependencies(project: Project, pluginDeclarations: Collection<PluginDeclaration>) {
     pluginDeclarations.forEach {
         project.dependencies.add("implementation", it.pluginMarkerWithoutVersion) {
             version { prefer(it.pluginVersionFromStrongestConstraint) }
