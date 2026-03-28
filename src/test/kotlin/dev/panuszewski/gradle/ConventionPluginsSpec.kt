@@ -330,7 +330,7 @@ class ConventionPluginsSpec : GradleSpec() {
 
     @ParameterizedTest
     @SupportedIncludedBuilds
-    fun `should order plugin marker dependencies by alias`(includedBuild: Fixture<*>) {
+    fun `should order plugin marker dependencies for predictable build cache hashes`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
         val fixture = installFixture(MultipleConventionPlugins)
