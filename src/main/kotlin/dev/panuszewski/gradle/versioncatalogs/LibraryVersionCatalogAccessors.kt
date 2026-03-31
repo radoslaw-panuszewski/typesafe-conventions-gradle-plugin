@@ -8,9 +8,11 @@ import org.gradle.api.Project
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.register
 
-internal fun configureLibraryVersionCatalogAccessors(project: Project, catalog: VersionCatalogBuilderInternal) {
-    writeCatalogEntrypointBeforeCompilation(project, catalog)
-    writeCatalogAccessorsBeforeCompilation(project, catalog)
+internal fun configureLibraryVersionCatalogAccessors(project: Project, catalogs: List<VersionCatalogBuilderInternal>) {
+    for (catalog in catalogs) {
+        writeCatalogEntrypointBeforeCompilation(project, catalog)
+        writeCatalogAccessorsBeforeCompilation(project, catalog)
+    }
 }
 
 private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: VersionCatalogBuilderInternal) {

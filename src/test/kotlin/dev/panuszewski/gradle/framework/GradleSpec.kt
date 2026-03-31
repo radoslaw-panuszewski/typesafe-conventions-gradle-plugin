@@ -4,8 +4,10 @@ import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.fixtures.includedbuild.NotNestedBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -103,10 +105,14 @@ abstract class GradleSpec {
     }
 
     fun includedBuild(configureBuild: GradleBuild.() -> Unit) {
+        singleIncludedBuild().configureBuild()
+    }
+
+    fun singleIncludedBuild(): GradleBuild {
         require(includedBuilds.size == 1) {
             "Required exactly 1 included build to be registered. Did you forgot to install a fixture like BuildSrc?"
         }
-        includedBuilds.values.first().configureBuild()
+        return includedBuilds.values.first()
     }
 
     /**
@@ -180,6 +186,14 @@ abstract class GradleSpec {
     @Target(FUNCTION)
     @Retention(RUNTIME)
     annotation class SupportedIncludedBuilds
+
+    infix fun SuccessOrFailureBuildResult.shouldReportUnresolvedReference(reference: String) {
+        if (gradleVersion >= GradleVersion.version("9.0.0")) {
+            output shouldContain "Unresolved reference '$reference'"
+        } else {
+            output shouldContain "Unresolved reference: $reference"
+        }
+    }
 }
 
 class SuccessOrFailureBuildResult(
@@ -190,6 +204,14 @@ class SuccessOrFailureBuildResult(
 enum class BuildOutcome {
     BUILD_SUCCESSFUL,
     BUILD_FAILED,
+}
+
+fun SuccessOrFailureBuildResult.shouldSucceed() {
+    this.buildOutcome shouldBe BUILD_SUCCESSFUL
+}
+
+fun SuccessOrFailureBuildResult.shouldFail() {
+    this.buildOutcome shouldBe BuildOutcome.BUILD_FAILED
 }
 
 fun shouldAllBuildsSucceed(vararg buildResults: SuccessOrFailureBuildResult) {

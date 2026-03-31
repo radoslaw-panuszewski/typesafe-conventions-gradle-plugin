@@ -9,19 +9,6 @@ object EarlyEvaluatedIncludedBuild : NoConfigFixture {
     override fun GradleSpec.install() {
         installFixture(PluginManagementBuildLogic)
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
-
-        includedBuild {
-            buildGradleKts {
-                """
-                plugins {
-                    `kotlin-dsl`    
-                }
-                
-                repositories {
-                    mavenCentral()
-                }
-                """
-            }
-        }
+        installFixture(IncludedBuildConfiguredForHostingConventions)
     }
 }

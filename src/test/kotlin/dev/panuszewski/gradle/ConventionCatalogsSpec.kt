@@ -1,0 +1,108 @@
+package dev.panuszewski.gradle
+
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
+import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
+import dev.panuszewski.gradle.fixtures.CustomConventionCatalogName
+import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
+import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.GradleSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import org.junit.jupiter.api.Test
+
+class ConventionCatalogsSpec : GradleSpec() {
+
+    @Test
+    fun `should generate typesafe accessor for convention plugin and use it from parent build`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(ConventionCatalogUsedInParentBuild)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+
+    @Test
+    fun `should generate typesafe accessor for convention plugin and use it from parent build in multi-level hierarchy`() {
+        // given
+        installFixture(ConventionCatalogUsedInParentBuildThatIsNotRootBuild)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+
+    /**
+     * It would be problematic in the following hierarchy:
+     * - build A includes B1 and B2
+     * - build B1 includes build-logic
+     * - build B2 includes build-logic
+     *
+     * (root build would receive convention catalog with conflicting declarations)
+     */
+    @Test
+    fun `should not add convention catalog to root build in multi-level hierarchy`() {
+        // given
+        installFixture(ConventionCatalogUsedInRootBuildThatIsNotDirectParent)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result shouldReportUnresolvedReference "conventions"
+    }
+
+    @Test
+    fun `should generate typesafe accessor for convention plugin and use it from another convention plugin`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(ConventionCatalogUsedFromConventionPlugin)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from anotherConvention"
+    }
+
+    @Test
+    fun `should encode package name in convention plugin alias`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(PackageNameEncodedInConventionCatalog)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+
+    @Test
+    fun `should allow custom name for convention catalog`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(CustomConventionCatalogName)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+}
