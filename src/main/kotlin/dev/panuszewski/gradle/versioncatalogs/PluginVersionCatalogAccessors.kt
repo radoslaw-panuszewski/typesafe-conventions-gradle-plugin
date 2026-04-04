@@ -40,6 +40,8 @@ private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogB
         .map(::removeComments)
         .flatMap(String::lines)
         .mapNotNull { line -> parsePluginDeclaration(line, model) }
+        // We use Set to remove potential duplicates when multiple conventions apply the same plugin.
+        // There is no observable behavior change when the same dependency is added multiple times, thus no test covers this case.
         .toSortedSet(compareBy { it.pluginAlias })
 }
 

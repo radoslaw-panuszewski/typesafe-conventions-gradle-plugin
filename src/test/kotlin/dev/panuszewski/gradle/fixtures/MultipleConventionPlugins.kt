@@ -22,7 +22,7 @@ object MultipleConventionPlugins : NoConfigFixture {
         }
 
         includedBuild {
-            customProjectFile("src/main/kotlin/some-plugin.gradle.kts") {
+            customProjectFile("src/main/kotlin/first-convention.gradle.kts") {
                 """
                 plugins {
                     alias(libs.plugins.some.plugin)
@@ -31,7 +31,7 @@ object MultipleConventionPlugins : NoConfigFixture {
                 """
             }
 
-            customProjectFile("src/main/kotlin/another-plugin.gradle.kts") {
+            customProjectFile("src/main/kotlin/second-convention.gradle.kts") {
                 """
                 plugins {
                     alias(libs.plugins.another.plugin)
