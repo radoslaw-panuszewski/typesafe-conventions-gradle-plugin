@@ -5,7 +5,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault
 internal abstract class VerifyEarlyEvaluatedBuildTask : DefaultTask() {
 
     @Input
