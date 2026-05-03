@@ -13,6 +13,7 @@ import dev.panuszewski.gradle.fixtures.IgnorePackageNamesNotUnique
 import dev.panuszewski.gradle.fixtures.IgnorePackageNamesWithHyphens
 import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
+import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
 import dev.panuszewski.gradle.framework.Fixture
@@ -206,7 +207,21 @@ class ConventionCatalogsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        result.output shouldContain "Convention catalog is disabled. " +
+        result.output shouldContain "Convention catalog is explicitly disabled. " +
             "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true"
+    }
+
+    @Test
+    fun `should skip convention catalog in buildSrc`() {
+        // given
+        installFixture(BuildSrc)
+        installFixture(ConventionCatalogUsedInParentBuild)
+
+        // when
+        val result = runGradle("--info")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain "Convention catalog is not supported in buildSrc. Please migrate to build-logic if you want to use it."
     }
 }

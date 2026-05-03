@@ -1,21 +1,20 @@
 package dev.panuszewski.gradle.conventioncatalogs
 
+import dev.panuszewski.gradle.util.pathString
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.initialization.Settings
+import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.logging.Logging
 import java.io.File
 
 internal object ConventionCatalogPlugin {
 
-    fun apply(parentBuildSettings: Settings, includedBuildSettings: Settings) {
-        val enabled = includedBuildSettings.typesafeConventions.conventionCatalog.enabled.get()
-        val catalogName = includedBuildSettings.typesafeConventions.conventionCatalog.catalogName.get()
-        val ignorePackageNames = includedBuildSettings.typesafeConventions.conventionCatalog.ignorePackageNames.get()
-
-        if (!enabled) {
-            logger.info("Convention catalog is disabled. You can enable it by setting typesafeConventions.conventionCatalog.enabled = true")
+    fun apply(parentBuildSettings: SettingsInternal, includedBuildSettings: SettingsInternal) {
+        if (shouldSkip(includedBuildSettings)) {
             return
         }
+        val catalogName = includedBuildSettings.typesafeConventions.conventionCatalog.catalogName.get()
+        val ignorePackageNames = includedBuildSettings.typesafeConventions.conventionCatalog.ignorePackageNames.get()
 
         val conventionPlugins = collectConventionPlugins(includedBuildSettings, ignorePackageNames)
 
@@ -56,6 +55,21 @@ internal object ConventionCatalogPlugin {
                     "or make every convention plugin name unique."
             }
         }
+    }
+
+    private fun shouldSkip(includedBuildSettings: SettingsInternal): Boolean {
+        if (!includedBuildSettings.typesafeConventions.conventionCatalog.enabled.get()) {
+            logger.info(
+                "Convention catalog is explicitly disabled. " +
+                    "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true"
+            )
+            return true
+        }
+        if (includedBuildSettings.gradle.identityPath.pathString.endsWith(":buildSrc")) {
+            logger.info("Convention catalog is not supported in buildSrc. Please migrate to build-logic if you want to use it.")
+            return true
+        }
+        return false
     }
 
     private val logger = Logging.getLogger(ConventionCatalogPlugin::class.java)
