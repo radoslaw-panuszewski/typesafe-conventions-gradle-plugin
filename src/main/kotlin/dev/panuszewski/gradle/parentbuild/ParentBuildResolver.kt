@@ -20,7 +20,9 @@ internal abstract class ParentBuildResolver @Inject constructor(
      * thus it's handled in a special way.
      */
     fun resolveParentBuild(gradle: GradleInternal, consumer: (ParentBuild?) -> Unit) {
-        if (gradle.identityPath.pathString.endsWith(":buildSrc")) {
+        val buildPath = gradle.identityPath.pathString
+
+        if (buildPath.endsWith(":buildSrc") || buildPath.count { it == ':' } == 1) {
             val parentBuild = gradle.parent?.let(::parentBuild)
             consumer.invoke(parentBuild)
         } else {

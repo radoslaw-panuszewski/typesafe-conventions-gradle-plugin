@@ -1,20 +1,18 @@
 package dev.panuszewski.gradle.conventioncatalogs
 
-import dev.panuszewski.gradle.ConventionCatalogExtension
-import org.gradle.api.Plugin
+import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.initialization.Settings
-import org.gradle.kotlin.dsl.extra
 import java.io.File
 
-internal class ConventionCatalogPlugin : Plugin<Settings> {
+internal object ConventionCatalogPlugin {
 
-    override fun apply(settings: Settings) {
-        val conventionCatalogConfig = settings.extra[CONVENTION_CATALOG_CONFIG_KEY] as ConventionCatalogExtension
-        val conventionPlugins = collectConventionPlugins(settings)
+    fun apply(parentBuildSettings: Settings, includedBuildSettings: Settings) {
+        val catalogName = includedBuildSettings.typesafeConventions.conventionCatalog.catalogName.get()
+        val conventionPlugins = collectConventionPlugins(includedBuildSettings)
 
-        settings.dependencyResolutionManagement {
+        parentBuildSettings.dependencyResolutionManagement {
             versionCatalogs {
-                create(conventionCatalogConfig.catalogName.get()) {
+                create(catalogName) {
                     for (conventionPlugin in conventionPlugins) {
                         plugin(conventionPlugin.pluginAlias, conventionPlugin.pluginId).version("")
                     }
@@ -23,8 +21,8 @@ internal class ConventionCatalogPlugin : Plugin<Settings> {
         }
     }
 
-    private fun collectConventionPlugins(settings: Settings): List<ConventionPlugin> =
-        settings.rootDir.walk()
+    private fun collectConventionPlugins(includedBuildSettings: Settings): List<ConventionPlugin> =
+        includedBuildSettings.rootDir.walk()
             .filter { file -> file.path.contains("src") && file.name.endsWith(".gradle.kts") }
             .map(::parseConventionPlugin)
             .toList()
@@ -37,9 +35,5 @@ internal class ConventionCatalogPlugin : Plugin<Settings> {
         val pluginId = packageName?.let { "$it.$pluginName" } ?: pluginName
         val pluginAlias = pluginId.replace(".", "-")
         return ConventionPlugin(pluginId, pluginAlias)
-    }
-
-    companion object {
-        const val CONVENTION_CATALOG_CONFIG_KEY = "conventionCatalogConfig"
     }
 }

@@ -6,21 +6,23 @@ import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsN
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
 import dev.panuszewski.gradle.fixtures.CustomConventionCatalogName
 import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
-import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
+import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
 
 class ConventionCatalogsSpec : GradleSpec() {
 
-    @Test
-    fun `should generate typesafe accessor for convention plugin and use it from parent build`() {
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should generate typesafe accessor for convention plugin and use it from parent build`(includedBuild: Fixture<*>) {
         // given
-        installFixture(BuildLogic)
+        installFixture(includedBuild)
         installFixture(ConventionCatalogUsedInParentBuild)
 
         // when
@@ -79,10 +81,11 @@ class ConventionCatalogsSpec : GradleSpec() {
         result.output shouldContain "Hello from anotherConvention"
     }
 
-    @Test
-    fun `should encode package name in convention plugin alias`() {
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should encode package name in convention plugin alias`(includedBuild: Fixture<*>) {
         // given
-        installFixture(BuildLogic)
+        installFixture(includedBuild)
         installFixture(PackageNameEncodedInConventionCatalog)
 
         // when
@@ -93,10 +96,11 @@ class ConventionCatalogsSpec : GradleSpec() {
         result.output shouldContain "Hello from someConvention"
     }
 
-    @Test
-    fun `should allow custom name for convention catalog`() {
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should allow custom name for convention catalog`(includedBuild: Fixture<*>) {
         // given
-        installFixture(BuildLogic)
+        installFixture(includedBuild)
         installFixture(CustomConventionCatalogName)
 
         // when

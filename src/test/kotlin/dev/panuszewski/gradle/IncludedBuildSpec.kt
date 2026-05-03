@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest
 class IncludedBuildSpec : GradleSpec() {
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in included build when running task from subproject`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -38,7 +38,7 @@ class IncludedBuildSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in included build`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -52,7 +52,7 @@ class IncludedBuildSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should provide pluginMarker helper method`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -67,7 +67,7 @@ class IncludedBuildSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should the pluginMarker method support rich versions`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -90,7 +90,7 @@ class IncludedBuildSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should not mess up with kotlin dependency in included build`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)

@@ -4,7 +4,6 @@ import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.fixtures.includedbuild.NotNestedBuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_SUCCESSFUL
-import dev.panuszewski.gradle.util.gradleVersion
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -180,12 +179,25 @@ abstract class GradleSpec {
                 argumentSet("build-logic", BuildLogic),
                 argumentSet("not-nested-build-logic", NotNestedBuildLogic)
             )
+
+        @Suppress("unused") // used in @AllIncludedBuildTypes
+        @JvmStatic
+        fun includedBuildTypesExceptBuildSrc(): Stream<Arguments> =
+            Stream.of(
+                argumentSet("build-logic", BuildLogic),
+                argumentSet("not-nested-build-logic", NotNestedBuildLogic)
+            )
     }
 
     @MethodSource("allIncludedBuildTypes")
     @Target(FUNCTION)
     @Retention(RUNTIME)
-    annotation class SupportedIncludedBuilds
+    annotation class AllIncludedBuildTypes
+
+    @MethodSource("includedBuildTypesExceptBuildSrc")
+    @Target(FUNCTION)
+    @Retention(RUNTIME)
+    annotation class IncludedBuildTypesExceptBuildSrc
 
     infix fun SuccessOrFailureBuildResult.shouldReportUnresolvedReference(reference: String) {
         if (gradleVersion >= GradleVersion.version("9.0.0")) {
