@@ -11,3 +11,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "typesafe-conventions-gradle-plugin"
+
+includeBuild("build-logic")

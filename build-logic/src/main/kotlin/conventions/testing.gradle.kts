@@ -1,5 +1,9 @@
 @file:Suppress("UnstableApiUsage")
 
+package conventions
+
+import libs
+
 plugins {
     java
     `jvm-test-suite`
@@ -29,7 +33,7 @@ tasks {
 
         environment["GRADLE_VERSION_TO_TEST"] = findProperty("gradleVersionToTest")
             ?: findProperty("gVTT")
-                ?: System.getenv("GRADLE_VERSION_TO_TEST")
-                ?: gradle.gradleVersion
+            ?: System.getenv("GRADLE_VERSION_TO_TEST")
+            ?: gradle.gradleVersion
     }
 }
