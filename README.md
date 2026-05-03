@@ -395,15 +395,13 @@ WARNING: When this property is set to `true`, every convention plugin name must 
 
 It's pretty easy to create a convention plugin with the same name as a built-in plugin.
 
-For example, it may be tempting to create `publishing.gradle.kts` convention plugin for shared publishing configuration. However, the resulting ID of such plugin would be just `publishing`, which is the same as the built-in Gradle `[publishing](https://github.com/gradle/gradle/blob/master/platforms/software/publish/src/main/java/org/gradle/api/publish/plugins/PublishingPlugin.java)` plugin.
+For example, it may be tempting to create `publishing.gradle.kts` convention plugin for shared publishing configuration. However, the resulting ID of such plugin would be just `publishing`, which is the same as the built-in Gradle [`publishing`](https://github.com/gradle/gradle/blob/master/platforms/software/publish/src/main/java/org/gradle/api/publish/plugins/PublishingPlugin.java) plugin.
 
 To avoid such conflicts, you can put your `publishing.gradle.kts` into a named package (e.g `conventions`):
 
-build-logic/src/main/kotlin/conventions/publishing.gradle.kts:
 ```kotlin
+// build-logic/src/main/kotlin/conventions/publishing.gradle.kts
 package conventions
-
-// some configuration...
 ```
 
 To keep the plugin alias nice and short, you can also enable ignoring package names:

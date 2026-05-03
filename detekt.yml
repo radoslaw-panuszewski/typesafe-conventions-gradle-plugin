@@ -3,6 +3,8 @@ style:
     active: false
   SerialVersionUIDInSerializableClass:
     active: false
+  ReturnCount:
+    active: false
 
 complexity:
   LongMethod:
@@ -10,4 +12,3 @@ complexity:
   TooManyFunctions:
     active: false
     excludes: [ '**/src/test/**' ]
-
