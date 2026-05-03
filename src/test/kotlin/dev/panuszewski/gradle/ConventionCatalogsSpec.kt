@@ -4,8 +4,12 @@ import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
+import dev.panuszewski.gradle.fixtures.ConventionPluginNamesNotUnique
 import dev.panuszewski.gradle.fixtures.CustomConventionCatalogName
 import dev.panuszewski.gradle.fixtures.HyphensEncodedInConventionCatalog
+import dev.panuszewski.gradle.fixtures.IgnorePackageNames
+import dev.panuszewski.gradle.fixtures.IgnorePackageNamesNotUnique
+import dev.panuszewski.gradle.fixtures.IgnorePackageNamesWithHyphens
 import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
@@ -125,5 +129,67 @@ class ConventionCatalogsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should allow ignoring package names`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(IgnorePackageNames)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should correctly handle hyphens when ignoring package names`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(IgnorePackageNamesWithHyphens)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should fail when ignoring package names and convention plugin names are not unique`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(IgnorePackageNamesNotUnique)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain "Found duplicated convention plugin names: [someConvention]. " +
+            "Either set typesafeConventions.conventionCatalog.ignorePackages = false, " +
+            "or make every convention plugin name unique."
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should allow duplicate convention plugin names when ignoring package names is disabled`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(ConventionPluginNamesNotUnique)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from first someConvention"
     }
 }
