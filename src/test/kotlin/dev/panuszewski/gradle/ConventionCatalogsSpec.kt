@@ -5,6 +5,7 @@ import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
 import dev.panuszewski.gradle.fixtures.CustomConventionCatalogName
+import dev.panuszewski.gradle.fixtures.HyphensEncodedInConventionCatalog
 import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
@@ -79,6 +80,21 @@ class ConventionCatalogsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from anotherConvention"
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should encode hyphens in convention name as dots`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(HyphensEncodedInConventionCatalog)
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
     }
 
     @ParameterizedTest
