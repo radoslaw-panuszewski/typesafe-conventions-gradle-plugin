@@ -90,6 +90,11 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
 
 public abstract class ConventionCatalogExtension @Inject constructor(objects: ObjectFactory) {
     /**
+     * Enable or disable support for convention catalog.
+     */
+    public val enabled: Property<Boolean> = objects.property<Boolean>().convention(true)
+
+    /**
      * Name of the version catalog that will contain convention plugins.
      *
      * @since 0.11.0

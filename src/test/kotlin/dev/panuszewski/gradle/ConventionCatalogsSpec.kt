@@ -1,5 +1,6 @@
 package dev.panuszewski.gradle
 
+import dev.panuszewski.gradle.fixtures.ConventionCatalogDisabled
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
@@ -191,5 +192,21 @@ class ConventionCatalogsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from first someConvention"
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should allow disabling convention catalog`(includedBuild: Fixture<*>) {
+        // given
+        installFixture(includedBuild)
+        installFixture(ConventionCatalogDisabled)
+
+        // when
+        val result = runGradle("--info")
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result.output shouldContain "Convention catalog is disabled. " +
+            "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true"
     }
 }

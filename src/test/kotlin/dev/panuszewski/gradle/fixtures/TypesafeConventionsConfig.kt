@@ -48,6 +48,7 @@ object TypesafeConventionsConfig : Fixture<Config> {
         config.autoPluginDependencies?.let { appendLine { "${INDENT}autoPluginDependencies = $it" } }
         config.allowTopLevelBuild?.let { appendLine { "${INDENT}allowTopLevelBuild = $it" } }
         appendLine { "${INDENT}conventionCatalog {" }
+        config.conventionCatalogEnabled?.let { appendLine { "${DOUBLE_INDENT}enabled = $it" } }
         config.conventionCatalogName?.let { appendLine { "${DOUBLE_INDENT}catalogName = \"$it\"" } }
         config.ignorePackageNames?.let { appendLine { "${DOUBLE_INDENT}ignorePackageNames = $it" } }
         appendLine { "$INDENT}" }
@@ -59,6 +60,7 @@ object TypesafeConventionsConfig : Fixture<Config> {
         var accessorsInPluginsBlock: Boolean? = null
         var autoPluginDependencies: Boolean? = null
         var allowTopLevelBuild: Boolean? = null
+        var conventionCatalogEnabled: Boolean? = null
         var conventionCatalogName: String? = null
         var ignorePackageNames: Boolean? = null
     }

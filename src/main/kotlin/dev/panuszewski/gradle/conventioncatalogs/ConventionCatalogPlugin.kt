@@ -2,24 +2,22 @@ package dev.panuszewski.gradle.conventioncatalogs
 
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.initialization.Settings
+import org.gradle.api.logging.Logging
 import java.io.File
 
 internal object ConventionCatalogPlugin {
 
     fun apply(parentBuildSettings: Settings, includedBuildSettings: Settings) {
+        val enabled = includedBuildSettings.typesafeConventions.conventionCatalog.enabled.get()
         val catalogName = includedBuildSettings.typesafeConventions.conventionCatalog.catalogName.get()
         val ignorePackageNames = includedBuildSettings.typesafeConventions.conventionCatalog.ignorePackageNames.get()
 
-        val conventionPlugins = collectConventionPlugins(includedBuildSettings, ignorePackageNames)
-
-        if (ignorePackageNames) {
-            val duplicates = conventionPlugins.groupBy { it.pluginAlias }.filter { it.value.size > 1 }
-            check(duplicates.isEmpty()) {
-                "Found duplicated convention plugin names: ${duplicates.keys}. " +
-                    "Either set typesafeConventions.conventionCatalog.ignorePackages = false, " +
-                    "or make every convention plugin name unique."
-            }
+        if (!enabled) {
+            logger.info("Convention catalog is disabled. You can enable it by setting typesafeConventions.conventionCatalog.enabled = true")
+            return
         }
+
+        val conventionPlugins = collectConventionPlugins(includedBuildSettings, ignorePackageNames)
 
         parentBuildSettings.dependencyResolutionManagement {
             versionCatalogs {
@@ -37,6 +35,7 @@ internal object ConventionCatalogPlugin {
             .filter { file -> file.path.contains("src") && file.name.endsWith(".gradle.kts") }
             .map { parseConventionPlugin(it, ignorePackages) }
             .toList()
+            .also { checkForDuplicates(it, ignorePackages) }
 
     private fun parseConventionPlugin(file: File, ignorePackages: Boolean): ConventionPlugin {
         val content = file.readText()
@@ -47,4 +46,17 @@ internal object ConventionCatalogPlugin {
         val pluginAlias = if (ignorePackages) pluginName.replace(".", "-") else pluginId.replace(".", "-")
         return ConventionPlugin(pluginId, pluginAlias)
     }
+
+    private fun checkForDuplicates(conventionPlugins: List<ConventionPlugin>, ignorePackageNames: Boolean) {
+        if (ignorePackageNames) {
+            val duplicates = conventionPlugins.groupBy { it.pluginAlias }.filter { it.value.size > 1 }
+            check(duplicates.isEmpty()) {
+                "Found duplicated convention plugin names: ${duplicates.keys}. " +
+                    "Either set typesafeConventions.conventionCatalog.ignorePackages = false, " +
+                    "or make every convention plugin name unique."
+            }
+        }
+    }
+
+    private val logger = Logging.getLogger(ConventionCatalogPlugin::class.java)
 }
