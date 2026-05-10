@@ -9,6 +9,8 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.create
 import org.gradle.plugin.use.PluginDependency
 
+// TODO map plugin provider to Provider<MinimalExternalModuleDependency>
+//      it will allow usage like api(pluginMarker(libs.plugins.kotlin.jvm)) { version { strictly(kotlinVersion) } }
 public fun Project.pluginMarker(provider: Provider<PluginDependency>): Dependency {
     val plugin = provider.get()
     return dependencyWithRichVersion(

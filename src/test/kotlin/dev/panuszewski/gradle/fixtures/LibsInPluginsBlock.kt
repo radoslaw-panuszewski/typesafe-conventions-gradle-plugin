@@ -15,7 +15,7 @@ object LibsInPluginsBlock : NoConfigFixture {
     override fun GradleSpec.install() {
         installFixture(TypesafeConventionsAppliedToIncludedBuild)
 
-        installFixture(ConventionPlugin) {
+        installFixture(ConventionPluginApplied) {
             pluginBody = """
                 plugins {
                     alias(libs.plugins.some.plugin)

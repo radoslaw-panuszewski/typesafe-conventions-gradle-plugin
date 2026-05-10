@@ -20,25 +20,25 @@ internal abstract class ParentBuildResolver @Inject constructor(
      * thus it's handled in a special way.
      */
     fun resolveParentBuild(gradle: GradleInternal, consumer: (ParentBuild?) -> Unit) {
-        if (gradle.identityPath.pathString.endsWith(":buildSrc")) {
+        val buildPath = gradle.identityPath.pathString
+
+        if (buildPath.endsWith(":buildSrc") || buildPath.count { it == ':' } == 1) {
             val parentBuild = gradle.parent?.let(::parentBuild)
             consumer.invoke(parentBuild)
         } else {
-            gradle.root().projectsLoaded {
-                val directBuildParents = buildMap { putDirectChildrenOf(gradle.root()) }
+            gradle.root.projectsLoaded {
+                val directBuildParents = buildMap { putDirectChildrenOf(gradle.root) }
                 val parentBuild = directBuildParents[gradle]?.let(::parentBuild)
                 consumer.invoke(parentBuild)
             }
         }
     }
 
-    private fun GradleInternal.root(): GradleInternal =
-        parent?.root() ?: this
-
     private fun MutableMap<GradleInternal, GradleInternal>.putDirectChildrenOf(currentBuild: GradleInternal) {
         for (childBuild in currentBuild.includedBuilds()) {
             val childProject = childBuild.target.mutableModel
-            if (putIfAbsent(childProject, currentBuild) == null) {
+            val added = putIfAbsent(childProject, currentBuild) == null
+            if (added) {
                 putDirectChildrenOf(childProject)
             }
         }

@@ -1,34 +1,48 @@
-> [!IMPORTANT]
-> Please share your thoughts in the discussion: [Which style of accessors would you prefer for convention plugins themselves?](https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/discussions/48)
-
-# Typesafe Conventions Gradle Plugin
-
-[![Gradle Plugin Portal Version](https://img.shields.io/gradle-plugin-portal/v/dev.panuszewski.typesafe-conventions?style=flat)](https://plugins.gradle.org/plugin/dev.panuszewski.typesafe-conventions)
-
-A plugin that will bring type-safety to your convention plugins!
+<h1>
+<p align="center">
+    <a href="https://plugins.gradle.org/plugin/dev.panuszewski.typesafe-conventions"><img src="https://img.shields.io/gradle-plugin-portal/v/dev.panuszewski.typesafe-conventions?style=flat" /></a>
+    <br />
+    Typesafe Conventions Gradle Plugin
+    </h1>
+    <p align="center">
+        A plugin that will bring type-safety to your convention plugins!
+        <br />
+        <a href="#rationale">Rationale</a>
+        ·
+        <a href="#quickstart">Quickstart</a>
+        ·
+        <a href="#features">Features</a>
+        ·
+        <a href="#less-common-use-cases">Less common use cases</a>
+        ·
+        <a href="#troubleshooting">Troubleshooting</a>
+    </p>
+</p>
 
 ```diff
 plugins {
--    id("org.jetbrains.kotlin.jvm")
-+    alias(libs.plugins.kotlin.jvm)
+-   id("org.jetbrains.kotlin.jvm")
++   alias(libs.plugins.kotlin.jvm)
+
+-   id("conventions.kotlin")
++   alias(conventions.plugins.kotlin)
 }
 
 dependencies {
--    implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
-+    implementation(libs.kotlin.stdlib)
+-   implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
++   implementation(libs.kotlin.stdlib)
 }
 ```
 
 # Rationale
 
-According to [Gradle docs](https://docs.gradle.org/8.12.1/userguide/sharing_build_logic_between_subprojects.html), it is recommended to place convention plugins inside the included build or `buildSrc` (which is also treated as an included build). In the ideal world, we would just copy the contents of our `build.gradle.kts` and put it inside `buildSrc/src/some-convention.gradle.kts` to be reused between subprojects. However, there are some serious limitations:
-* the convention plugin can't use version catalog typesafe accessors (like `libs.kotlin.stdlib` or `libs.plugins.kotlin.jvm`)
-* the buildscript of included build (e.g `buildSrc/build.gradle.kts`) doesn't have access to the version catalog of the main build
-* if convention plugin wants to apply an external plugin, the plugin dependency must be manually added to `buildSrc`
-* there is no built-in way to convert plugin ID (like `org.jetbrains.kotlin.jvm`) to plugin dependency (like `org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10`)
+According to the [Gradle docs](https://docs.gradle.org/current/userguide/best_practices_structuring_builds.html#favor_composite_builds), it is recommended to place convention plugins inside the `build-logic` included build. In an ideal world, we would just copy some part of `build.gradle.kts` and put it inside a convention plugin. However, there are some serious limitations:
+* the convention plugin can't use version catalog typesafe accessors
+* the buildscript of `build-logic` doesn't have access to the version catalog of the main build
+* if a convention plugin wants to apply an external plugin, the plugin dependency must be manually added
+* there is no built-in way to convert plugin ID to plugin dependency
 
-> [!NOTE]
-> If Gradle fixes some of the issues mentioned above, the respective features will be removed from `typesafe-conventions`. Ideally, all the features will be removed, and this plugin will not be needed anymore ;) In that case, this README will point to Gradle docs with the replacements.
+The `typesafe-conventions` plugin aims to solve these problems.
 
 # Quickstart
 
@@ -36,17 +50,18 @@ If you prefer watching over reading, check out this [cool video](https://www.you
 
 ### Prerequisites
 
-* Gradle version is at least 8.7
+* Gradle 8.7+
+* JDK 17+
 * Either local or imported version catalog is used
-* There is an included build for build logic (we will refer to it as `buildSrc`)
-* At least one project within `buildSrc` has [precompiled script plugins](https://docs.gradle.org/8.12.1/userguide/implementing_gradle_plugins_precompiled.html) enabled (you can do this by applying the `kotlin-dsl` plugin)
+* There is an included build for build logic (we will refer to it as `build-logic`)
+* At least one project within `build-logic` has [precompiled script plugins](https://docs.gradle.org/8.12.1/userguide/implementing_gradle_plugins_precompiled.html) enabled (you can do this by applying the `kotlin-dsl` plugin)
 
 ### Usage
 
-Apply `typesafe-conventions` in `buildSrc/settings.gradle.kts`:
+Apply the `typesafe-conventions` plugin in `build-logic/settings.gradle.kts`:
 
 > [!IMPORTANT]
-> It's a settings plugin (not project plugin) so apply it in `settings.gradle.kts`!
+> It's a settings plugin (not a project plugin) so apply it in `settings.gradle.kts`!
 
 ```kotlin
 plugins {
@@ -58,17 +73,17 @@ Your project structure should be similar to the following:
 ```bash
 .
 ├── gradle/
-│   └── libs.versions.toml   # define 'kotlin-jvm' plugin and 'kotlin-stdlib' library here
+│   └── libs.versions.toml
 ├── settings.gradle.kts
 ├── build.gradle.kts
 ├── ...
-└── buildSrc/
+└── build-logic/
     ├── settings.gradle.kts  # apply 'typesafe-conventions' here
-    ├── build.gradle.kts     # you can use 'pluginMarker(libs.plugin.kotlin.jvm)' here! 🚀
+    ├── build.gradle.kts
     └── src/
         └── main/
             └── kotlin/
-                └── some-convention.gradle.kts  # you can use 'libs.kotlin.stdlib' here! 🚀
+                └── some-convention.gradle.kts
 ```
 
 ### Configuration
@@ -86,6 +101,17 @@ typesafeConventions {
     // whether to allow plugin usage for a top-level build
     // set it to 'true' only if you know what you're doing!
     allowTopLevelBuild = false
+
+    conventionCatalog {
+        // enable or disable support for convention catalog
+        enabled = true
+
+        // name of the version catalog that will contain convention plugins
+        catalogName = "conventions"
+
+        // whether to skip package names in convention catalog entries
+        ignorePackageNames = false
+    }
 }
 ```
 
@@ -101,10 +127,14 @@ configure<TypesafeConventionsExtension> {
 
 # Features
 
-## Version catalog in convention plugins
+* [Version catalog accessors for libraries](#version-catalog-accessors-for-libraries)
+* [Version catalog accessors for plugins](#version-catalog-accessors-for-plugins)
+* [Auto-import of a version catalog from the parent build](#auto-import-of-a-version-catalog-from-the-parent-build)
+* [Convention catalog](#convention-catalog)
 
-### ⏩ TL;DR
+## Version catalog accessors for libraries
 
+build-logic/src/main/kotlin/some-convention.gradle.kts:
 ```diff
 dependencies {
 -    implementation(versionCatalogs.find("libs").get().findLibrary("kotlin-stdlib").get())
@@ -112,7 +142,8 @@ dependencies {
 }
 ```
 
-### 🔍 Details
+<details>
+<summary>Details</summary>
 
 In plain Gradle, applying dependency from version catalog in a convention plugin would look like this:
 ```kotlin
@@ -130,7 +161,7 @@ dependencies {
 
 ### Named package
 
-If you keep your convention plugins in a named package (for example in `buildSrc/src/main/kotlin/com/myapp/gradle`), you need to explicitly import the `libs` extension:
+If you keep your convention plugins in a named package (for example in `build-logic/src/main/kotlin/com/myapp/gradle`), you need to explicitly import the `libs` extension:
 ```diff
 package com.myapp.gradle
 
@@ -140,12 +171,11 @@ dependencies {
     implementation(libs.kotlin.stdlib)
 }
 ```
+</details>
 
-## Version catalog in `plugins {}` block of a convention plugin
+## Version catalog accessors for plugins
 
-### ⏩ TL;DR
-
-buildSrc/src/main/kotlin/some-convention.gradle.kts:
+build-logic/src/main/kotlin/some-convention.gradle.kts:
 ```diff
 plugins {
 -    id("org.jetbrains.kotlin.jvm")
@@ -153,7 +183,7 @@ plugins {
 }
 ```
 
-buildSrc/build.gradle.kts:
+build-logic/build.gradle.kts:
 ```diff
 -dependencies {
 -    implementation(pluginMarker(libs.plugins.kotlin.jvm))
@@ -165,14 +195,17 @@ buildSrc/build.gradle.kts:
 -}
 ```
 
-### 🔍 Details
+> [!TIP]
+> The plugin dependency is automatically added to the project that hosts your convention plugin.
 
+<details>
+<summary>Details</summary>
 Let's assume you have the following plugin declared in your `libs.versions.toml`:
 ```toml
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.1.10" }
 ```
 
-In plain Gradle, to apply external plugin from your convention plugin, you would need to add it as dependency to your `buildSrc/build.gradle.kts`:
+In plain Gradle, to apply external plugin from your convention plugin, you would need to add it as dependency to your `build-logic/build.gradle.kts`:
 ```kotlin
 dependencies {
     implementation(pluginMarker(libs.plugins.kotlin.jvm))
@@ -203,18 +236,16 @@ plugins {
 }
 ```
 
-The plugin dependency will be added automatically to the project that hosts your convention plugin. In our case it's just the root project of `buildSrc`.
-
 ### Manual plugin dependencies
 
-If you prefer to add the plugin dependencies manually, you can opt out from the auto dependencies feature in your `buildSrc/settings.gradle.kts`:
+If you prefer to add the plugin dependencies manually, you can opt out from the auto dependencies feature in your `build-logic/settings.gradle.kts`:
 ```kotlin
 typesafeConventions {
     autoPluginDependencies = false
 }
 ```
 
-And use the `pluginMarker` helper method in `buildSrc/build.gradle.kts`:
+And use the `pluginMarker` helper method in `build-logic/build.gradle.kts`:
 ```kotlin
 import dev.panuszewski.gradle.pluginMarker
 
@@ -248,11 +279,11 @@ dependencies {
 }
 ```
 
-## Version catalog in `buildSrc` buildscript
+</details>
 
-### ⏩ TL;DR
+## Auto-import of a version catalog from the parent build
 
-buildSrc/settings.gradle.kts:
+build-logic/settings.gradle.kts:
 ```diff
 -dependencyResolutionManagement {
 -    versionCatalogs {
@@ -263,9 +294,134 @@ buildSrc/settings.gradle.kts:
 -}
 ```
 
-### 🔍 Details
+<details>
+<summary>Details</summary>
 
-In plain Gradle, using version catalog in `buildSrc/build.gradle.kts` would require manually registering it in the `buildSrc/settings.gradle.kts`. After applying `typesafe-conventions`, you don't need the above configuration — it works out-of-the-box.
+In plain Gradle, using version catalog in `build-logic/build.gradle.kts` would require manually registering it in the `build-logic/settings.gradle.kts`. 
+
+After applying `typesafe-conventions`, you don't need the above configuration — it works out-of-the-box.
+
+</details>
+
+## Convention catalog
+
+build.gradle.kts:
+```diff
+plugins {
+-   id("some-convention")
++   alias(conventions.plugins.some.convention)
+}
+```
+
+build-logic/src/main/kotlin/some-convention.gradle.kts:
+```diff
+plugins {
+-   id("another-convention")
++   alias(conventions.plugins.another.convention)
+}
+```
+
+build-logic/src/main/kotlin/another-convention.gradle.kts:
+```kotlin
+// the alias used above is generated due to existence of this file
+```
+
+<details>
+<summary>Details</summary>
+
+In plain Gradle, you must provide a convention plugin name via raw String:
+```kotlin
+plugins {
+    id("some-convention")
+}
+```
+
+The `typesafe-conventions` plugin automatically creates the _convention catalog_ for you. It is a special version catalog that contains references to all your convention plugins.
+
+You can use it to apply your convention plugin in a type-safe way:
+```kotlin
+plugins {
+    alias(conventions.plugins.some.convention)
+}
+```
+
+### Custom name for convention catalog
+
+If you don't like the default name `conventions`, you can change it:
+```kotlin
+typesafeConventions {
+    conventionCatalog {
+        catalogName = "buildlogic"
+    }
+}
+```
+
+```kotlin
+plugins {
+    alias(buildlogic.plugins.some.convention)
+}
+```
+
+### Convention plugins in named packages
+
+If your convention plugin is placed in a named package, the package name will be included in the resulting alias in the convention catalog:
+
+build-logic/src/main/kotlin/com/example/some-convention.gradle.kts:
+```kotlin
+package com.example
+
+// some config...
+```
+
+build.gradle.kts:
+```kotlin
+plugins {
+    alias(conventions.plugins.com.example.some.convention)
+}
+```
+
+You can disable this behavior:
+```kotlin
+typesafeConventions {
+    conventionCatalog {
+        ignorePackageNames = true
+    }
+}
+```
+
+WARNING: When this property is set to `true`, every convention plugin name must be unique!
+
+### Avoiding conflicts with built-in plugins
+
+It's pretty easy to create a convention plugin with the same name as a built-in plugin.
+
+For example, it may be tempting to create `publishing.gradle.kts` convention plugin for shared publishing configuration. However, the resulting ID of such plugin would be just `publishing`, which is the same as the built-in Gradle [`publishing`](https://github.com/gradle/gradle/blob/master/platforms/software/publish/src/main/java/org/gradle/api/publish/plugins/PublishingPlugin.java) plugin.
+
+To avoid such conflicts, you can put your `publishing.gradle.kts` into a named package (e.g `conventions`):
+
+```kotlin
+// build-logic/src/main/kotlin/conventions/publishing.gradle.kts
+package conventions
+```
+
+To keep the plugin alias nice and short, you can also enable ignoring package names:
+```kotlin
+typesafeConventions {
+    conventionCatalog {
+        ignorePackageNames = true
+    }
+}
+```
+
+This way, you can apply your plugins like this:
+```kotlin
+plugins {
+    publishing // the built-in plugin
+    alias(conventions.plugins.publishing) // your convention plugin 
+}
+```
+
+</details>
 
 # Less common use cases
 
@@ -330,11 +486,9 @@ Most of the time, though, it is perfectly OK to migrate your `build-logic` to a 
 -}
 ```
 
-## Multi-project setup (custom included build)
+## Multiple projects in `build-logic` 
 
-As an alternative to `buildSrc`, you can use custom included build (typically named `build-logic`). The `typesafe-conventions` will fit nicely in this kind of setup.
-
-As opposed to `buildSrc`, the included build can have multiple subprojects with convention plugins. For example, you can have something like this:
+Your `build-logic` can have multiple subprojects with convention plugins. For example, you can have something like this:
 ```bash
 .
 ├── gradle/
@@ -351,12 +505,9 @@ As opposed to `buildSrc`, the included build can have multiple subprojects with 
         └── build.gradle.kts  # apply 'kotlin-dsl' here
 ```
 
-> [!TIP]
-> Why would you prefer `build-logic` over `buildSrc`? If your build contains a lot of projects, and those projects apply different combinations of convention plugins, placing every convention plugin in its own subproject can improve performance. It's because modifying the convention plugin code will only trigger reload of the subprojects that are actually using it. 
-
 ## Top-level build
 
-In most cases, you should apply `typesafe-conventions` to either included build or `buildSrc`, because that's 
+In most cases, you should apply `typesafe-conventions` to either included build or `build-logic`, because that's 
 where convention plugins are typically stored and the included build will "inherit" version catalogs from 
 the main build.
 
@@ -384,7 +535,7 @@ catalog and convention plugins are always in sync.
 ## Linters & static analysis tools
 
 If you use any linters or static analysis tools, like [ktlint-gradle](https://github.com/JLLeitschuh/ktlint-gradle), [kotlinter](https://github.com/jeremymailen/kotlinter-gradle) or [detekt](https://github.com/detekt/detekt), Gradle may complain about implicit task dependencies:
-> Task ':buildSrc:runKtlintCheckOverMainSourceSet' uses this output of task ':buildSrc:generateEntrypointForLibs' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+> Task ':build-logic:runKtlintCheckOverMainSourceSet' uses this output of task ':build-logic:generateEntrypointForLibs' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
 
 To fix this issue, you should exclude the code generated by the `typesafe-conventions` from static analysis. All code generated by this plugin is placed under `build/generated-sources/typesafe-conventions` directory.
 

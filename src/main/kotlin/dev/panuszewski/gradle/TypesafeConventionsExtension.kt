@@ -1,14 +1,14 @@
 package dev.panuszewski.gradle
 
+import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.property
+import javax.inject.Inject
 import kotlin.DeprecationLevel.WARNING
 
 public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
     /**
-     * (enabled by default)
-     *
      * Enable or disable support for version catalog typesafe accessors in plugins block of a convention plugin.
      *
      * For example:
@@ -31,8 +31,6 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
     public val accessorsInPluginsBlock: Property<Boolean> = objects.property<Boolean>().convention(true)
 
     /**
-     * (enabled by default)
-     *
      * Enable or disable auto dependency for every `alias(...)` plugin declaration in a convention plugin.
      *
      * Given the plugin declaration in convention plugin:
@@ -66,12 +64,72 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
     public val autoPluginDependencies: Property<Boolean> = objects.property<Boolean>().convention(true)
 
     /**
-     * (disabled by default)
-     *
      * Whether to allow plugin usage for a top-level build.
      * Set it to `true` only if you know what you're doing!
      *
      * @since 0.6.0
      */
     public val allowTopLevelBuild: Property<Boolean> = objects.property<Boolean>().convention(false)
+
+    /**
+     * Convention catalog configuration.
+     *
+     * @since 0.11.0
+     */
+    public val conventionCatalog: ConventionCatalogExtension = objects.newInstance(ConventionCatalogExtension::class.java)
+
+    /**
+     * Configure the convention catalog with lambda.
+     *
+     * @since 0.11.0
+     */
+    public fun conventionCatalog(action: Action<ConventionCatalogExtension>) {
+        action.execute(conventionCatalog)
+    }
+}
+
+public abstract class ConventionCatalogExtension @Inject constructor(objects: ObjectFactory) {
+    /**
+     * Enable or disable support for convention catalog.
+     */
+    public val enabled: Property<Boolean> = objects.property<Boolean>().convention(true)
+
+    /**
+     * Name of the version catalog that will contain convention plugins.
+     *
+     * @since 0.11.0
+     */
+    public val catalogName: Property<String> = objects.property<String>().convention("conventions")
+
+    /**
+     * Whether to skip package names in convention catalog entries.
+     *
+     * Given the following convention plugin:
+     * ```kotlin
+     * // file: buildSrc/src/main/kotlin/com/example/someConvention.gradle.kts
+     *
+     * package com.example
+     *
+     * println("Hello from someConvention")
+     * ```
+     *
+     * If ignorePackageNames = `false`:
+     * ```kotlin
+     * plugins {
+     *     alias(conventions.plugins.com.example.someConvention)
+     * }
+     * ```
+     *
+     * If ignorePackageNames = `true`:
+     * ```kotlin
+     * plugins {
+     *     alias(conventions.plugins.someConvention)
+     * }
+     * ```
+     *
+     * NOTE: when this property is set to `true`, every convention plugin name must be unique.
+     *
+     * @since 0.11.0
+     */
+    public val ignorePackageNames: Property<Boolean> = objects.property<Boolean>().convention(false)
 }

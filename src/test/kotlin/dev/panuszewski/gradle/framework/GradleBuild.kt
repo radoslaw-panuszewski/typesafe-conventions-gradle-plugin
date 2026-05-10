@@ -141,13 +141,13 @@ class AppendableFile(
         file.writeText(previousContent + separator + content().trimIndent().trimStart())
     }
 
-    fun appendLine(content: () -> String) {
-        append(content)
-        append { "\n" }
+    fun appendLine(content: () -> String = { "" }) {
+        val previousContent = file.readText()
+        file.writeText(previousContent + content() + "\n")
     }
 
-    fun prependLine(content: () -> String) {
-        prepend(content)
-        prepend { "\n" }
+    fun prependLine(content: () -> String = { "" }) {
+        val previousContent = file.readText()
+        file.writeText(content() + previousContent + "\n")
     }
 }

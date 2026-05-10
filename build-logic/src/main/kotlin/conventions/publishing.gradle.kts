@@ -1,5 +1,9 @@
 @file:Suppress("UnstableApiUsage")
 
+package conventions
+
+import libs
+
 plugins {
     `java-gradle-plugin`
     alias(libs.plugins.plugin.publish)

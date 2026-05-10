@@ -25,22 +25,13 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Assumptions.assumeTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.params.ParameterizedTest
 
-class ConventionPluginsSpec : GradleSpec() {
-
-    private lateinit var testInfo: TestInfo
-
-    @BeforeEach
-    fun setup(testInfo: TestInfo) {
-        this.testInfo = testInfo
-    }
+class VersionCatalogsSpec : GradleSpec() {
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in convention plugin`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -56,7 +47,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should allow to use catalog accessors in plugins block of convention plugin`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -71,7 +62,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should respect disabling accessors in plugins block`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -83,15 +74,11 @@ class ConventionPluginsSpec : GradleSpec() {
 
         // then
         result.buildOutcome shouldBe BUILD_FAILED
-        if (gradleVersion >= GradleVersion.version("9.0.0")) {
-            result.output shouldContain "Unresolved reference 'libs'"
-        } else {
-            result.output shouldContain "Unresolved reference: libs"
-        }
+        result shouldReportUnresolvedReference "libs"
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should respect disabling auto plugin dependencies`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -107,7 +94,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should allow to override auto plugin dependency`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -123,7 +110,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should support multiple catalogs`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -144,7 +131,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should support multiple catalogs in plugins block`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -176,7 +163,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should support imported version catalogs`(includedBuild: Fixture<*>) {
         // this feature is not supported for early-evaluated builds
         assumeTrue { includedBuild != PluginManagementBuildLogic }
@@ -195,7 +182,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should ignore commented code when adding auto plugin dependencies`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -217,7 +204,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should allow to change build directory path`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -249,7 +236,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should not fail when rich plugin version is specified`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -271,7 +258,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should turn all rich plugin versions into prefer constraint to allow dependency overriding`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -294,7 +281,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should discover convention plugins in custom source directory under main source set`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -312,7 +299,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should not discover convention plugins under non-main source set`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)
@@ -329,7 +316,7 @@ class ConventionPluginsSpec : GradleSpec() {
     }
 
     @ParameterizedTest
-    @SupportedIncludedBuilds
+    @AllIncludedBuildTypes
     fun `should order plugin marker dependencies for predictable build cache hashes`(includedBuild: Fixture<*>) {
         // given
         installFixture(includedBuild)

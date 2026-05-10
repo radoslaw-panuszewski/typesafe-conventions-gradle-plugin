@@ -1,7 +1,7 @@
 plugins {
     `kotlin-dsl`
-    `testing-convention`
-    `publishing-convention`
+    alias(conventions.plugins.testing)
+    alias(conventions.plugins.publishing)
     alias(libs.plugins.kotlinter)
     alias(libs.plugins.detekt)
 }
