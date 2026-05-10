@@ -3,6 +3,12 @@ name: CI
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      no-build-cache:
+        description: 'No build cache'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -33,6 +39,12 @@ jobs:
           cache-read-only: false
 
       - run: ./gradlew check
+        if: github.event.inputs.no-build-cache == 'false'
+        env:
+          GRADLE_VERSION_TO_TEST: ${{ matrix.gradle-version }}
+
+      - run: ./gradlew check --no-build-cache
+        if: github.event.inputs.no-build-cache == 'true'
         env:
           GRADLE_VERSION_TO_TEST: ${{ matrix.gradle-version }}
 
