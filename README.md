@@ -425,6 +425,25 @@ plugins {
 }
 ```
 
+### Convention plugins in non-standard locations
+
+Convention catalog will only discover `*.gradle.kts` placed somewhere inside the `src` dir (like `src/main/kotlin`). If you don't change Gradle defaults, everything will work for you.
+
+However, if you do change the default location, bear in mind that it must be placed within `src` directory. This directory may be nested at any level.
+
+Example convention plugins that will be discovered:
+- `src/main/kotlin/foo.gradle.kts`
+- `src/custom/foo.gradle.kts`
+- `src/foo.gradle.kts`
+- `subproject/src/foo.gradle.kts`
+- `a/b/c/src/foo.gradle.kts`
+
+Example convention plugins that won't be discovered:
+- `foo.gradle.kts`
+- `subproject/foo.gradle.kts`
+- `build/foo.gradle.kts`
+- `.gradle/foo.gradle.kts`
+
 </details>
 
 # Less common use cases

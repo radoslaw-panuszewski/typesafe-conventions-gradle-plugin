@@ -11,30 +11,36 @@ class ConventionCatalogScannerSpec {
     fun `should only scan src directories`() {
         // given
         val rootDir = File("src/test/resources/scanner-tests")
+        val projectDirs = listOf(rootDir, rootDir.resolve("subproject"), rootDir.resolve("a/b/c"))
 
         // when
-        val scannedPaths = ConventionCatalogScanner.scanForConventionPlugins(rootDir)
-            .map { it.relativeTo(rootDir.parentFile) }
+        val scannedPaths = ConventionCatalogScanner.scanForConventionPlugins(rootDir, projectDirs)
+            .map { it.relativeTo(rootDir) }
             .map { it.path }
 
         // then
         scannedPaths shouldContainExactlyInAnyOrder listOf(
-            "scanner-tests",
-            "scanner-tests/subproject",
-            "scanner-tests/subproject/src",
-            "scanner-tests/subproject/src/foo.gradle.kts",
-            "scanner-tests/subproject/src/main",
-            "scanner-tests/subproject/src/main/kotlin",
-            "scanner-tests/subproject/src/main/kotlin/foo.gradle.kts",
-            "scanner-tests/subproject/src/customSourceSet",
-            "scanner-tests/subproject/src/customSourceSet/foo.gradle.kts",
-            "scanner-tests/src",
-            "scanner-tests/src/foo.gradle.kts",
-            "scanner-tests/src/main",
-            "scanner-tests/src/main/kotlin",
-            "scanner-tests/src/main/kotlin/foo.gradle.kts",
-            "scanner-tests/src/customSourceSet",
-            "scanner-tests/src/customSourceSet/foo.gradle.kts",
+            "",
+            "src",
+            "src/foo.gradle.kts",
+            "src/main",
+            "src/main/kotlin",
+            "src/main/kotlin/foo.gradle.kts",
+            "src/customSourceSet",
+            "src/customSourceSet/foo.gradle.kts",
+            "subproject",
+            "subproject/src",
+            "subproject/src/foo.gradle.kts",
+            "subproject/src/main",
+            "subproject/src/main/kotlin",
+            "subproject/src/main/kotlin/foo.gradle.kts",
+            "subproject/src/customSourceSet",
+            "subproject/src/customSourceSet/foo.gradle.kts",
+            "a",
+            "a/b",
+            "a/b/c",
+            "a/b/c/src",
+            "a/b/c/src/foo.gradle.kts",
         )
     }
 }

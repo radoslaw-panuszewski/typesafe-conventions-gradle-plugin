@@ -2,7 +2,6 @@ package dev.panuszewski.gradle.conventioncatalogs
 
 import dev.panuszewski.gradle.util.pathString
 import dev.panuszewski.gradle.util.typesafeConventions
-import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.logging.Logging
 import java.io.File
@@ -29,8 +28,8 @@ internal object ConventionCatalogPlugin {
         }
     }
 
-    private fun collectConventionPlugins(includedBuildSettings: Settings, ignorePackages: Boolean): List<ConventionPlugin> =
-        ConventionCatalogScanner.scanForConventionPlugins(includedBuildSettings.rootDir)
+    private fun collectConventionPlugins(settings: SettingsInternal, ignorePackages: Boolean): List<ConventionPlugin> =
+        ConventionCatalogScanner.scanForConventionPlugins(settings.rootDir, settings.projectRegistry.allProjects.map { it.projectDir })
             .filter { it.isFile && it.path.contains("src") && it.name.endsWith(".gradle.kts") }
             .map { parseConventionPlugin(it, ignorePackages) }
             .also { checkForDuplicates(it, ignorePackages) }

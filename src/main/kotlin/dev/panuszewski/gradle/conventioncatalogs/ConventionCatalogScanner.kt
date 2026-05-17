@@ -9,21 +9,25 @@ internal object ConventionCatalogScanner {
      * Placing `*.gradle.kts` scripts directly in project dir is not supported.
      *
      * Example convention plugins that will be discovered:
-     * - build-logic/src/main/kotlin/some-convention.gradle.kts
-     * - build-logic/src/customSourceSet/some-convention.gradle.kts
-     * - build-logic/src/some-convention.gradle.kts
-     * - build-logic/subproject/src/main/kotlin/some-convention.gradle.kts
-     * - build-logic/subproject/src/customSourceSet/some-convention.gradle.kts
-     * - build-logic/subproject/src/some-convention.gradle.kts
+     * - src/main/kotlin/foo.gradle.kts
+     * - src/custom/foo.gradle.kts
+     * - src/foo.gradle.kts
+     * - subproject/src/foo.gradle.kts
+     * - a/b/c/src/foo.gradle.kts
+     *
+     * Example convention plugins that won't be discovered:
+     * - foo.gradle.kts
+     * - subproject/foo.gradle.kts
+     * - random-dir/foo.gradle.kts
+     * - build/foo.gradle.kts
+     * - gradle/foo.gradle.kts
      */
-    fun scanForConventionPlugins(rootDir: File): List<File> =
+    fun scanForConventionPlugins(rootDir: File, projectDirs: List<File>): List<File> =
         rootDir.walk()
-            .onEnter {
-                val isRoot = it == rootDir
-                val inSrc = it.relativeTo(rootDir).path.split(File.separator).contains("src")
-                val hasSrc = it.list()?.contains("src") == true
-                val shouldEnter = isRoot || inSrc || hasSrc
-                shouldEnter
+            .onEnter { dir ->
+                val isProjectDirPrefix = projectDirs.any { projectDir -> projectDir.startsWith(dir) }
+                val isInsideSrc = dir.relativeTo(rootDir).path.split(File.separator).contains("src")
+                isProjectDirPrefix || isInsideSrc
             }
             .toList()
 }
