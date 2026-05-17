@@ -306,9 +306,8 @@ After applying `typesafe-conventions`, you don't need the above configuration â€
 ## Convention catalog
 
 > [!WARNING]
-> This feature is not available for `buildSrc`! If you want to use it, please migrate to `build-logic`
-> 
-> (see [Gradle Best Practices](https://docs.gradle.org/current/userguide/best_practices_structuring_builds.html#favor_composite_builds) for more details)
+> This feature is not available for `buildSrc`! If you want to use it, please migrate to `build-logic`.
+> See [Gradle Best Practices](https://docs.gradle.org/current/userguide/best_practices_structuring_builds.html#favor_composite_builds) for more details.
 
 build.gradle.kts:
 ```diff
