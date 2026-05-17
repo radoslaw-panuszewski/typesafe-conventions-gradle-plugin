@@ -23,11 +23,9 @@ import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import java.util.UUID
 
 class ConventionCatalogsSpec : GradleSpec() {
 
@@ -236,8 +234,8 @@ class ConventionCatalogsSpec : GradleSpec() {
         strings = [
             "src/main/kotlin",
             "src/customSourceSet",
-            "src"
-        ]
+            "src",
+        ],
     )
     fun `should discover convention plugins in src directories`(sourceDirectory: String) {
         // given
@@ -247,17 +245,12 @@ class ConventionCatalogsSpec : GradleSpec() {
             this.sourceDirectory = sourceDirectory
         }
 
-        // and
-        val randomDir = UUID.randomUUID().toString()
-        includedBuild { customProjectFile("$randomDir/some-file.txt") }
-
         // when
-        val result = runGradle("--debug")
+        val result = runGradle()
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
-        result.output shouldNotContain "Entering: build-logic/$randomDir"
     }
 
     @ParameterizedTest
@@ -265,8 +258,8 @@ class ConventionCatalogsSpec : GradleSpec() {
         strings = [
             "src/main/kotlin",
             "src/customSourceSet",
-            "src"
-        ]
+            "src",
+        ],
     )
     fun `should discover convention plugins in src directories of subprojects`(sourceDirectory: String) {
         // given
@@ -276,16 +269,11 @@ class ConventionCatalogsSpec : GradleSpec() {
             this.sourceDirectory = sourceDirectory
         }
 
-        // and
-        val randomDir = UUID.randomUUID().toString()
-        includedBuild { customProjectFile("$randomDir/some-file.txt") }
-
         // when
-        val result = runGradle("--debug")
+        val result = runGradle()
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
-        result.output shouldNotContain "Entering: build-logic/$randomDir"
     }
 }

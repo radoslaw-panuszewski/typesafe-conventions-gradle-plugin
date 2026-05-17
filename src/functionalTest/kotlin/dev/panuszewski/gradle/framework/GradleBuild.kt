@@ -24,7 +24,7 @@ class GradleBuild(
                         gradleVersion = "${gradleVersion.version}"
                     }
                 }
-                """
+                """,
         )
         settingsGradleKts = AppendableFile(
             file = rootDir.resolveOrCreate("settings.gradle.kts"),
@@ -36,7 +36,7 @@ class GradleBuild(
                         directory = "build-cache"
                     }
                 }
-                """
+                """,
         )
     }
 

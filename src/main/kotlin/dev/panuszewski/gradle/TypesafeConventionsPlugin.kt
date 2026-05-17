@@ -69,7 +69,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     private fun mustUseMinimalGradleVersion(): Nothing {
         error(
             "The typesafe-conventions plugin requires Gradle version at least $MINIMAL_GRADLE_VERSION, " +
-                "but currently ${currentGradleVersion()} is used."
+                "but currently ${currentGradleVersion()} is used.",
         )
     }
 
@@ -81,7 +81,7 @@ internal class TypesafeConventionsPlugin @Inject constructor(
         }
         error(
             "The typesafe-conventions plugin must be applied to settings.gradle.kts, " +
-                "but attempted to apply it to $buildFileKind"
+                "but attempted to apply it to $buildFileKind",
         )
     }
 

@@ -29,30 +29,10 @@ internal object ConventionCatalogPlugin {
         }
     }
 
-    /**
-     * It scans only the `src` dirs. Placing `*.gradle.kts` scripts directly in project dir is not supported.
-     *
-     * Example convention plugins that will be discovered:
-     * - build-logic/src/main/kotlin/some-convention.gradle.kts
-     * - build-logic/src/customSourceSet/some-convention.gradle.kts
-     * - build-logic/src/some-convention.gradle.kts
-     * - build-logic/subproject/src/main/kotlin/some-convention.gradle.kts
-     * - build-logic/subproject/src/customSourceSet/some-convention.gradle.kts
-     * - build-logic/subproject/src/some-convention.gradle.kts
-     */
     private fun collectConventionPlugins(includedBuildSettings: Settings, ignorePackages: Boolean): List<ConventionPlugin> =
-        includedBuildSettings.rootDir.walk()
-            .onEnter {
-                val isRoot = it == includedBuildSettings.rootDir
-                val inSrc = it.path.split(File.separator).contains("src")
-                val hasSrc = it.list()?.contains("src") == true
-                val shouldEnter = isRoot || inSrc || hasSrc
-                logger.debug("{}: {}", if (shouldEnter) "Entering" else "Skipping", it.relativeTo(includedBuildSettings.rootDir.parentFile))
-                shouldEnter
-            }
+        ConventionCatalogScanner.scanForConventionPlugins(includedBuildSettings.rootDir)
             .filter { it.isFile && it.path.contains("src") && it.name.endsWith(".gradle.kts") }
             .map { parseConventionPlugin(it, ignorePackages) }
-            .toList()
             .also { checkForDuplicates(it, ignorePackages) }
 
     private fun parseConventionPlugin(file: File, ignorePackages: Boolean): ConventionPlugin {
@@ -80,7 +60,7 @@ internal object ConventionCatalogPlugin {
         if (!includedBuildSettings.typesafeConventions.conventionCatalog.enabled.get()) {
             logger.info(
                 "Convention catalog is explicitly disabled. " +
-                    "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true"
+                    "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true",
             )
             return true
         }
