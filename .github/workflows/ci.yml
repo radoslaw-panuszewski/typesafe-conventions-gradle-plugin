@@ -39,7 +39,7 @@ jobs:
           cache-read-only: false
 
       - run: ./gradlew check
-        if: github.event.inputs.no-build-cache == 'false'
+        if: github.event.inputs.no-build-cache == null || github.event.inputs.no-build-cache == 'false'
         env:
           GRADLE_VERSION_TO_TEST: ${{ matrix.gradle-version }}
 
