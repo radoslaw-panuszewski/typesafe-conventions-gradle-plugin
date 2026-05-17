@@ -50,7 +50,7 @@ If you prefer watching over reading, check out this [cool video](https://www.you
 
 ### Prerequisites
 
-* Gradle 8.7+
+* Gradle 8.8+
 * JDK 17+
 * Either local or imported version catalog is used
 * There is an included build for build logic (we will refer to it as `build-logic`)

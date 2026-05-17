@@ -19,21 +19,39 @@ testlogger {
 
 testing {
     suites {
-        named<JvmTestSuite>("test") {
+        withType<JvmTestSuite>().configureEach {
             useJUnitJupiter()
+
+            dependencies {
+                implementation(project())
+                implementation(libs.kotest.assertions)
+                implementation(libs.junit.jupiter.params)
+            }
+
+            targets.all {
+                tasks.check {
+                    dependsOn(testTask)
+                }
+            }
         }
-    }
-}
 
-tasks {
-    test {
-        dependsOn("publishToMavenLocal")
+        register<JvmTestSuite>("functionalTest") {
+            targets.all {
+                dependencies {
+                    implementation(gradleTestKit())
+                }
 
-        environment["PROJECT_VERSION"] = project.version
+                testTask {
+                    dependsOn("publishToMavenLocal")
 
-        environment["GRADLE_VERSION_TO_TEST"] = findProperty("gradleVersionToTest")
-            ?: findProperty("gVTT")
-            ?: System.getenv("GRADLE_VERSION_TO_TEST")
-            ?: gradle.gradleVersion
+                    environment["PROJECT_VERSION"] = project.version
+
+                    environment["GRADLE_VERSION_TO_TEST"] = findProperty("gradleVersionToTest")
+                        ?: findProperty("gVTT")
+                        ?: System.getenv("GRADLE_VERSION_TO_TEST")
+                        ?: gradle.gradleVersion
+                }
+            }
+        }
     }
 }

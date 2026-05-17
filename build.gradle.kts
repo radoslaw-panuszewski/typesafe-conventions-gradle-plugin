@@ -12,16 +12,14 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Werror")
     }
+    target.compilations.named("functionalTest") {
+        associateWith(target.compilations.getByName("test"))
+    }
 }
 
 detekt {
     buildUponDefaultConfig = true
     config.from(files("detekt.yml"))
-}
-
-dependencies {
-    testImplementation(libs.kotest.assertions)
-    testImplementation(libs.junit.jupiter.params)
 }
 
 develocity {
