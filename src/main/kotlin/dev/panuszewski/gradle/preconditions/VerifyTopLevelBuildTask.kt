@@ -1,20 +1,24 @@
 package dev.panuszewski.gradle.preconditions
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.property
-import org.gradle.work.DisableCachingByDefault
 
-@DisableCachingByDefault
+@CacheableTask
 internal abstract class VerifyTopLevelBuildTask : DefaultTask() {
 
-    @Input
-    val topLevelBuild: Property<Boolean> = project.objects.property()
+    @get:Input
+    abstract val topLevelBuild: Property<Boolean>
 
-    @Input
-    val allowTopLevelBuild: Property<Boolean> = project.objects.property()
+    @get:Input
+    abstract val allowTopLevelBuild: Property<Boolean>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun execute() {
@@ -32,6 +36,8 @@ internal abstract class VerifyTopLevelBuildTask : DefaultTask() {
                 Read more here: https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/blob/main/README.md#top-level-build
                 """.trimIndent(),
             )
+        } else {
+            outputFile.get().asFile.writeText("OK")
         }
     }
 }

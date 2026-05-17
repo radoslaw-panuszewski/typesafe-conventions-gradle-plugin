@@ -1,10 +1,10 @@
 package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
+import dev.panuszewski.gradle.util.fileInGeneratedSourcesDir
 import dev.panuszewski.gradle.util.kotlin
 import dev.panuszewski.gradle.util.sourceSets
 import dev.panuszewski.gradle.util.typesafeConventions
-import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.internal.catalog.DefaultVersionCatalog
@@ -81,7 +81,7 @@ private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: V
     val generateEntrypointTask = project.tasks.register<GenerateVersionCatalogEntrypointTask>("generate$entrypointName") {
         this.catalogName.set(catalog.name)
         this.entrypointTemplateName.set("EntrypointForCatalogInPluginsBlock")
-        this.outputFile.set(project.layout.buildDirectory.file("${GENERATED_SOURCES_DIR_RELATIVE}/$entrypointName.kt"))
+        this.outputFile.set(project.fileInGeneratedSourcesDir("$entrypointName.kt"))
     }
 
     project.tasks.named("compileKotlin") {

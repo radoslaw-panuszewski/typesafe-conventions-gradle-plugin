@@ -2,17 +2,32 @@ package dev.panuszewski.gradle.util
 
 import dev.panuszewski.gradle.TypesafeConventionsExtension
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.util.GradleVersion
 import org.gradle.util.Path
 import java.io.File
+
+internal const val GENERATED_SOURCES_DIR = "generated-sources/typesafe-conventions/kotlin"
+internal const val AUXILIARY_BUILD_DIR = "typesafe-conventions"
+
+internal fun Project.fileInGeneratedSourcesDir(path: String): Provider<RegularFile> =
+    layout.buildDirectory
+        .dir(GENERATED_SOURCES_DIR)
+        .map { it.file(path) }
+
+internal fun Project.fileInAuxiliaryBuildDir(path: String): Provider<RegularFile> =
+    layout.buildDirectory
+        .dir(AUXILIARY_BUILD_DIR)
+        .map { it.file(path) }
 
 internal fun gradleVersion(version: String): GradleVersion =
     GradleVersion.version(version)
