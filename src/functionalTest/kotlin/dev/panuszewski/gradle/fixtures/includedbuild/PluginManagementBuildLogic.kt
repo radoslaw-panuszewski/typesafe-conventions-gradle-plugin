@@ -23,7 +23,7 @@ object PluginManagementBuildLogic : NoConfigFixture {
         includedBuilds["build-logic"] = GradleBuild(
             rootProjectName = "build-logic",
             rootDir = mainBuild.rootDir.resolve("build-logic"),
-            gradleVersion = gradleVersion
+            gradleVersion = gradleVersion,
         )
     }
 }

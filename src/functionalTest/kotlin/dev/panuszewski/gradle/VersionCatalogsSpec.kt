@@ -226,7 +226,7 @@ class VersionCatalogsSpec : GradleSpec() {
         val result = runGradle(
             ":secondary-build:dependencyInsight",
             "--dependency", fixture.someLibrary,
-            "--configuration", "runtimeClasspath"
+            "--configuration", "runtimeClasspath",
         )
 
         // then

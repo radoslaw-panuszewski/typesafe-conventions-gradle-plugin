@@ -10,7 +10,7 @@ object BuildSrc : NoConfigFixture {
         includedBuilds["buildSrc"] = GradleBuild(
             rootProjectName = "buildSrc",
             rootDir = mainBuild.rootDir.resolve("buildSrc"),
-            gradleVersion = gradleVersion
+            gradleVersion = gradleVersion,
         )
     }
 }

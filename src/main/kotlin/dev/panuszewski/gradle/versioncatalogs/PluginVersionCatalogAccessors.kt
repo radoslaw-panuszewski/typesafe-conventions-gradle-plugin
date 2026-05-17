@@ -68,7 +68,7 @@ private fun parsePluginDeclaration(line: String, catalogModel: DefaultVersionCat
                 pluginAlias = alias,
                 pluginId = pluginModel.id,
                 pluginVersion = pluginModel.version,
-                catalogName = catalogModel.name
+                catalogName = catalogModel.name,
             )
         }
     }

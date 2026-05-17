@@ -26,7 +26,7 @@ public abstract class TypesafeConventionsExtension(objects: ObjectFactory) {
         message = "This property will be removed in 1.0.0 (so it will be always enabled). " +
             "If you experience any problems with accessors in plugins block, please report an issue: " +
             "https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/issues",
-        level = WARNING
+        level = WARNING,
     )
     public val accessorsInPluginsBlock: Property<Boolean> = objects.property<Boolean>().convention(true)
 
