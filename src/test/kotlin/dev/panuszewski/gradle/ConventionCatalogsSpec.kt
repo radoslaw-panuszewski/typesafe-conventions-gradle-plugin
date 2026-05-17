@@ -5,6 +5,8 @@ import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedFromConventionPlugin
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInParentBuildThatIsNotRootBuild
 import dev.panuszewski.gradle.fixtures.ConventionCatalogUsedInRootBuildThatIsNotDirectParent
+import dev.panuszewski.gradle.fixtures.ConventionCatalogWithCustomLocationInSubproject
+import dev.panuszewski.gradle.fixtures.ConventionCatalogWithPluginInCustomLocation
 import dev.panuszewski.gradle.fixtures.ConventionPluginNamesNotUnique
 import dev.panuszewski.gradle.fixtures.CustomConventionCatalogName
 import dev.panuszewski.gradle.fixtures.HyphensEncodedInConventionCatalog
@@ -12,6 +14,7 @@ import dev.panuszewski.gradle.fixtures.IgnorePackageNames
 import dev.panuszewski.gradle.fixtures.IgnorePackageNamesNotUnique
 import dev.panuszewski.gradle.fixtures.IgnorePackageNamesWithHyphens
 import dev.panuszewski.gradle.fixtures.PackageNameEncodedInConventionCatalog
+import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildSrc
 import dev.panuszewski.gradle.framework.BuildOutcome.BUILD_FAILED
@@ -20,8 +23,11 @@ import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import java.util.UUID
 
 class ConventionCatalogsSpec : GradleSpec() {
 
@@ -223,5 +229,63 @@ class ConventionCatalogsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_FAILED
         result.output shouldContain "Convention catalog is not supported in buildSrc. Please migrate to build-logic if you want to use it."
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "src/main/kotlin",
+            "src/customSourceSet",
+            "src"
+        ]
+    )
+    fun `should discover convention plugins in src directories`(sourceDirectory: String) {
+        // given
+        installFixture(BuildLogic)
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+        installFixture(ConventionCatalogWithPluginInCustomLocation) {
+            this.sourceDirectory = sourceDirectory
+        }
+
+        // and
+        val randomDir = UUID.randomUUID().toString()
+        includedBuild { customProjectFile("$randomDir/some-file.txt") }
+
+        // when
+        val result = runGradle("--debug")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+        result.output shouldNotContain "Entering: build-logic/$randomDir"
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "src/main/kotlin",
+            "src/customSourceSet",
+            "src"
+        ]
+    )
+    fun `should discover convention plugins in src directories of subprojects`(sourceDirectory: String) {
+        // given
+        installFixture(BuildLogic)
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+        installFixture(ConventionCatalogWithCustomLocationInSubproject) {
+            this.sourceDirectory = sourceDirectory
+        }
+
+        // and
+        val randomDir = UUID.randomUUID().toString()
+        includedBuild { customProjectFile("$randomDir/some-file.txt") }
+
+        // when
+        val result = runGradle("--debug")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain "Hello from someConvention"
+        result.output shouldNotContain "Entering: build-logic/$randomDir"
     }
 }

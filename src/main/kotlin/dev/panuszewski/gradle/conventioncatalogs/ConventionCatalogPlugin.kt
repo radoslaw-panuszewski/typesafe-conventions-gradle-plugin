@@ -29,9 +29,28 @@ internal object ConventionCatalogPlugin {
         }
     }
 
+    /**
+     * It scans only the `src` dirs. Placing `*.gradle.kts` scripts directly in project dir is not supported.
+     *
+     * Example convention plugins that will be discovered:
+     * - build-logic/src/main/kotlin/some-convention.gradle.kts
+     * - build-logic/src/customSourceSet/some-convention.gradle.kts
+     * - build-logic/src/some-convention.gradle.kts
+     * - build-logic/subproject/src/main/kotlin/some-convention.gradle.kts
+     * - build-logic/subproject/src/customSourceSet/some-convention.gradle.kts
+     * - build-logic/subproject/src/some-convention.gradle.kts
+     */
     private fun collectConventionPlugins(includedBuildSettings: Settings, ignorePackages: Boolean): List<ConventionPlugin> =
         includedBuildSettings.rootDir.walk()
-            .filter { file -> file.path.contains("src") && file.name.endsWith(".gradle.kts") }
+            .onEnter {
+                val isRoot = it == includedBuildSettings.rootDir
+                val inSrc = it.path.split(File.separator).contains("src")
+                val hasSrc = it.list()?.contains("src") == true
+                val shouldEnter = isRoot || inSrc || hasSrc
+                logger.debug("{}: {}", if (shouldEnter) "Entering" else "Skipping", it.relativeTo(includedBuildSettings.rootDir.parentFile))
+                shouldEnter
+            }
+            .filter { it.isFile && it.path.contains("src") && it.name.endsWith(".gradle.kts") }
             .map { parseConventionPlugin(it, ignorePackages) }
             .toList()
             .also { checkForDuplicates(it, ignorePackages) }
