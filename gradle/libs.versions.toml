@@ -2,7 +2,7 @@
 axion-release = "1.21.1"
 plugin-publish = "2.1.1"
 kotest = "6.1.11"
-junit-jupiter = "6.0.3"
+junit-jupiter = "6.1.0"
 test-logger = "4.0.0"
 kotlinter = "5.5.0"
 detekt = "2.0.0-alpha.3"
