@@ -12,3 +12,7 @@ complexity:
   TooManyFunctions:
     active: false
     excludes: [ '**/src/test/**' ]
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
