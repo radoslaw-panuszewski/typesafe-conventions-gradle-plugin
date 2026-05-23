@@ -24,8 +24,6 @@ testing {
 
             dependencies {
                 implementation(project())
-                implementation(libs.kotest.assertions)
-                implementation(libs.junit.jupiter.params)
             }
 
             targets.all {
@@ -37,10 +35,6 @@ testing {
 
         register<JvmTestSuite>("functionalTest") {
             targets.all {
-                dependencies {
-                    implementation(gradleTestKit())
-                }
-
                 testTask {
                     dependsOn("publishToMavenLocal")
 
@@ -53,5 +47,14 @@ testing {
                 }
             }
         }
+    }
+}
+
+configurations {
+    named("functionalTestCompileClasspath") {
+        extendsFrom(testCompileClasspath)
+    }
+    named("functionalTestRuntimeClasspath") {
+        extendsFrom(testRuntimeClasspath)
     }
 }

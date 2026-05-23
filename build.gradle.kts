@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    kotlin("plugin.serialization") version embeddedKotlinVersion
     alias(conventions.plugins.testing)
     alias(conventions.plugins.publishing)
     alias(libs.plugins.kotlinter)
@@ -27,4 +28,13 @@ develocity {
         termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
         termsOfUseAgree = "yes"
     }
+}
+
+dependencies {
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.junit.jupiter.params)
+
+    functionalTestImplementation(gradleTestKit())
+    functionalTestImplementation(libs.fuel)
+    functionalTestImplementation(libs.kotlinx.serialization)
 }
