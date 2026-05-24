@@ -30,7 +30,7 @@ internal abstract class VerifyTopLevelBuildTask : DefaultTask() {
                 }
     
                 Read more here: https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/blob/main/README.md#top-level-build
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }

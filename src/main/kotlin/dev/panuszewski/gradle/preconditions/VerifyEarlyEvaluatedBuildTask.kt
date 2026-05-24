@@ -34,7 +34,7 @@ internal abstract class VerifyEarlyEvaluatedBuildTask : DefaultTask() {
                 with this:
                 
                 includeBuild("${buildName.get()}")
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }

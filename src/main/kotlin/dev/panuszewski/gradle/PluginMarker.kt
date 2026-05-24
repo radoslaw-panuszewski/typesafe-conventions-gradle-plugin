@@ -16,7 +16,7 @@ public fun Project.pluginMarker(provider: Provider<PluginDependency>): Dependenc
     return dependencyWithRichVersion(
         group = plugin.pluginId,
         name = "${plugin.pluginId}.gradle.plugin",
-        versionConstraint = plugin.version
+        versionConstraint = plugin.version,
     )
 }
 

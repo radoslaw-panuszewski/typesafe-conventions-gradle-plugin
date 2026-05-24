@@ -1,8 +1,8 @@
 package dev.panuszewski.gradle.conventioncatalogs
 
 import dev.panuszewski.gradle.util.pathString
+import dev.panuszewski.gradle.util.projectDirs
 import dev.panuszewski.gradle.util.typesafeConventions
-import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.SettingsInternal
 import org.gradle.api.logging.Logging
 import java.io.File
@@ -29,11 +29,10 @@ internal object ConventionCatalogPlugin {
         }
     }
 
-    private fun collectConventionPlugins(includedBuildSettings: Settings, ignorePackages: Boolean): List<ConventionPlugin> =
-        includedBuildSettings.rootDir.walk()
-            .filter { file -> file.path.contains("src") && file.name.endsWith(".gradle.kts") }
+    private fun collectConventionPlugins(settings: SettingsInternal, ignorePackages: Boolean): List<ConventionPlugin> =
+        ConventionCatalogScanner.scanForConventionPlugins(settings.rootDir, settings.projectDirs())
+            .filter { it.isFile && it.path.contains("src") && it.name.endsWith(".gradle.kts") }
             .map { parseConventionPlugin(it, ignorePackages) }
-            .toList()
             .also { checkForDuplicates(it, ignorePackages) }
 
     private fun parseConventionPlugin(file: File, ignorePackages: Boolean): ConventionPlugin {
@@ -61,7 +60,7 @@ internal object ConventionCatalogPlugin {
         if (!includedBuildSettings.typesafeConventions.conventionCatalog.enabled.get()) {
             logger.info(
                 "Convention catalog is explicitly disabled. " +
-                    "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true"
+                    "You can enable it by setting typesafeConventions.conventionCatalog.enabled = true",
             )
             return true
         }

@@ -161,7 +161,7 @@ abstract class GradleSpec {
         mainBuild = GradleBuild(
             rootProjectName = rootProjectName,
             rootDir = testProjectDir,
-            gradleVersion = gradleVersion
+            gradleVersion = gradleVersion,
         )
         setupGitHubContext()
     }
@@ -177,7 +177,7 @@ abstract class GradleSpec {
             Stream.of(
                 argumentSet("buildSrc", BuildSrc),
                 argumentSet("build-logic", BuildLogic),
-                argumentSet("not-nested-build-logic", NotNestedBuildLogic)
+                argumentSet("not-nested-build-logic", NotNestedBuildLogic),
             )
 
         @Suppress("unused") // used in @AllIncludedBuildTypes
@@ -185,7 +185,7 @@ abstract class GradleSpec {
         fun includedBuildTypesExceptBuildSrc(): Stream<Arguments> =
             Stream.of(
                 argumentSet("build-logic", BuildLogic),
-                argumentSet("not-nested-build-logic", NotNestedBuildLogic)
+                argumentSet("not-nested-build-logic", NotNestedBuildLogic),
             )
     }
 

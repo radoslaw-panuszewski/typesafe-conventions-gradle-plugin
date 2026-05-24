@@ -6,6 +6,8 @@ junit-jupiter = "6.1.0"
 test-logger = "4.0.0"
 kotlinter = "5.5.0"
 detekt = "2.0.0-alpha.3"
+fuel = "2.3.1"
+kotlinx-serialization = "1.11.0"
 
 [plugins]
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
@@ -15,5 +17,7 @@ kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 
 [libraries]
-kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }
-junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit-jupiter" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
+fuel = { module = "com.github.kittinunf.fuel:fuel", version.ref = "fuel" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
