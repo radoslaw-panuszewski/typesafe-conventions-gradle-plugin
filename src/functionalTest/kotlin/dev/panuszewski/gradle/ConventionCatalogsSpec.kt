@@ -276,4 +276,28 @@ class ConventionCatalogsSpec : GradleSpec() {
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output shouldContain "Hello from someConvention"
     }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "build",
+            ".gradle",
+            "random-dir",
+        ],
+    )
+    fun `should not discover convention plugins outside src directories`(sourceDirectory: String) {
+        // given
+        installFixture(BuildLogic)
+        installFixture(TypesafeConventionsAppliedToIncludedBuild)
+        installFixture(ConventionCatalogWithPluginInCustomLocation) {
+            this.sourceDirectory = sourceDirectory
+        }
+
+        // when
+        val result = runGradle()
+
+        // then
+        result.buildOutcome shouldBe BUILD_FAILED
+        result shouldReportUnresolvedReference "someConvention"
+    }
 }

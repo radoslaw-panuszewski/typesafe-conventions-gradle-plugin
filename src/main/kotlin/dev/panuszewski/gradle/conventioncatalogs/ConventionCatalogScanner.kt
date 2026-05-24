@@ -22,10 +22,10 @@ internal object ConventionCatalogScanner {
      * - build/foo.gradle.kts
      * - gradle/foo.gradle.kts
      */
-    fun scanForConventionPlugins(rootDir: File, projectDirs: List<File>): List<File> =
+    fun scanForConventionPlugins(rootDir: File, projectDirs: List<File>?): List<File> =
         rootDir.walk()
             .onEnter { dir ->
-                val isProjectDirPrefix = projectDirs.any { projectDir -> projectDir.startsWith(dir) }
+                val isProjectDirPrefix = projectDirs?.any { projectDir -> projectDir.startsWith(dir) } ?: true
                 val isInsideSrc = dir.relativeTo(rootDir).path.split(File.separator).contains("src")
                 isProjectDirPrefix || isInsideSrc
             }

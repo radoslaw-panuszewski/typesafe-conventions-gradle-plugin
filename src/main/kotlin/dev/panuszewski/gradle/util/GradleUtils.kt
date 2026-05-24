@@ -67,7 +67,7 @@ internal val Path.pathString: String
  *
  * Because of that, we fall back to reflection on older Gradle versions.
  */
-internal fun SettingsInternal.projectDirs(): List<File> =
+internal fun SettingsInternal.projectDirs(): List<File>? =
     try {
         if (gradleVersionAtLeast("9.2.0")) {
             projectRegistry.allProjects.map { it.projectDir }
@@ -81,11 +81,10 @@ internal fun SettingsInternal.projectDirs(): List<File> =
             """
             Unable to get projects dirs for '${rootProject.name}' build, convention catalog will scan all directories in $rootDir, which may impact performance. 
             Reason: ${e.message} 
-            
             This is a bug, please report it here -> https://github.com/radoslaw-panuszewski/typesafe-conventions-gradle-plugin/issues
             """.trimIndent(),
         )
-        emptyList()
+        null
     }
 
 private val logger = Logging.getLogger("GradleUtils")
