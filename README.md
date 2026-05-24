@@ -384,7 +384,7 @@ plugins {
 }
 ```
 
-You can disable this behavior:
+You can ignore the package names to get shorter aliases:
 ```kotlin
 typesafeConventions {
     conventionCatalog {
