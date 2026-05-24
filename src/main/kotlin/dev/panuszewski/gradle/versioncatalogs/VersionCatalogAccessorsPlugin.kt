@@ -3,6 +3,7 @@
 package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
+import dev.panuszewski.gradle.util.GENERATED_SOURCES_DIR
 import dev.panuszewski.gradle.util.settings
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
@@ -31,7 +32,7 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
     private fun registerGeneratedSourceSet(project: Project) {
         project.configure<SourceSetContainer> {
             named("main") {
-                java.srcDir(project.layout.buildDirectory.dir(GENERATED_SOURCES_DIR_RELATIVE))
+                java.srcDir(project.layout.buildDirectory.dir(GENERATED_SOURCES_DIR))
             }
         }
     }
@@ -53,8 +54,5 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
 
     companion object {
         private val logger = Logging.getLogger(VersionCatalogAccessorsPlugin::class.java)
-
-        // TODO separated source sets for generated Java and Kotlin files
-        internal const val GENERATED_SOURCES_DIR_RELATIVE = "generated-sources/typesafe-conventions/kotlin"
     }
 }

@@ -3,7 +3,7 @@
 package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
-import dev.panuszewski.gradle.versioncatalogs.VersionCatalogAccessorsPlugin.Companion.GENERATED_SOURCES_DIR_RELATIVE
+import dev.panuszewski.gradle.util.fileInGeneratedSourcesDir
 import org.gradle.api.Project
 import org.gradle.internal.management.VersionCatalogBuilderInternal
 import org.gradle.kotlin.dsl.register
@@ -21,7 +21,7 @@ private fun writeCatalogEntrypointBeforeCompilation(project: Project, catalog: V
     val generateEntrypointTask = project.tasks.register<GenerateVersionCatalogEntrypointTask>("generate$entrypointName") {
         this.catalogName.set(catalog.name)
         this.entrypointTemplateName.set("EntrypointForCatalog")
-        this.outputFile.set(project.layout.buildDirectory.file("${GENERATED_SOURCES_DIR_RELATIVE}/$entrypointName.kt"))
+        this.outputFile.set(project.fileInGeneratedSourcesDir("$entrypointName.kt"))
     }
 
     project.tasks.named("compileKotlin") {
@@ -34,7 +34,7 @@ private fun writeCatalogAccessorsBeforeCompilation(project: Project, catalog: Ve
 
     val generateAccessorsTask = project.tasks.register<GenerateVersionCatalogAccessorsTask>("generate$accessorsName") {
         this.catalogModel.set(catalog.build())
-        this.outputFile.set(project.layout.buildDirectory.file("${GENERATED_SOURCES_DIR_RELATIVE}/org/gradle/accessors/dm/$accessorsName.java"))
+        this.outputFile.set(project.fileInGeneratedSourcesDir("org/gradle/accessors/dm/$accessorsName.java"))
     }
 
     project.tasks.named("compileKotlin") {

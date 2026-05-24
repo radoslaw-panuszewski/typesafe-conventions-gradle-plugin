@@ -1,6 +1,7 @@
 package dev.panuszewski.gradle.preconditions
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
+import dev.panuszewski.gradle.util.fileInAuxiliaryBuildDir
 import dev.panuszewski.gradle.util.typesafeConventions
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -41,11 +42,13 @@ internal class PreconditionsPlugin : Plugin<Settings> {
         tasks.register<VerifyTopLevelBuildTask>("verifyTopLevelBuild") {
             topLevelBuild.set(gradle.parent == null)
             allowTopLevelBuild.set(typesafeConventions.allowTopLevelBuild)
+            outputFile.set(fileInAuxiliaryBuildDir("verifyTopLevelBuild.txt"))
         }
 
     private fun Project.registerVerifyEarlyEvaluatedBuildTask(isEarlyEvaluatedBuild: Boolean): TaskProvider<*> =
         tasks.register<VerifyEarlyEvaluatedBuildTask>("verifyEarlyEvaluatedBuild") {
             earlyEvaluatedBuild.set(isEarlyEvaluatedBuild)
             buildName.set(rootProject.name)
+            outputFile.set(fileInAuxiliaryBuildDir("verifyEarlyEvaluatedBuild.txt"))
         }
 }

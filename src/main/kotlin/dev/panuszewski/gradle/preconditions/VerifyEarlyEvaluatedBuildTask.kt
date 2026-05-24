@@ -1,20 +1,24 @@
 package dev.panuszewski.gradle.preconditions
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.property
-import org.gradle.work.DisableCachingByDefault
 
-@DisableCachingByDefault
+@CacheableTask
 internal abstract class VerifyEarlyEvaluatedBuildTask : DefaultTask() {
 
-    @Input
-    val earlyEvaluatedBuild: Property<Boolean> = project.objects.property()
+    @get:Input
+    abstract val earlyEvaluatedBuild: Property<Boolean>
 
-    @Input
-    val buildName: Property<String> = project.objects.property()
+    @get:Input
+    abstract val buildName: Property<String>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun execute() {
@@ -36,6 +40,8 @@ internal abstract class VerifyEarlyEvaluatedBuildTask : DefaultTask() {
                 includeBuild("${buildName.get()}")
                 """.trimIndent(),
             )
+        } else {
+            outputFile.get().asFile.writeText("OK")
         }
     }
 }
