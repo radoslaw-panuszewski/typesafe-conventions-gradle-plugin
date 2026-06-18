@@ -5,7 +5,7 @@ kotest = "6.2.0"
 junit-jupiter = "6.1.0"
 test-logger = "4.0.0"
 kotlinter = "5.5.0"
-detekt = "2.0.0-alpha.4"
+detekt = "2.0.0-alpha.5"
 fuel = "2.3.1"
 kotlinx-serialization = "1.11.0"
 
