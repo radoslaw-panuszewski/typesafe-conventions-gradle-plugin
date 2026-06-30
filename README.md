@@ -127,11 +127,6 @@ configure<TypesafeConventionsExtension> {
 
 # Features
 
-* [Version catalog accessors for libraries](#version-catalog-accessors-for-libraries)
-* [Version catalog accessors for plugins](#version-catalog-accessors-for-plugins)
-* [Auto-import of a version catalog from the parent build](#auto-import-of-a-version-catalog-from-the-parent-build)
-* [Convention catalog](#convention-catalog)
-
 ## Version catalog accessors for libraries
 
 build-logic/src/main/kotlin/some-convention.gradle.kts:
