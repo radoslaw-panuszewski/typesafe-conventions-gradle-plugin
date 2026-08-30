@@ -276,7 +276,7 @@ dependencies {
 
 </details>
 
-## Auto-import of a version catalog from the parent build
+## Auto-imported version catalog from the parent build
 
 build-logic/settings.gradle.kts:
 ```diff
