@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    id("com.gradle.develocity") version "4.5.0"
+    id("com.gradle.develocity") version "4.5.1"
 }
 
 dependencyResolutionManagement {
