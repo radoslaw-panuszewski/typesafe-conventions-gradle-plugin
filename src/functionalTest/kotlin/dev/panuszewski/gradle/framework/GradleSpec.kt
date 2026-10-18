@@ -126,7 +126,11 @@ abstract class GradleSpec {
             val args = buildList {
                 addAll(arguments)
                 add("--stacktrace")
-                if (configurationCacheEnabled) add("--configuration-cache")
+                if (configurationCacheEnabled) {
+                    add("--configuration-cache")
+                } else {
+                    add("--no-configuration-cache")
+                }
                 if (buildCacheEnabled) add("--build-cache")
                 if (isolatedProjectsEnabled) add("--isolated-projects")
             }
