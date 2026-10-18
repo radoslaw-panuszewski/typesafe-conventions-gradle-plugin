@@ -162,6 +162,7 @@ class WrongUsageSpec : GradleSpec() {
 
         // given
         gradleVersion = gradleVersion("8.3")
+        isolatedProjectsEnabled = false
         installFixture(BuildSrc)
 
         // and

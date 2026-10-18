@@ -57,6 +57,7 @@ abstract class GradleSpec {
 
     var configurationCacheEnabled = true
     var buildCacheEnabled = true
+    var isolatedProjectsEnabled = gradleVersion >= GradleVersion.version("9.7.0")
 
     @RegisterExtension
     val fixtures = FixturesExtension()
@@ -127,6 +128,7 @@ abstract class GradleSpec {
                 add("--stacktrace")
                 if (configurationCacheEnabled) add("--configuration-cache")
                 if (buildCacheEnabled) add("--build-cache")
+                if (isolatedProjectsEnabled) add("--isolated-projects")
             }
 
             dumpBuildEnvironment()

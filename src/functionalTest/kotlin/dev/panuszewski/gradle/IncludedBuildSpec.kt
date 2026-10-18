@@ -9,6 +9,8 @@ import dev.panuszewski.gradle.framework.Fixture
 import dev.panuszewski.gradle.framework.GradleSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import org.gradle.util.GradleVersion
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 
@@ -110,6 +112,33 @@ class IncludedBuildSpec : GradleSpec() {
 
         // when
         val result = runGradle("dependencies")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should be compatible with isolated projects when included build has subprojects`(includedBuild: Fixture<*>) {
+        // given
+        assumeTrue(gradleVersion >= GradleVersion.version("9.7.0"))
+        isolatedProjectsEnabled = true
+        installFixture(includedBuild)
+        installFixture(LibsInIncludedBuild)
+
+        // and
+        includedBuild {
+            subprojectBuildGradleKts("conventions") {
+                """
+                plugins {
+                    `kotlin-dsl`
+                }
+                """
+            }
+        }
+
+        // when
+        val result = runGradle("assemble")
 
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
