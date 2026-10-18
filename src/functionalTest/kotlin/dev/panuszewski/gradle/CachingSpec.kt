@@ -6,9 +6,11 @@ import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
 import dev.panuszewski.gradle.fixtures.TypesafeConventionsAppliedToIncludedBuild
 import dev.panuszewski.gradle.fixtures.includedbuild.BuildLogic
 import dev.panuszewski.gradle.framework.GradleSpec
+import dev.panuszewski.gradle.framework.shouldAllBuildsSucceed
 import dev.panuszewski.gradle.framework.shouldFail
 import dev.panuszewski.gradle.framework.shouldSucceed
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 
 class CachingSpec : GradleSpec() {
@@ -16,6 +18,8 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should generateEntrypointForLibs be UP-TO-DATE`() {
         // given
+        configurationCacheEnabled = false
+        isolatedProjectsEnabled = false
         installFixture(BuildLogic)
         installFixture(LibsInDependenciesBlock)
 
@@ -51,6 +55,8 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should generateLibrariesForLibs be UP-TO-DATE`() {
         // given
+        configurationCacheEnabled = false
+        isolatedProjectsEnabled = false
         installFixture(BuildLogic)
         installFixture(LibsInDependenciesBlock)
 
@@ -111,6 +117,8 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should extractPrecompiledScriptPluginPlugins be UP-TO-DATE`() {
         // given
+        configurationCacheEnabled = false
+        isolatedProjectsEnabled = false
         installFixture(BuildLogic)
         installFixture(LibsInPluginsBlock)
 
@@ -236,6 +244,8 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should verifyEarlyEvaluatedBuild be UP-TO-DATE`() {
         // given
+        configurationCacheEnabled = false
+        isolatedProjectsEnabled = false
         installFixture(BuildLogic)
         installFixture(LibsInDependenciesBlock)
 
@@ -301,6 +311,8 @@ class CachingSpec : GradleSpec() {
     @Test
     fun `should verifyTopLevelBuild be UP-TO-DATE`() {
         // given
+        configurationCacheEnabled = false
+        isolatedProjectsEnabled = false
         installFixture(BuildLogic)
         installFixture(LibsInDependenciesBlock)
 
@@ -354,5 +366,33 @@ class CachingSpec : GradleSpec() {
         secondResult.shouldFail()
         firstResult.output.lines() shouldContain "> Task :build-logic:verifyTopLevelBuild"
         secondResult.output.lines() shouldContain "> Task :verifyTopLevelBuild FAILED"
+    }
+
+    @Test
+    fun `should reuse configuration cache after change in toml`() {
+        // given
+        installFixture(BuildLogic)
+        val fixture = installFixture(LibsInDependenciesBlock)
+
+        // when
+        val firstResult = runGradle()
+        val secondResult = runGradle()
+
+        libsVersionsToml {
+            """
+            [libraries]
+            some-library = "${fixture.someLibrary}"
+            another-library = "${fixture.someLibrary}"
+            """
+        }
+
+        val thirdResult = runGradle()
+        val fourthResult = runGradle()
+
+        // then
+        shouldAllBuildsSucceed(firstResult, secondResult, thirdResult, fourthResult)
+        secondResult.output shouldContain "Reusing configuration cache."
+        thirdResult.output shouldContain "Calculating task graph as configuration cache cannot be reused because file 'gradle/libs.versions.toml' has changed."
+        fourthResult.output shouldContain "Reusing configuration cache."
     }
 }

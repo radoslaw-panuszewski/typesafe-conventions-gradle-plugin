@@ -38,8 +38,10 @@ internal fun configurePluginVersionCatalogAccessors(project: Project, catalogs: 
 private fun collectPluginDeclarations(project: Project, catalog: VersionCatalogBuilderInternal): Collection<PluginDeclaration> {
     val model = catalog.build()
 
-    return project.sourceSets["main"].kotlin.asFileTree
-        .filter { file -> file.name.endsWith(".gradle.kts") }
+    // We use project.files() here to skip generated sources that land in the build directory
+    return project.files(project.sourceSets["main"].kotlin.srcDirs).asFileTree
+        .matching { include("**/*.gradle.kts") }
+        .asSequence()
         .map(File::readText)
         .map(::removeComments)
         .flatMap(String::lines)
