@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package dev.panuszewski.gradle
 
 import dev.panuszewski.gradle.conventioncatalogs.ConventionCatalogPlugin
@@ -59,10 +61,8 @@ internal class TypesafeConventionsPlugin @Inject constructor(
     }
 
     private fun applyVersionCatalogAccessorsPlugin(settings: Settings) {
-        settings.gradle.rootProject {
-            allprojects {
-                apply<VersionCatalogAccessorsPlugin>()
-            }
+        settings.gradle.lifecycle.beforeProject {
+            apply<VersionCatalogAccessorsPlugin>()
         }
     }
 

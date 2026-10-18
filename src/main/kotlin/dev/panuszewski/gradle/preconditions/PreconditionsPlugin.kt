@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package dev.panuszewski.gradle.preconditions
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
@@ -20,11 +22,9 @@ internal class PreconditionsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
         val isEarlyEvaluatedBuild = settings.isEarlyEvaluatedIncludedBuild()
 
-        settings.gradle.rootProject {
-            allprojects {
-                project.plugins.withId(KOTLIN_DSL_PLUGIN_ID) {
-                    registerTasks(isEarlyEvaluatedBuild)
-                }
+        settings.gradle.lifecycle.beforeProject {
+            project.plugins.withId(KOTLIN_DSL_PLUGIN_ID) {
+                registerTasks(isEarlyEvaluatedBuild)
             }
         }
     }
