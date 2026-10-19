@@ -525,7 +525,7 @@ Your `build-logic` can have multiple subprojects with convention plugins. For ex
 
 ## Top-level build
 
-In most cases, you should apply `typesafe-conventions` to either included build or `build-logic`, because that's 
+In most cases, you should apply `typesafe-conventions` to either included build or `buildSrc`, because that's 
 where convention plugins are typically stored and the included build will "inherit" version catalogs from 
 the main build.
 
