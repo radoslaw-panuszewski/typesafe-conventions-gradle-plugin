@@ -7,7 +7,7 @@ test-logger = "4.0.0"
 kotlinter = "5.7.0"
 detekt = "2.0.0-alpha.6"
 fuel = "2.3.1"
-kotlinx-serialization = "1.11.0"
+kotlinx-serialization = "1.12.0"
 
 [plugins]
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
