@@ -395,4 +395,66 @@ class CachingSpec : GradleSpec() {
         thirdResult.output shouldContain "Calculating task graph as configuration cache cannot be reused because file 'gradle/libs.versions.toml' has changed."
         fourthResult.output shouldContain "Reusing configuration cache."
     }
+
+    @Test
+    fun `should serializeLibs be UP-TO-DATE`() {
+        // given
+        configurationCacheEnabled = false
+        isolatedProjectsEnabled = false
+        installFixture(BuildLogic)
+        installFixture(LibsInDependenciesBlock)
+
+        // when
+        val firstResult = runGradle(":build-logic:serializeLibs")
+        val secondResult = runGradle(":build-logic:serializeLibs")
+
+        // then
+        firstResult.shouldSucceed()
+        secondResult.shouldSucceed()
+        firstResult.output.lines() shouldContain "> Task :build-logic:serializeLibs"
+        secondResult.output.lines() shouldContain "> Task :build-logic:serializeLibs UP-TO-DATE"
+    }
+
+    @Test
+    fun `should serializeLibs be FROM-CACHE`() {
+        // given
+        installFixture(BuildLogic)
+        installFixture(LibsInDependenciesBlock)
+
+        // when
+        val firstResult = runGradle(":build-logic:serializeLibs")
+        runGradle(":build-logic:clean")
+        val secondResult = runGradle(":build-logic:serializeLibs")
+
+        // then
+        firstResult.shouldSucceed()
+        secondResult.shouldSucceed()
+        firstResult.output.lines() shouldContain "> Task :build-logic:serializeLibs"
+        secondResult.output.lines() shouldContain "> Task :build-logic:serializeLibs FROM-CACHE"
+    }
+
+    @Test
+    fun `should invalidate serializeLibs when version catalog changes`() {
+        // given
+        installFixture(BuildLogic)
+        val fixture = installFixture(LibsInDependenciesBlock)
+
+        // when
+        val firstResult = runGradle(":build-logic:serializeLibs")
+
+        libsVersionsToml {
+            """
+            [libraries]
+            some-library = "${fixture.someLibrary}"
+            another-library = "${fixture.someLibrary}"
+            """
+        }
+        val secondResult = runGradle(":build-logic:serializeLibs")
+
+        // then
+        firstResult.shouldSucceed()
+        secondResult.shouldSucceed()
+        firstResult.output.lines() shouldContain "> Task :build-logic:serializeLibs"
+        secondResult.output.lines() shouldContain "> Task :build-logic:serializeLibs"
+    }
 }

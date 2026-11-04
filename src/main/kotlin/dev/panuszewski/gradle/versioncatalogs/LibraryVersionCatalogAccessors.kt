@@ -3,6 +3,7 @@
 package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.util.capitalized
+import dev.panuszewski.gradle.util.fileInGeneratedResourcesDir
 import dev.panuszewski.gradle.util.fileInGeneratedSourcesDir
 import org.gradle.api.Project
 import org.gradle.internal.management.VersionCatalogBuilderInternal
@@ -12,6 +13,7 @@ internal fun configureLibraryVersionCatalogAccessors(project: Project, catalogs:
     for (catalog in catalogs) {
         writeCatalogEntrypointBeforeCompilation(project, catalog)
         writeCatalogAccessorsBeforeCompilation(project, catalog)
+        serializeCatalogBeforeProcessingResources(project, catalog)
     }
 }
 
@@ -39,5 +41,16 @@ private fun writeCatalogAccessorsBeforeCompilation(project: Project, catalog: Ve
 
     project.tasks.named("compileKotlin") {
         dependsOn(generateAccessorsTask)
+    }
+}
+
+private fun serializeCatalogBeforeProcessingResources(project: Project, catalog: VersionCatalogBuilderInternal) {
+    val serializeCatalogTask = project.tasks.register<SerializeVersionCatalog>("serialize${catalog.name.capitalized}") {
+        this.catalogModel.set(catalog.build())
+        this.serializedCatalogModel.set(project.fileInGeneratedResourcesDir("typesafe-conventions/${catalog.name}.ser"))
+    }
+
+    project.tasks.named("processResources") {
+        dependsOn(serializeCatalogTask)
     }
 }
