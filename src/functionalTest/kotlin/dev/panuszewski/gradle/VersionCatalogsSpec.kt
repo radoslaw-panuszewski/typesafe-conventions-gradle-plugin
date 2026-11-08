@@ -5,6 +5,7 @@ import dev.panuszewski.gradle.fixtures.CustomBuildDirPath
 import dev.panuszewski.gradle.fixtures.ImportedCatalog
 import dev.panuszewski.gradle.fixtures.LibsInDependenciesBlock
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlock
+import dev.panuszewski.gradle.fixtures.LibsInPluginsBlockAppliedFromAnotherConventionPluginFromDifferentSubproject
 import dev.panuszewski.gradle.fixtures.LibsInPluginsBlockInCustomLocation
 import dev.panuszewski.gradle.fixtures.MultiLevelBuildHierarchy
 import dev.panuszewski.gradle.fixtures.MultipleCatalogsInDependenciesBlock
@@ -329,5 +330,22 @@ class VersionCatalogsSpec : GradleSpec() {
         // then
         result.buildOutcome shouldBe BUILD_SUCCESSFUL
         result.output should containInOrder(fixture.anotherPluginId, fixture.somePluginId)
+    }
+
+    @ParameterizedTest
+    @IncludedBuildTypesExceptBuildSrc
+    fun `should support convention plugin applying another convention plugin from a different build-logic subproject`(
+        includedBuild: Fixture<*>,
+    ) {
+        // given
+        installFixture(includedBuild)
+        installFixture(LibsInPluginsBlockAppliedFromAnotherConventionPluginFromDifferentSubproject)
+
+        // when
+        val result = runGradle("tasks")
+
+        // then
+        result.buildOutcome shouldBe BUILD_SUCCESSFUL
+        result.output shouldContain LibsInPluginsBlockAppliedFromAnotherConventionPluginFromDifferentSubproject.taskRegisteredByPlugin
     }
 }

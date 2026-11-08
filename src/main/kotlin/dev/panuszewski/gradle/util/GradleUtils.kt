@@ -17,11 +17,17 @@ import org.gradle.util.Path
 import java.io.File
 
 internal const val GENERATED_SOURCES_DIR = "generated-sources/typesafe-conventions/kotlin"
+internal const val GENERATED_RESOURCES_DIR = "generated-sources/typesafe-conventions/resources"
 internal const val AUXILIARY_BUILD_DIR = "typesafe-conventions"
 
 internal fun Project.fileInGeneratedSourcesDir(path: String): Provider<RegularFile> =
     layout.buildDirectory
         .dir(GENERATED_SOURCES_DIR)
+        .map { it.file(path) }
+
+internal fun Project.fileInGeneratedResourcesDir(path: String): Provider<RegularFile> =
+    layout.buildDirectory
+        .dir(GENERATED_RESOURCES_DIR)
         .map { it.file(path) }
 
 internal fun Project.fileInAuxiliaryBuildDir(path: String): Provider<RegularFile> =

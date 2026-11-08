@@ -3,6 +3,7 @@
 package dev.panuszewski.gradle.versioncatalogs
 
 import dev.panuszewski.gradle.TypesafeConventionsPlugin.Companion.KOTLIN_DSL_PLUGIN_ID
+import dev.panuszewski.gradle.util.GENERATED_RESOURCES_DIR
 import dev.panuszewski.gradle.util.GENERATED_SOURCES_DIR
 import dev.panuszewski.gradle.util.settings
 import dev.panuszewski.gradle.util.typesafeConventions
@@ -33,6 +34,7 @@ internal class VersionCatalogAccessorsPlugin : Plugin<Project> {
         project.configure<SourceSetContainer> {
             named("main") {
                 java.srcDir(project.layout.buildDirectory.dir(GENERATED_SOURCES_DIR))
+                resources.srcDir(project.layout.buildDirectory.dir(GENERATED_RESOURCES_DIR))
             }
         }
     }

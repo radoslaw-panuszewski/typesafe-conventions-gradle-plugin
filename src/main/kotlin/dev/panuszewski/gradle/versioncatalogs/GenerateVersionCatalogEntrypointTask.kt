@@ -28,8 +28,8 @@ internal abstract class GenerateVersionCatalogEntrypointTask @Inject constructor
     @TaskAction
     fun execute() {
         val source = readResourceAsString("/${entrypointTemplateName.get()}.kt")
-            .replace("catalog", catalogName.get())
-            .replace("Catalog", catalogName.get().capitalized)
+            .replace("{{name}}", catalogName.get())
+            .replace("{{Name}}", catalogName.get().capitalized)
 
         outputFile.get().asFile.writeText(source)
     }
