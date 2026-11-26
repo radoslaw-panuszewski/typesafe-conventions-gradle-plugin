@@ -40,6 +40,7 @@ jobs:
           - "9.6.0"
           - "9.7.0"
           - "9.8.0"
+          - "9.9.0"
           - "release-milestone"
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
